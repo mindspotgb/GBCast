@@ -439,6 +439,15 @@ object GbcastGameUi {
 
         val gamePage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("game", "Game") {
+                // Standard GBFrame destinations first; Dreamcast session controls follow.
+                gb.frame.QuickMenuItemRow(
+                    id = "cheats", icon = androidx.compose.material.icons.Icons.Default.Memory,
+                    label = "Cheats", hasSubmenu = true,
+                ) { openPage(cheatsPage, returnFocusItemId = "cheats") }
+                gb.frame.QuickMenuItemRow(
+                    id = "achievements", icon = androidx.compose.material.icons.Icons.Default.SportsEsports,
+                    label = "Achievements", hasSubmenu = true,
+                ) { openPage(achievementsPage, returnFocusItemId = "achievements") }
                 gb.frame.QuickMenuItemRow(
                     id = "restart", icon = androidx.compose.material.icons.Icons.Default.RestartAlt,
                     label = "Restart",
@@ -464,14 +473,6 @@ object GbcastGameUi {
                     id = "native-settings", icon = androidx.compose.material.icons.Icons.Default.Tune,
                     label = "Advanced emulator settings",
                 ) { hideForNative(SETTINGS) }
-                gb.frame.QuickMenuItemRow(
-                    id = "cheats", icon = androidx.compose.material.icons.Icons.Default.Memory,
-                    label = "Cheats", hasSubmenu = true,
-                ) { openPage(cheatsPage, returnFocusItemId = "cheats") }
-                gb.frame.QuickMenuItemRow(
-                    id = "achievements", icon = androidx.compose.material.icons.Icons.Default.SportsEsports,
-                    label = "Achievements", hasSubmenu = true,
-                ) { openPage(achievementsPage, returnFocusItemId = "achievements") }
                 message?.let { Text(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
             }
         }

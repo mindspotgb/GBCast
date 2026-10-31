@@ -267,6 +267,13 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
             skipTransitions = SystemToggleSetting(cfg.bool("config", "GBFrame.SkipTransitions"), { cfg.setBool("config", "GBFrame.SkipTransitions", it) }),
             skipSaveWaits = SystemToggleSetting(cfg.bool("config", "GBFrame.SkipSaveWaits"), { cfg.setBool("config", "GBFrame.SkipSaveWaits", it) }),
         ),
+        recommendedSettingsPerGame = SystemToggleSetting(
+            GBCastBridge.useRecommendedSettingsPerGame,
+            {
+                GBCastBridge.setRecommendedSettingsPerGame(it)
+                cfg.tick++
+            },
+        ),
         startupExtras = {
             gb.frame.FastCdLoadSettingsRow(
                 cfg.bool("config", "FastGDRomLoad"),
@@ -274,11 +281,7 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
                 "Shortens GD-ROM DMA transfer delays. Separate from CD read speed and automatic skips; some games need original timing.",
             )
         },
-        extraSettings = {
-            gb.frame.RecommendedSettingsPerGameGroup(GBCastBridge.useRecommendedSettingsPerGame) {
-                GBCastBridge.setRecommendedSettingsPerGame(it)
-                cfg.tick++
-            }
+        coreSettings = {
             gb.frame.DreamcastSystemSettings(
                 cable = cfg.int("config", "Dreamcast.Cable"),
                 onCableChange = { cfg.setInt("config", "Dreamcast.Cable", it) },

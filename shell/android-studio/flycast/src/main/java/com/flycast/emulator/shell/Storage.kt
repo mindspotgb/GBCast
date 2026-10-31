@@ -64,11 +64,18 @@ object Storage : SafGames(GameIndex.extensions, { GamesFolder.path }) {
         val parent = src.parentFile
         if (parent == null) return opened
         val links = parent.listFiles()?.filter { Files.isSymbolicLink(it.toPath()) }.orEmpty()
-        if (links.isEmpty()) return opened
+        if (opened.descriptorCount == 0) return opened
 
-        // Flycast reopens descriptor links by path. Most devices allow that directly; probe every referenced track
-        // before deciding this device needs the GBFrame cached-copy fallback.
-        val directAccess = links.all { link -> runCatching { link.inputStream().use { it.read() } }.isSuccess }
+        // Match GBFrame's descriptor strategy without trying to reopen each link. RG DS may stat these
+        // /proc/self/fd symlinks but reject FileInputStream/fopen on them; Flycast's native hostfs adapter
+        // now duplicates and reads the original descriptor directly.
+        val directAccess = links.size == opened.descriptorCount && links.all { link ->
+            runCatching {
+                val target = Files.readSymbolicLink(link.toPath()).toString()
+                target.startsWith("/proc/self/fd/") &&
+                    target.removePrefix("/proc/self/fd/").toIntOrNull()?.let { it >= 0 } == true
+            }.getOrDefault(false)
+        }
         if (directAccess) {
             clearDiscCopies()
             return opened

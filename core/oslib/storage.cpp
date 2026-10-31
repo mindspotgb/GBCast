@@ -22,6 +22,13 @@
 #include "nowide/stackstring.hpp"
 #include "i18n.h"
 
+#if defined(__ANDROID__) && __has_include(<gb_proc_fd.hpp>)
+#include <gb_proc_fd.hpp>
+#include <fcntl.h>
+#include <unistd.h>
+#define FLYCAST_HAS_GB_PROC_FD 1
+#endif
+
 // For macOS
 std::string os_PrecomposedString(std::string string);
 
@@ -156,7 +163,24 @@ public:
 
 	File *openFile(const std::string& path, const std::string& mode) override
 	{
-		FILE *file = nowide::fopen(path.c_str(), mode.c_str());
+		FILE *file = nullptr;
+#ifdef FLYCAST_HAS_GB_PROC_FD
+		// SAF games are staged by GBFrame as symlinks to /proc/self/fd/N. Some Android devices
+		// allow stat() on those links but refuse fopen(path), so duplicate the already-open SAF
+		// descriptor instead of copying a multi-gigabyte disc image into the app cache.
+		if (const int procFd = gb::ProcFdOf(std::filesystem::path(path)); procFd >= 0)
+		{
+			const int fd = fcntl(procFd, F_DUPFD_CLOEXEC, 0);
+			if (fd >= 0)
+			{
+				file = fdopen(fd, mode.c_str());
+				if (file == nullptr)
+					close(fd);
+			}
+		}
+#endif
+		if (file == nullptr)
+			file = nowide::fopen(path.c_str(), mode.c_str());
 
 		if (file == nullptr)
 			return nullptr;

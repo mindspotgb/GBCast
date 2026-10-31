@@ -18,6 +18,7 @@ import gb.frame.SaveData
 import gb.frame.DataFile as File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.security.MessageDigest
 
 /** Coordinates the Compose shell with the Flycast core. One staged disc stays open until the next launch. */
 object GBCastBridge {
@@ -218,11 +219,14 @@ object GBCastBridge {
         PlayTime.update(safPath, true)
         displayFor(safPath).apply(::setBool)
         val auto = bool("config", "Dreamcast.AutoLoadState")
-        val launchSlot = when {
-            slot >= 0 -> slot
-            auto && !fresh -> latestStateSlot(safPath) ?: -1
-            else -> -1
+        val launchSlot = withContext(Dispatchers.IO) {
+            when {
+                slot >= 0 -> slot
+                auto && !fresh -> latestStateSlot(safPath) ?: -1
+                else -> -1
+            }
         }
+        android.util.Log.i("GBCast-Load", "launch game=${Storage.fileName(safPath)} autoLoad=$auto fresh=$fresh requestedSlot=$slot selectedSlot=$launchSlot")
         // The native boot reloads per-game slot settings. Load the chosen latest slot explicitly
         // after that reload, rather than letting boot load a stale numbered slot.
         val restoreAutoLoad = auto
@@ -282,10 +286,59 @@ object GBCastBridge {
 
     private fun stateLabel(slot: Int) = if (slot == AUTO_SAVE_SLOT) "auto" else (slot + 1).toString()
     private fun stateFile(game: String, slot: Int) = gb.frame.DataLayout.stateFile(dataDir(), game, stateLabel(slot))
+
+    /** Previous builds keyed states by the cached disc filename (a hash); restore them to the stable game folder. */
+    private fun migrateLegacyCachedStates(gamePaths: Collection<String>) {
+        if (gamePaths.isEmpty()) return
+        val root = File(dataDir(), "savestates")
+        val prefixToGame = gamePaths.associateBy { legacyCachePrefix(it) }
+        var migrated = 0
+        for (legacyDir in root.listFiles().orEmpty().filter { it.isDirectory }) {
+            val gamePath = prefixToGame.entries.firstOrNull { (prefix, game) ->
+                legacyDir.name.startsWith(prefix) && legacyDir.name != SaveData.gameFolderName(game)
+            }?.value ?: continue
+            val oldPrefix = "${legacyDir.name}_"
+            val targetFolder = File(root, SaveData.gameFolderName(gamePath))
+            for (legacyState in legacyDir.listFiles().orEmpty().filter {
+                it.isFile && it.name.startsWith(oldPrefix) && it.name.endsWith(".state")
+            }) {
+                val label = legacyState.name.removePrefix(oldPrefix).removeSuffix(".state")
+                if (label != "auto" && label.toIntOrNull()?.let { it in 1..SaveData.MANUAL_SAVE_STATE_SLOTS } != true) continue
+                val target = gb.frame.DataLayout.stateFile(dataDir(), gamePath, label)
+                runCatching {
+                    val expectedBytes = legacyState.length()
+                    val targetBytes = target.length()
+                    val targetHasState = target.isFile && targetBytes > 0L &&
+                        (expectedBytes <= 0L || targetBytes == expectedBytes)
+                    if (!targetHasState || legacyState.lastModified() > target.lastModified()) {
+                        targetFolder.mkdirs()
+                        val copiedBytes = legacyState.inputStream().buffered().use { input ->
+                            target.outputStream().buffered().use { output -> input.copyTo(output, 1024 * 1024) }
+                        }
+                        check(copiedBytes > 0L && (expectedBytes <= 0L || copiedBytes == expectedBytes)) {
+                            "Save-state migration size mismatch: expected=$expectedBytes copied=$copiedBytes"
+                        }
+                        migrated++
+                    }
+                    legacyState.delete()
+                }.onFailure {
+                    android.util.Log.w("GBCast-Load", "Could not migrate legacy state ${legacyState.name}: ${it.message}")
+                }
+            }
+            if (legacyDir.listFiles().isNullOrEmpty()) legacyDir.delete()
+        }
+        if (migrated > 0) android.util.Log.i("GBCast-Load", "migrated $migrated save states from cached-disc keys")
+    }
+
+    private fun legacyCachePrefix(gamePath: String): String = MessageDigest.getInstance("SHA-256")
+        .digest(gamePath.toByteArray(Charsets.UTF_8))
+        .take(12).joinToString("") { "%02x".format(it) } + "-"
+
     /** The last [states] result, shown at once when the library opens again. */
     @Volatile var lastStates: List<SaveSlot> = emptyList()
         private set
     fun states(games: List<gb.frame.Game>): List<SaveSlot> {
+        migrateLegacyCachedStates(games.map { it.path })
         val byName = games.associateBy { SaveData.gameFolderName(it.path) }
         val out = mutableListOf<SaveSlot>()
         for (dir in File(dataDir(), "savestates").listFiles().orEmpty().filter { it.isDirectory }) {
@@ -301,9 +354,12 @@ object GBCastBridge {
 
     data class SaveSlot(val gamePath: String, val title: String, val slot: Int, val time: Long)
 
-    private fun latestStateSlot(gamePath: String): Int? = (0..AUTO_SAVE_SLOT).mapNotNull { slot ->
-        stateFile(gamePath, slot).takeIf { it.isFile }?.let { slot to it.lastModified() }
-    }.maxByOrNull { it.second }?.first
+    private fun latestStateSlot(gamePath: String): Int? {
+        migrateLegacyCachedStates(listOf(gamePath))
+        return (0..AUTO_SAVE_SLOT).mapNotNull { slot ->
+            stateFile(gamePath, slot).takeIf { it.isFile }?.let { slot to it.lastModified() }
+        }.maxByOrNull { it.second }?.first
+    }
 
 }
 

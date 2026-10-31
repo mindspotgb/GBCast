@@ -321,9 +321,9 @@ fun LibraryScreen(
                     gameMenu = null
                     actions.resume(entry)
                 },
-                onOpen = {
+                onPlay = {
                     gameMenu = null
-                    actions.fresh(game)
+                    actions.play(game)
                 },
                 onCover = { picker(game.title) },
                 onCoverApplied = { coverVersion++; gameMenu = null },
@@ -396,7 +396,7 @@ private fun GameOptions(
     latest: ResumeEntry?,
     onDismiss: () -> Unit,
     onContinue: (ResumeEntry) -> Unit,
-    onOpen: () -> Unit,
+    onPlay: () -> Unit,
     onCover: () -> Unit,
     onCoverApplied: () -> Unit,
 ) {
@@ -417,7 +417,7 @@ private fun GameOptions(
                     Spacer(Modifier.width(8.dp))
                     Text(if (latest != null) "Continue" else "Continue (no save state)")
                 }
-                TextButton(onClick = onOpen) {
+                TextButton(onClick = onPlay) {
                     Icon(Icons.Default.PlayArrow, null)
                     Spacer(Modifier.width(8.dp))
                     Text("Play")

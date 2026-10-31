@@ -255,6 +255,19 @@ object GbcastGameUi {
         val videoPage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("video", "Video") {
 
+                gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
+                    setBool("config", "rend.WidescreenGameHacks", it)
+                }
+                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering")) {
+                    setInt("config", "rend.TextureFiltering", it)
+                }
+                gb.frame.ShaderQuickMenuItem(currentInt("config", "GBCast.Shader")) {
+                    setInt("config", "GBCast.Shader", it)
+                }
+                gb.frame.PictureFilterQuickMenuItem(currentInt("config", "GBCast.Filter"), id = "presenter-filter") {
+                    setInt("config", "GBCast.Filter", it)
+                }
+
                 val rendererValues = listOf(0 to "GLES", 3 to "GLES OIT", 4 to "Vulkan", 5 to "Vulkan OIT")
                 val renderer = currentInt("config", "pvr.rend")
                 val rendererIndex = rendererValues.indexOfFirst { it.first == renderer }.let { if (it < 0) 0 else it }
@@ -287,10 +300,6 @@ object GbcastGameUi {
                     setInt("config", "rend.ScreenStretching", 100)
                 }
 
-                gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
-                    setBool("config", "rend.WidescreenGameHacks", it)
-                }
-
                 for ((key, label) in listOf(
                     "rend.vsync" to "VSync",
                 )) {
@@ -298,17 +307,6 @@ object GbcastGameUi {
                         id = key, icon = androidx.compose.material.icons.Icons.Default.Tv,
                         label = label, value = if (currentBool("config", key)) "On" else "Off",
                     ) { setBool("config", key, !currentBool("config", key)) }
-                }
-
-                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering")) {
-                    setInt("config", "rend.TextureFiltering", it)
-                }
-
-                gb.frame.ShaderQuickMenuItem(currentInt("config", "GBCast.Shader")) {
-                    setInt("config", "GBCast.Shader", it)
-                }
-                gb.frame.PictureFilterQuickMenuItem(currentInt("config", "GBCast.Filter"), id = "presenter-filter") {
-                    setInt("config", "GBCast.Filter", it)
                 }
 
                 val anisotropic = listOf(1, 2, 4, 8, 16)
@@ -368,15 +366,6 @@ object GbcastGameUi {
         val performancePage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("performance", "Performance") {
 
-                for ((key, label) in listOf(
-                    "rend.ThreadedRendering" to "Threaded rendering",
-                    "rend.FramePacing" to "Frame pacing",
-                )) {
-                    gb.frame.QuickMenuItemRow(
-                        id = key, icon = androidx.compose.material.icons.Icons.Default.Speed,
-                        label = label, value = if (currentBool("config", key)) "On" else "Off",
-                    ) { setBool("config", key, !currentBool("config", key)) }
-                }
                 gb.frame.CpuRecompilerQuickMenuItem(currentBool("config", "Dynarec.Enabled")) {
                     setBool("config", "Dynarec.Enabled", it)
                 }
@@ -406,6 +395,16 @@ object GbcastGameUi {
                         tick++
                     }
                 }
+
+                for ((key, label) in listOf(
+                    "rend.ThreadedRendering" to "Threaded rendering",
+                    "rend.FramePacing" to "Frame pacing",
+                )) {
+                    gb.frame.QuickMenuItemRow(
+                        id = key, icon = androidx.compose.material.icons.Icons.Default.Speed,
+                        label = label, value = if (currentBool("config", key)) "On" else "Off",
+                    ) { setBool("config", key, !currentBool("config", key)) }
+                }
             }
         }
 
@@ -413,13 +412,10 @@ object GbcastGameUi {
             gb.frame.QuickMenuPage("overlays", "Overlays") {
 
                 MonitoringQuickMenuRows(com.flycast.emulator.shell.ui.GBCastOverlayOptions)
-                gb.frame.QuickMenuItemRow(
-                    id = "touch-controls", icon = androidx.compose.material.icons.Icons.Default.TouchApp,
-                    label = "Touch controls", value = if (com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode == gb.frame.TouchControlsMode.AUTO) "Auto" else "Show",
-                ) {
-                    com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode =
-                        if (com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode == gb.frame.TouchControlsMode.AUTO)
-                            gb.frame.TouchControlsMode.SHOW else gb.frame.TouchControlsMode.AUTO
+                gb.frame.TouchControlsQuickMenuItem(
+                    id = "touch-controls", value = com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode,
+                ) { mode ->
+                    com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode = mode
                     tick++
                     (activity as? com.flycast.emulator.NativeGLActivity)?.refreshTouchControlsVisibility()
                 }

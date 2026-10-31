@@ -67,3 +67,9 @@ Scope was limited to GLES renderers at Native 640x480. The RG DS reports OpenGL 
 - The current evidence points to CPU-side GLES draw submission/driver work as the largest renderer cost. The GPU load is still unavailable from the device overlay, so this does not establish GPU saturation. The next high-value investigation is reducing compatible draw submissions while preserving Saturn/Dreamcast polygon ordering; a state-compatible multi-draw path needs runtime extension confirmation and visual validation before adoption.
 
 The profile remains GLES, Native, Bilinear, VSync On, anisotropic Off, Per-strip sorting Off, Fog On, Mipmaps On, Delay frame swapping On, Emulate framebuffer Off, Auto frame skip Normal, Dynarec On, Threaded rendering On, and Frame pacing On. No change is recommended from this follow-up based on FPS alone.
+
+### GLES capture-FBO reuse
+
+- Build 37 keeps the reduced `GetLastFrame()` target in the GLES renderer, binds it for each capture, recreates it only when capture dimensions change, and releases it before GL teardown. The rendered source, capture dimensions, RGB readback, and AutoSkip cadence are unchanged.
+- Build 37 was installed and launched by the GBFrame intent. The game image remained intact. Two 12-second simpleperf captures measured `AutoSkipPresent` at 1.81% and 2.94%, and `GetLastFrame` at 1.80% and 2.69%; the earlier profile was around 3.2% for each. The range and shorter captures make the exact gain uncertain, but repeated profiling no longer reports FBO/renderbuffer creation/destruction in the capture path.
+- This is a small capture-path CPU reduction; it does not change the dominant `DrawStrips`/Mali GLES draw-submission cost or establish a gameplay FPS increase.

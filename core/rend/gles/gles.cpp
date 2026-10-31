@@ -1317,6 +1317,7 @@ void OpenGLRenderer::initVideoRoutingFrameBuffer()
 
 void OpenGLRenderer::Term()
 {
+	lastFrameCaptureFramebuffer.reset();
 	TexCache.Clear();
 	gles_term();
 }

@@ -566,6 +566,7 @@ protected:
 
 private:
 	bool renderFrame(int width, int height);
+	std::unique_ptr<GlFramebuffer> lastFrameCaptureFramebuffer;
 
 protected:
 	bool frameRendered = false;

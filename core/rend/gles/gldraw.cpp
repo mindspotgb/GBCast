@@ -875,14 +875,20 @@ bool OpenGLRenderer::GetLastFrame(std::vector<u8>& data, int& width, int& height
 			width = w;
 	}
 
-	GlFramebuffer dstFramebuffer(width, height, false, false);
-
-	glViewport(0, 0, width, height);
-	glcache.Disable(GL_BLEND);
 	if (framebuffer->getTexture() == 0) {
 		WARN_LOG(RENDERER, "GetLastFrame: framebuffer->texture is 0");
 		return false;
 	}
+	if (lastFrameCaptureFramebuffer == nullptr
+			|| lastFrameCaptureFramebuffer->getWidth() != width
+			|| lastFrameCaptureFramebuffer->getHeight() != height)
+	{
+		lastFrameCaptureFramebuffer = std::make_unique<GlFramebuffer>(width, height, false, false);
+	}
+
+	lastFrameCaptureFramebuffer->bind();
+	glViewport(0, 0, width, height);
+	glcache.Disable(GL_BLEND);
 	const float *vertices = nullptr;
 	if (config::Rotate90)
 	{

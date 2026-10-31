@@ -268,6 +268,15 @@ object GbcastGameUi {
                     setInt("config", "GBCast.Filter", it)
                 }
 
+                val resolutionValues = listOf(480 to "Native", 960 to "2x", 1440 to "3x", 1920 to "4x")
+                val resolution = currentInt("config", "rend.Resolution")
+                gb.frame.EnhancedResolutionQuickMenuItem(
+                    value = resolution,
+                    values = resolutionValues.map { it.first },
+                    labels = resolutionValues.map { it.second },
+                    id = "resolution",
+                ) { setInt("config", "rend.Resolution", it) }
+
                 val rendererValues = listOf(0 to "GLES", 3 to "GLES OIT", 4 to "Vulkan", 5 to "Vulkan OIT")
                 val renderer = currentInt("config", "pvr.rend")
                 val rendererIndex = rendererValues.indexOfFirst { it.first == renderer }.let { if (it < 0) 0 else it }
@@ -276,16 +285,6 @@ object GbcastGameUi {
                     label = "Renderer", value = rendererValues[rendererIndex].second,
                 ) {
                     setInt("config", "pvr.rend", rendererValues[(rendererIndex + 1) % rendererValues.size].first)
-                }
-
-                val resolutionValues = listOf(480 to "Native", 960 to "2x", 1440 to "3x", 1920 to "4x")
-                val resolution = currentInt("config", "rend.Resolution")
-                val resolutionIndex = resolutionValues.indexOfFirst { it.first == resolution }.let { if (it < 0) 0 else it }
-                gb.frame.QuickMenuItemRow(
-                    id = "resolution", icon = androidx.compose.material.icons.Icons.Default.AspectRatio,
-                    label = "Enhanced resolution", value = resolutionValues[resolutionIndex].second,
-                ) {
-                    setInt("config", "rend.Resolution", resolutionValues[(resolutionIndex + 1) % resolutionValues.size].first)
                 }
 
                 val displayMode = DisplayMode.current(::currentBool)
@@ -365,15 +364,14 @@ object GbcastGameUi {
 
         val performancePage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("performance", "Performance") {
-
+                val skip = currentInt("config", "pvr.AutoSkipFrame")
+                gb.frame.AutoFrameSkipQuickMenuItem(skip) { setInt("config", "pvr.AutoSkipFrame", it) }
                 gb.frame.CpuRecompilerQuickMenuItem(currentBool("config", "Dynarec.Enabled")) {
                     setBool("config", "Dynarec.Enabled", it)
                 }
                 gb.frame.FastCdLoadQuickMenuItem(currentBool("config", "FastGDRomLoad")) {
                     setBool("config", "FastGDRomLoad", it)
                 }
-                val skip = currentInt("config", "pvr.AutoSkipFrame")
-                gb.frame.AutoFrameSkipQuickMenuItem(skip) { setInt("config", "pvr.AutoSkipFrame", it) }
                 val cdSpeeds = listOf(
                     gb.frame.CdReadSpeedOption(2, "Original"),
                     gb.frame.CdReadSpeedOption(4, "4x"),
@@ -396,6 +394,7 @@ object GbcastGameUi {
                     }
                 }
 
+                // Flycast-specific rendering controls follow the GBFrame performance options.
                 for ((key, label) in listOf(
                     "rend.ThreadedRendering" to "Threaded rendering",
                     "rend.FramePacing" to "Frame pacing",

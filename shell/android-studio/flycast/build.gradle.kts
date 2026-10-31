@@ -1,12 +1,80 @@
+import java.io.File
+import java.util.Properties
+import java.util.concurrent.TimeUnit
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
 
 // Version: shell/android-studio/VERSION holds the release version (x.y.z); the build number is the version code
-// (CI's version_code input, or -PgbcastVersionCode for local builds).
+// (CI's version_code input, or -PgbcastVersionCode / GBCAST_VERSION_CODE for local builds). Local builds without an
+// explicit value choose a code above the highest GBCast version installed on a connected ADB device.
 val gbcastVersion = rootProject.file("VERSION").readText().trim()
-val gbcastBuild = (providers.gradleProperty("gbcastVersionCode").orNull ?: System.getenv("GBCAST_VERSION_CODE") ?: "8").toInt()
+val explicitGbcastBuild = providers.gradleProperty("gbcastVersionCode").orNull
+    ?: System.getenv("GBCAST_VERSION_CODE")
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties().apply {
+    if (localPropertiesFile.isFile) localPropertiesFile.inputStream().use { load(it) }
+}
+
+fun runLocalAdb(adb: File, vararg args: String): String? {
+    return runCatching {
+        val process = ProcessBuilder(listOf(adb.absolutePath) + args).redirectErrorStream(true).start()
+        if (!process.waitFor(5, TimeUnit.SECONDS)) {
+            process.destroyForcibly()
+            null
+        } else {
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            output.takeIf { process.exitValue() == 0 }
+        }
+    }.getOrNull()
+}
+
+fun highestInstalledGbcastVersionCode(): Int? {
+    val sdkPath = System.getenv("ANDROID_SDK_ROOT")
+        ?: System.getenv("ANDROID_HOME")
+        ?: localProperties.getProperty("sdk.dir")
+    val adbName = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) "adb.exe" else "adb"
+    val adb = sdkPath?.let { File(it, "platform-tools/$adbName") }?.takeIf { it.isFile } ?: File(adbName)
+    val devices = runLocalAdb(adb, "devices") ?: return null
+    val serials = devices.lineSequence().drop(1).mapNotNull { line ->
+        val columns = line.trim().split(Regex("\\s+"))
+        columns.firstOrNull().takeIf { columns.size >= 2 && columns[1] == "device" }
+    }
+    val versionCodePattern = Regex("versionCode[:=]\\s*(\\d+)")
+    return serials.mapNotNull { serial ->
+        runLocalAdb(adb, "-s", serial, "shell", "pm", "list", "packages", "--show-versioncode", "app.gbcast.emulator")
+            ?.let { versionCodePattern.find(it)?.groupValues?.get(1)?.toIntOrNull() }
+    }.maxOrNull()
+}
+
+val installedGbcastBuild = if (explicitGbcastBuild == null) highestInstalledGbcastVersionCode() else null
+val lastLocalGbcastBuild = localProperties.getProperty("gbcast.lastVersionCode")?.toIntOrNull()
+val gbcastBuild = explicitGbcastBuild?.toInt()
+    ?: maxOf(38, lastLocalGbcastBuild ?: 0, (installedGbcastBuild ?: 0) + if (installedGbcastBuild != null) 1 else 0)
+if (explicitGbcastBuild == null && installedGbcastBuild != null)
+    logger.lifecycle("GBCast local version code: installed $installedGbcastBuild; building $gbcastBuild")
+
+val localVersionCodeLock = Any()
+tasks.configureEach {
+    if (name == "assembleDebug" || name == "assembleRelease") {
+        doLast {
+            synchronized(localVersionCodeLock) {
+                runCatching {
+                    val properties = Properties().apply {
+                        if (localPropertiesFile.isFile) localPropertiesFile.inputStream().use { load(it) }
+                    }
+                    val previous = properties.getProperty("gbcast.lastVersionCode")?.toIntOrNull() ?: 0
+                    properties.setProperty("gbcast.lastVersionCode", maxOf(previous, gbcastBuild).toString())
+                    localPropertiesFile.outputStream().use { properties.store(it, "Local Android SDK and app version settings") }
+                }.onFailure { error ->
+                    logger.warn("Could not persist the last local GBCast version code: ${error.message}")
+                }
+            }
+        }
+    }
+}
 
 android {
     namespace = "app.gbcast.emulator"

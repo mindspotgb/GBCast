@@ -7,7 +7,7 @@
       "low": {
         "renderer": "opengl",
         "resolution": 480,
-        "autoFrameSkip": 1,
+        "autoFrameSkip": 0,
         "dynarec": true,
         "threadedRendering": true,
         "framePacing": true,

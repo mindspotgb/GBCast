@@ -415,16 +415,13 @@ object GbcastGameUi {
                 MonitoringQuickMenuRows(com.flycast.emulator.shell.ui.GBCastOverlayOptions)
                 gb.frame.QuickMenuItemRow(
                     id = "touch-controls", icon = androidx.compose.material.icons.Icons.Default.TouchApp,
-                    label = "Touch controls", value = if (com.flycast.emulator.shell.ui.DreamcastControls.showTouchControls) "Shown" else "Hidden",
+                    label = "Touch controls", value = if (com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode == gb.frame.TouchControlsMode.AUTO) "Auto" else "Show",
                 ) {
-                    com.flycast.emulator.shell.ui.DreamcastControls.showTouchControls =
-                        !com.flycast.emulator.shell.ui.DreamcastControls.showTouchControls
+                    com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode =
+                        if (com.flycast.emulator.shell.ui.DreamcastControls.touchControlsMode == gb.frame.TouchControlsMode.AUTO)
+                            gb.frame.TouchControlsMode.SHOW else gb.frame.TouchControlsMode.AUTO
                     tick++
-                    if (com.flycast.emulator.shell.ui.DreamcastControls.showTouchControls) {
-                        (activity as? com.flycast.emulator.NativeGLActivity)?.setTouchControlsVisible(true)
-                    } else {
-                        (activity as? com.flycast.emulator.NativeGLActivity)?.setTouchControlsVisible(false)
-                    }
+                    (activity as? com.flycast.emulator.NativeGLActivity)?.refreshTouchControlsVisibility()
                 }
             }
         }

@@ -15,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.flycast.emulator.Emulator
 import com.flycast.emulator.emu.JNIdc
-import com.flycast.emulator.emu.VGamepad
 import com.flycast.emulator.shell.GbcastGameUi
 import gb.frame.ControlButton
 import gb.frame.ControlsHost
@@ -23,6 +22,7 @@ import gb.frame.HotkeyAction
 import gb.frame.Hotkeys
 import gb.frame.PadButton
 import gb.frame.PadLayout
+import gb.frame.TouchControlsMode
 import gb.frame.padRect
 import gb.frame.rememberAppIconPainter
 import app.gbcast.emulator.R
@@ -32,7 +32,7 @@ object DreamcastControls : ControlsHost {
     private const val PREF_KEYS = "gbcast.controls.keyMap"
     private const val PREF_HOTKEYS = "gbcast.controls.hotkeys"
     private const val PREF_FF_TOGGLE = "gbcast.controls.fastForwardToggle"
-    private const val PREF_TOUCH = "gbcast.controls.showTouch"
+    private const val PREF_TOUCH_MODE = "gbcast.controls.touchMode"
 
     override val console = "Dreamcast"
     override val pad = DreamcastPad
@@ -75,7 +75,7 @@ object DreamcastControls : ControlsHost {
     var fastForwardActive by androidx.compose.runtime.mutableStateOf(false)
         private set
     private var ffToggleState by androidx.compose.runtime.mutableStateOf(false)
-    private var touchState by androidx.compose.runtime.mutableStateOf(true)
+    private var touchState by androidx.compose.runtime.mutableStateOf(TouchControlsMode.AUTO)
 
     override val hotkeys: Map<HotkeyAction, Set<Int>> get() = storedHotkeys
 
@@ -86,12 +86,11 @@ object DreamcastControls : ControlsHost {
             preferences().edit().putBoolean(PREF_FF_TOGGLE, value).apply()
         }
 
-    override var showTouchControls: Boolean
+    override var touchControlsMode: TouchControlsMode
         get() = touchState
         set(value) {
             touchState = value
-            preferences().edit().putBoolean(PREF_TOUCH, value).apply()
-            if (!value) VGamepad.hide()
+            preferences().edit().putString(PREF_TOUCH_MODE, value.name).remove("gbcast.controls.showTouch").apply()
         }
 
     private fun preferences(): SharedPreferences =
@@ -103,7 +102,9 @@ object DreamcastControls : ControlsHost {
         keyMap = readKeyMap()
         storedHotkeys = readHotkeys()
         ffToggleState = prefs.getBoolean(PREF_FF_TOGGLE, false)
-        touchState = prefs.getBoolean(PREF_TOUCH, true)
+        touchState = runCatching {
+            TouchControlsMode.valueOf(prefs.getString(PREF_TOUCH_MODE, TouchControlsMode.AUTO.name) ?: TouchControlsMode.AUTO.name)
+        }.getOrDefault(TouchControlsMode.AUTO)
     }
 
     private fun readKeyMap(): Map<Int, String> {

@@ -22,6 +22,7 @@ import com.flycast.emulator.emu.NativeGLView;
 import com.flycast.emulator.emu.VGamepad;
 import com.flycast.emulator.shell.ui.DreamcastControls;
 import gb.frame.Hotkeys;
+import gb.frame.TouchControlsMode;
 import com.flycast.emulator.periph.InputDeviceManager;
 
 public final class NativeGLActivity extends BaseGLActivity {
@@ -181,16 +182,27 @@ public final class NativeGLActivity extends BaseGLActivity {
         return false;
     }
 
-    /** Enforce the GBFrame contract: physical controllers take precedence over on-screen controls. */
+    /** Auto hides on-screen controls for physical gamepads; Show explicitly overrides detection. */
     private void updateTouchControlsVisibility() {
-        setTouchControlsVisible(DreamcastControls.INSTANCE.getShowTouchControls() && !hasPhysicalGamepad());
+        setTouchControlsVisible(areTouchControlsAllowed());
+    }
+
+    /** Whether the current policy permits the virtual controls to appear. */
+    public boolean areTouchControlsAllowed() {
+        TouchControlsMode mode = DreamcastControls.INSTANCE.getTouchControlsMode();
+        return mode == TouchControlsMode.SHOW || (mode == TouchControlsMode.AUTO && !hasPhysicalGamepad());
     }
 
     /** Update the on-screen controls while a game is already running. */
     public void setTouchControlsVisible(boolean visible) {
         if (mView == null) return;
-        if (visible && !hasPhysicalGamepad()) mView.showVGamepad();
+        if (visible) mView.showVGamepad();
         else VGamepad.hide();
+    }
+
+    /** Re-evaluate the current GBFrame mode after a preference changes in the quick menu. */
+    public void refreshTouchControlsVisibility() {
+        updateTouchControlsVisibility();
     }
 
     @Override

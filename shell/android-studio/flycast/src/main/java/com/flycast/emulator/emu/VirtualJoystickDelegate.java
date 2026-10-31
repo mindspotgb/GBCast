@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.flycast.emulator.NativeGLActivity;
 import com.flycast.emulator.periph.InputDeviceManager;
 import com.flycast.emulator.periph.VibratorThread;
 
@@ -39,7 +40,8 @@ public class VirtualJoystickDelegate implements TouchEventHandler
     private Runnable hideVGamepadRunnable = new Runnable() {
         @Override
         public void run() {
-            VGamepad.hide();
+            if (com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getTouchControlsMode()
+                    == gb.frame.TouchControlsMode.AUTO) VGamepad.hide();
         }
     };
     private Context context;
@@ -267,9 +269,10 @@ public class VirtualJoystickDelegate implements TouchEventHandler
     public void show()
     {
         this.handler.removeCallbacks(hideVGamepadRunnable);
-        if (com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getShowTouchControls()) {
+        gb.frame.TouchControlsMode mode = com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getTouchControlsMode();
+        if (!(context instanceof NativeGLActivity) || ((NativeGLActivity) context).areTouchControlsAllowed()) {
             VGamepad.show();
-            this.handler.postDelayed(hideVGamepadRunnable, 10000);
+            if (mode == gb.frame.TouchControlsMode.AUTO) this.handler.postDelayed(hideVGamepadRunnable, 10000);
         } else {
             VGamepad.hide();
         }

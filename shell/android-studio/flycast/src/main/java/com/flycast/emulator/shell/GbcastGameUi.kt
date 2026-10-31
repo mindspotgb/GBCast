@@ -270,17 +270,28 @@ object GbcastGameUi {
         val videoPage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("video", "Video") {
                 val displayMode = DisplayMode.current(::currentBool)
+                val displayModes = DisplayMode.entries.map { mode ->
+                    gb.frame.DisplayModeChoice(mode.ordinal, mode.label, supportsSuperWidescreen = mode == DisplayMode.Wide)
+                }
+                val currentGame = JNIdc.currentGamePath().orEmpty()
                 gb.frame.DisplayModeQuickMenuItem(
                     value = displayMode.ordinal,
-                    options = DisplayMode.entries.mapIndexed { index, mode ->
-                        gb.frame.DisplayModeChoice(index, mode.label)
-                    },
+                    options = displayModes,
                 ) { selected ->
-                    val next = DisplayMode.entries[selected]
+                    val next = DisplayMode.entries.first { it.ordinal == selected }
                     // Kept for this game only (Settings holds the default for the others)
-                    GBCastBridge.setGameDisplay(JNIdc.currentGamePath().orEmpty(), next)
+                    GBCastBridge.setGameDisplay(currentGame, next)
                     tick++
                     setInt("config", "rend.ScreenStretching", 100)
+                }
+
+                gb.frame.SuperWidescreenQuickMenuItem(
+                    displayModeValue = displayMode.ordinal,
+                    displayModes = displayModes,
+                    value = GBCastBridge.gameSuperWidescreen(currentGame),
+                ) { enabled ->
+                    GBCastBridge.setGameSuperWidescreen(currentGame, enabled)
+                    tick++
                 }
 
                 if ((displayMode == DisplayMode.Wide || displayMode == DisplayMode.Fullscreen) && JNIdc.hasWidescreenHack()) {

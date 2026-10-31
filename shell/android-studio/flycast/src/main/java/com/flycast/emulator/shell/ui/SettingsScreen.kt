@@ -301,13 +301,27 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
     val resolutionValues = intArrayOf(480, 960, 1440, 1920)
     val resolution = indexOf(tick, resolutionValues, cfg.int("config", "rend.Resolution"))
     SettingsGroup("Picture", Icons.Default.AspectRatio) {
-        ChoiceRow("Display mode", "Fullscreen stretches the picture; Super widescreen expands the view to the screen ratio.",
-            DisplayMode.entries.map { it.label }, GBCastBridge.globalDisplay().ordinal) { selected ->
-            DisplayMode.entries[selected].apply(cfg::setBool)
-            GBCastBridge.setGlobalDisplay(DisplayMode.entries[selected])
+        val displayModes = DisplayMode.entries.map { mode ->
+            gb.frame.DisplayModeChoice(mode.ordinal, mode.label, supportsSuperWidescreen = mode == DisplayMode.Wide)
+        }
+        val displayMode = GBCastBridge.globalDisplay()
+        gb.frame.DisplayModeSettingsRow(
+            displayMode.ordinal,
+            displayModes,
+            "Choose the game's aspect ratio. Fullscreen stretches the picture.",
+        ) { selected ->
+            val mode = DisplayMode.entries.first { it.ordinal == selected }
+            GBCastBridge.setGlobalDisplay(mode)
             cfg.setInt("config", "rend.ScreenStretching", 100)
         }
-        SettingsDivider()
+        gb.frame.SuperWidescreenSettingsRow(
+            displayMode.ordinal,
+            displayModes,
+            GBCastBridge.globalSuperWidescreen(),
+        ) { enabled ->
+            GBCastBridge.setGlobalSuperWidescreen(enabled)
+            cfg.tick++
+        }
         gb.frame.WidescreenGameHacksRow(cfg.bool("config", "rend.WidescreenGameHacks")) { cfg.toggle("config", "rend.WidescreenGameHacks") }
         SettingsDivider()
         gb.frame.TextureFilterSettingsRow(cfg.int("config", "rend.TextureFiltering"), title = "Filter") {

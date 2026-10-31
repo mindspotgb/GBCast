@@ -254,19 +254,32 @@ object GbcastGameUi {
 
         val videoPage = androidx.compose.runtime.remember {
             gb.frame.QuickMenuPage("video", "Video") {
+                val displayMode = DisplayMode.current(::currentBool)
+                gb.frame.DisplayModeQuickMenuItem(
+                    value = displayMode.ordinal,
+                    options = DisplayMode.entries.mapIndexed { index, mode ->
+                        gb.frame.DisplayModeChoice(index, mode.label)
+                    },
+                ) { selected ->
+                    val next = DisplayMode.entries[selected]
+                    // Kept for this game only (Settings holds the default for the others)
+                    GBCastBridge.setGameDisplay(JNIdc.currentGamePath().orEmpty(), next)
+                    tick++
+                    setInt("config", "rend.ScreenStretching", 100)
+                }
 
-                gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
-                    setBool("config", "rend.WidescreenGameHacks", it)
+                if ((displayMode == DisplayMode.Wide || displayMode == DisplayMode.Fullscreen) && JNIdc.hasWidescreenHack()) {
+                    gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
+                        setBool("config", "rend.WidescreenGameHacks", it)
+                    }
                 }
-                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering")) {
-                    setInt("config", "rend.TextureFiltering", it)
-                }
-                gb.frame.ShaderQuickMenuItem(currentInt("config", "GBCast.Shader")) {
-                    setInt("config", "GBCast.Shader", it)
-                }
-                gb.frame.PictureFilterQuickMenuItem(currentInt("config", "GBCast.Filter"), id = "presenter-filter") {
-                    setInt("config", "GBCast.Filter", it)
-                }
+
+                val rendererValues = listOf(0 to "GLES", 3 to "GLES OIT", 4 to "Vulkan", 5 to "Vulkan OIT")
+                val renderer = currentInt("config", "pvr.rend")
+                gb.frame.RendererQuickMenuItem(
+                    value = renderer,
+                    options = rendererValues.map { gb.frame.RendererChoice(it.first, it.second) },
+                ) { setInt("config", "pvr.rend", it) }
 
                 val resolutionValues = listOf(480 to "Native", 960 to "2x", 1440 to "3x", 1920 to "4x")
                 val resolution = currentInt("config", "rend.Resolution")
@@ -277,26 +290,16 @@ object GbcastGameUi {
                     id = "resolution",
                 ) { setInt("config", "rend.Resolution", it) }
 
-                val rendererValues = listOf(0 to "GLES", 3 to "GLES OIT", 4 to "Vulkan", 5 to "Vulkan OIT")
-                val renderer = currentInt("config", "pvr.rend")
-                val rendererIndex = rendererValues.indexOfFirst { it.first == renderer }.let { if (it < 0) 0 else it }
-                gb.frame.QuickMenuItemRow(
-                    id = "renderer", icon = androidx.compose.material.icons.Icons.Default.Tv,
-                    label = "Renderer", value = rendererValues[rendererIndex].second,
-                ) {
-                    setInt("config", "pvr.rend", rendererValues[(rendererIndex + 1) % rendererValues.size].first)
+                gb.frame.PictureFilterQuickMenuItem(currentInt("config", "GBCast.Filter"), id = "presenter-filter") {
+                    setInt("config", "GBCast.Filter", it)
+                }
+                gb.frame.ShaderQuickMenuItem(currentInt("config", "GBCast.Shader")) {
+                    setInt("config", "GBCast.Shader", it)
                 }
 
-                val displayMode = DisplayMode.current(::currentBool)
-                gb.frame.QuickMenuItemRow(
-                    id = "display-mode", icon = androidx.compose.material.icons.Icons.Default.AspectRatio,
-                    label = "Display mode", value = displayMode.label,
-                ) {
-                    // Kept for this game only (Settings holds the default for the others)
-                    val next = DisplayMode.entries[(displayMode.ordinal + 1) % DisplayMode.entries.size]
-                    GBCastBridge.setGameDisplay(JNIdc.currentGamePath().orEmpty(), next)
-                    tick++
-                    setInt("config", "rend.ScreenStretching", 100)
+                // Flycast texture sampling is core-specific and follows the six shared controls above.
+                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering")) {
+                    setInt("config", "rend.TextureFiltering", it)
                 }
 
                 for ((key, label) in listOf(
@@ -314,7 +317,9 @@ object GbcastGameUi {
                 gb.frame.QuickMenuItemRow(
                     id = "anisotropic", icon = androidx.compose.material.icons.Icons.Default.Tune,
                     label = "Anisotropic filtering", value = if (anisotropic[anisoIndex] == 1) "Off" else anisotropic[anisoIndex].toString() + "x",
-                ) { setInt("config", "rend.AnisotropicFiltering", anisotropic[(anisoIndex + 1) % anisotropic.size]) }
+                ) {
+                    setInt("config", "rend.AnisotropicFiltering", anisotropic[(anisoIndex + 1) % anisotropic.size])
+                }
 
                 for ((key, label) in listOf(
                     "rend.PerStripSorting" to "Per-strip sorting",
@@ -448,17 +453,17 @@ object GbcastGameUi {
                     label = "Achievements", hasSubmenu = true,
                 ) { openPage(achievementsPage, returnFocusItemId = "achievements") }
                 gb.frame.QuickMenuItemRow(
-                    id = "restart", icon = androidx.compose.material.icons.Icons.Default.RestartAlt,
-                    label = "Restart",
-                ) {
-                    JNIdc.restartGame()
-                    resume()
-                }
-                gb.frame.QuickMenuItemRow(
                     id = "disc-swap", icon = androidx.compose.material.icons.Icons.Default.Eject,
                     label = "Swap disc", hasSubmenu = false,
                 ) {
                     openPage(discPickerPage, returnFocusItemId = "disc-swap")
+                }
+                gb.frame.QuickMenuItemRow(
+                    id = "restart", icon = androidx.compose.material.icons.Icons.Default.RestartAlt,
+                    label = "Reset",
+                ) {
+                    JNIdc.restartGame()
+                    resume()
                 }
 
                 gb.frame.QuickMenuItemRow(

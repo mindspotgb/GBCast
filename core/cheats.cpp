@@ -523,6 +523,7 @@ size_t CheatManager::importCheatFile(const std::string& filename)
 void CheatManager::reset(const std::string& gameId)
 {
 	widescreen_cheat = nullptr;
+	widescreen_available = false;
 	if (this->gameId != gameId)
 	{
 		cheats.clear();
@@ -676,7 +677,7 @@ found_cheats:
 		if (cheats.size() > cheatCount)
 			setActive(true);
 	}
-	if (config::WidescreenGameHacks && !settings.raHardcoreMode)
+	if (!gameId.empty())
 	{
 		if (settings.platform.isConsole())
 		{
@@ -689,7 +690,7 @@ found_cheats:
 								|| !strncmp(ip_meta.software_name, widescreen_cheats[i].area_or_version, sizeof(ip_meta.software_name))))
 				{
 					widescreen_cheat = &widescreen_cheats[i];
-					NOTICE_LOG(COMMON, "Applying widescreen hack to game %s", gameId.c_str());
+					NOTICE_LOG(COMMON, "Found widescreen hack for game %s", gameId.c_str());
 					break;
 				}
 			}
@@ -705,7 +706,7 @@ found_cheats:
 								|| !strcmp(romName.c_str(), naomi_widescreen_cheats[i].area_or_version)))
 				{
 					widescreen_cheat = &naomi_widescreen_cheats[i];
-					NOTICE_LOG(COMMON, "Applying widescreen hack to game %s", gameId.c_str());
+					NOTICE_LOG(COMMON, "Found widescreen hack for game %s", gameId.c_str());
 					break;
 				}
 			}
@@ -714,6 +715,9 @@ found_cheats:
 			for (size_t i = 0; i < std::size(widescreen_cheat->addresses) && widescreen_cheat->addresses[i] != 0; i++)
 				verify(widescreen_cheat->addresses[i] < RAM_SIZE);
 	}
+	widescreen_available = widescreen_cheat != nullptr;
+	if (!config::WidescreenGameHacks || settings.raHardcoreMode)
+		widescreen_cheat = nullptr;
 	setActive(active);
 }
 

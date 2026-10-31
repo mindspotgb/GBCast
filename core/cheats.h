@@ -85,6 +85,8 @@ public:
 	void saveCheatFile(const std::string& filename);
 	// Returns true if using 16:9 anamorphic screen ratio
 	bool isWidescreen() const { return widescreen_cheat != nullptr; }
+	// True when the loaded game/revision has a bundled widescreen patch, even if disabled by user or Hardcore.
+	bool hasWidescreenHack() const { return widescreen_available; }
 	void addGameSharkCheat(const std::string& name, const std::string& s);
 
 private:
@@ -95,6 +97,7 @@ private:
 	static const WidescreenCheat widescreen_cheats[];
 	static const WidescreenCheat naomi_widescreen_cheats[];
 	const WidescreenCheat *widescreen_cheat = nullptr;
+	bool widescreen_available = false;
 	bool active = false;
 	std::vector<Cheat> cheats;
 	std::string gameId;

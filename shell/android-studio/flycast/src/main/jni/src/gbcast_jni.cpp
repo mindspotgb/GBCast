@@ -134,7 +134,10 @@ static void setMip(bool v) { config::UseMipmaps = v; }
 static bool getDelay() { return config::DelayFrameSwapping; }
 static void setDelay(bool v) { config::DelayFrameSwapping = v; }
 static bool getHacks() { return config::WidescreenGameHacks; }
-static void setHacks(bool v) { config::WidescreenGameHacks = v; }
+static void setHacks(bool v) {
+	config::WidescreenGameHacks = v;
+	cheatManager.reset(settings.content.gameId);
+}
 static bool getRotate() { return config::Rotate90; }
 static void setRotate(bool v) { config::Rotate90 = v; }
 static bool getLinear() { return config::LinearInterpolation; }
@@ -382,6 +385,10 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_dataDir
 
 extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_currentGamePath(JNIEnv *env, jclass) {
 	return env->NewStringUTF(settings.content.path.c_str());
+}
+
+extern "C" JNIEXPORT jboolean JNICALL Java_com_flycast_emulator_emu_JNIdc_hasWidescreenHack(JNIEnv *, jclass) {
+	return cheatManager.hasWidescreenHack() ? JNI_TRUE : JNI_FALSE;
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_com_flycast_emulator_emu_JNIdc_guiState(JNIEnv *, jclass) {

@@ -46,6 +46,7 @@ public final class JNIdc
 			int dynarec, int threadedRendering, int textureFiltering, int fastCdLoad, int cdReadSpeed);
 	public static native String dataDirectory();
 	public static native String currentGamePath();
+	public static native boolean hasWidescreenHack();
 	public static native int guiState();
 	public static native void guiSetState(int state);
 	public static native void guiTogglePause();

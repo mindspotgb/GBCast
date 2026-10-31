@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SportsEsports
@@ -274,6 +275,10 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
             )
         },
         extraSettings = {
+            gb.frame.RecommendedSettingsPerGameGroup(GBCastBridge.useRecommendedSettingsPerGame) {
+                GBCastBridge.setRecommendedSettingsPerGame(it)
+                cfg.tick++
+            }
             gb.frame.DreamcastSystemSettings(
                 cable = cfg.int("config", "Dreamcast.Cable"),
                 onCableChange = { cfg.setInt("config", "Dreamcast.Cable", it) },
@@ -290,27 +295,7 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
     val renderer = indexOf(tick, rendererValues, cfg.int("config", "pvr.rend"))
     val resolutionValues = intArrayOf(480, 960, 1440, 1920)
     val resolution = indexOf(tick, resolutionValues, cfg.int("config", "rend.Resolution"))
-    SettingsGroup("Rendering", Icons.Default.Tv) {
-        gb.frame.RendererSettingsRow(
-            rendererValues[renderer],
-            rendererValues.mapIndexed { index, id -> gb.frame.RendererChoice(id, listOf("GLES", "GLES OIT", "Vulkan", "Vulkan OIT")[index]) },
-            "GLES and Vulkan are graphics APIs. OIT (order-independent transparency) improves transparent polygon ordering at higher GPU/memory cost.",
-        ) {
-            cfg.setInt("config", "pvr.rend", it)
-        }
-        SettingsDivider()
-        gb.frame.RecommendedSettingsPerGameRow(GBCastBridge.useRecommendedSettingsPerGame) {
-            GBCastBridge.setRecommendedSettingsPerGame(it)
-            cfg.tick++
-        }
-        SettingsDivider()
-        gb.frame.EnhancedResolutionSettingsRow(
-            resolutionValues[resolution], resolutionValues.toList(), listOf("Native", "2x", "3x", "4x"),
-            "Sharper 3D sprites and polygons; higher values need a faster GPU. Native matches the screen.",
-        ) {
-            cfg.setInt("config", "rend.Resolution", it)
-        }
-        SettingsDivider()
+    SettingsGroup("Picture", Icons.Default.AspectRatio) {
         ChoiceRow("Display mode", "Fullscreen stretches the picture; Super widescreen expands the view to the screen ratio.",
             DisplayMode.entries.map { it.label }, GBCastBridge.globalDisplay().ordinal) { selected ->
             DisplayMode.entries[selected].apply(cfg::setBool)
@@ -320,18 +305,33 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         SettingsDivider()
         gb.frame.WidescreenGameHacksRow(cfg.bool("config", "rend.WidescreenGameHacks")) { cfg.toggle("config", "rend.WidescreenGameHacks") }
         SettingsDivider()
-        ToggleRow(Icons.Default.Tv, "VSync", "Matches drawing to the screen refresh to reduce tearing. It can add a little input delay or limit speed.", cfg.bool("config", "rend.vsync")) { cfg.toggle("config", "rend.vsync") }
-        SettingsDivider()
-        gb.frame.TextureFilterSettingsRow(cfg.int("config", "rend.TextureFiltering")) {
-            cfg.setInt("config", "rend.TextureFiltering", it)
+        gb.frame.PictureFilterSettingsRow(cfg.int("config", "GBCast.Filter"), sub = "Scaling of the shaded picture") {
+            cfg.setInt("config", "GBCast.Filter", it)
         }
         SettingsDivider()
         gb.frame.ShaderSettingsRow(cfg.int("config", "GBCast.Shader")) {
             cfg.setInt("config", "GBCast.Shader", it)
         }
+    }
+    SettingsGroup("Renderer", Icons.Default.Tv) {
+        gb.frame.RendererSettingsRow(
+            rendererValues[renderer],
+            rendererValues.mapIndexed { index, id -> gb.frame.RendererChoice(id, listOf("GLES", "GLES OIT", "Vulkan", "Vulkan OIT")[index]) },
+            "GLES and Vulkan are graphics APIs. OIT (order-independent transparency) improves transparent polygon ordering at higher GPU/memory cost.",
+        ) {
+            cfg.setInt("config", "pvr.rend", it)
+        }
         SettingsDivider()
-        gb.frame.PictureFilterSettingsRow(cfg.int("config", "GBCast.Filter"), sub = "Scaling of the shaded picture") {
-            cfg.setInt("config", "GBCast.Filter", it)
+        gb.frame.EnhancedResolutionSettingsRow(
+            resolutionValues[resolution], resolutionValues.toList(), listOf("Native", "2x", "3x", "4x"),
+            "Sharper 3D sprites and polygons; higher values need a faster GPU. Native matches the screen.",
+        ) {
+            cfg.setInt("config", "rend.Resolution", it)
+        }
+        ToggleRow(Icons.Default.Tv, "VSync", "Matches drawing to the screen refresh to reduce tearing. It can add a little input delay or limit speed.", cfg.bool("config", "rend.vsync")) { cfg.toggle("config", "rend.vsync") }
+        SettingsDivider()
+        gb.frame.TextureFilterSettingsRow(cfg.int("config", "rend.TextureFiltering")) {
+            cfg.setInt("config", "rend.TextureFiltering", it)
         }
         SettingsDivider()
         ChoiceRow("Anisotropic filtering", "Sharpens textures viewed at a steep angle. Higher values use more GPU time; the visual gain is most visible in 3D scenes.", listOf("Off", "2x", "4x", "8x", "16x"), indexOf(tick, intArrayOf(1, 2, 4, 8, 16), cfg.int("config", "rend.AnisotropicFiltering"))) {

@@ -523,13 +523,13 @@ object GbcastGameUi {
             }
         }
 
-        GBCastTheme {
-            gb.frame.QuickMenuHost(
-                rootPage = rootPage,
-                gameTitle = File(JNIdc.currentGamePath().orEmpty()).nameWithoutExtension.ifBlank { null },
-                onDismiss = ::resume,
-            )
-        }
+        // The full ComposeView is already wrapped in GBCastTheme in attach(). Applying it again
+        // here scales LocalDensity twice, making the shared quick menu's rows shorter than GBSat.
+        gb.frame.QuickMenuHost(
+            rootPage = rootPage,
+            gameTitle = File(JNIdc.currentGamePath().orEmpty()).nameWithoutExtension.ifBlank { null },
+            onDismiss = ::resume,
+        )
     }
 }
 

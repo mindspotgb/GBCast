@@ -271,7 +271,7 @@ object GbcastGameUi {
             gb.frame.QuickMenuPage("video", "Video") {
                 val displayMode = DisplayMode.current(::currentBool)
                 val displayModes = DisplayMode.entries.map { mode ->
-                    gb.frame.DisplayModeChoice(mode.ordinal, mode.label, supportsSuperWidescreen = mode == DisplayMode.Wide)
+                    gb.frame.DisplayModeChoice(mode.ordinal, mode.label, supportsSuperWidescreen = mode.supportsSuperWidescreen)
                 }
                 val currentGame = JNIdc.currentGamePath().orEmpty()
                 gb.frame.DisplayModeQuickMenuItem(
@@ -285,6 +285,12 @@ object GbcastGameUi {
                     setInt("config", "rend.ScreenStretching", 100)
                 }
 
+                if ((displayMode == DisplayMode.Wide || displayMode == DisplayMode.Fullscreen) && JNIdc.hasWidescreenHack()) {
+                    gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
+                        setBool("config", "rend.WidescreenGameHacks", it)
+                    }
+                }
+
                 gb.frame.SuperWidescreenQuickMenuItem(
                     displayModeValue = displayMode.ordinal,
                     displayModes = displayModes,
@@ -292,12 +298,6 @@ object GbcastGameUi {
                 ) { enabled ->
                     GBCastBridge.setGameSuperWidescreen(currentGame, enabled)
                     tick++
-                }
-
-                if ((displayMode == DisplayMode.Wide || displayMode == DisplayMode.Fullscreen) && JNIdc.hasWidescreenHack()) {
-                    gb.frame.WidescreenGameHacksItem(value = currentBool("config", "rend.WidescreenGameHacks")) {
-                        setBool("config", "rend.WidescreenGameHacks", it)
-                    }
                 }
 
                 val rendererValues = listOf(0 to "GLES", 3 to "GLES OIT", 4 to "Vulkan", 5 to "Vulkan OIT")

@@ -80,7 +80,7 @@ object GBCastBridge {
             val mode = DisplayMode.current(::bool)
             prefs.edit()
                 .putString("display", mode.name)
-                .putBoolean(GLOBAL_SUPER_WIDESCREEN, mode == DisplayMode.Wide && bool("config", "rend.SuperWideScreen"))
+                .putBoolean(GLOBAL_SUPER_WIDESCREEN, mode.supportsSuperWidescreen && bool("config", "rend.SuperWideScreen"))
                 .apply()
         } else if (prefs.getString("display", null) == "SuperWide") {
             // Migrate the former exclusive mode into 16:9 plus the separate Super widescreen toggle.
@@ -200,7 +200,7 @@ object GBCastBridge {
         mode.apply(::setBool, superWidescreen)
     }
     fun setGameDisplay(game: String, mode: DisplayMode) {
-        val superWidescreen = mode == DisplayMode.Wide && gameSuperWidescreen(game)
+        val superWidescreen = mode.supportsSuperWidescreen && gameSuperWidescreen(game)
         displayPrefs.edit().putString(displayKey(game), mode.name).apply()
         mode.apply(::setBool, superWidescreen)
     }
@@ -211,9 +211,10 @@ object GBCastBridge {
         return if (savedMode == null) bool("config", "rend.SuperWideScreen") else savedMode == "SuperWide"
     }
     fun setGlobalSuperWidescreen(enabled: Boolean) {
-        val value = globalDisplay() == DisplayMode.Wide && enabled
+        val mode = globalDisplay()
+        val value = mode.supportsSuperWidescreen && enabled
         displayPrefs.edit().putBoolean(GLOBAL_SUPER_WIDESCREEN, value).apply()
-        setBool("config", "rend.SuperWideScreen", value)
+        mode.apply(::setBool, value)
     }
     fun gameSuperWidescreen(game: String): Boolean {
         val key = superWidescreenKey(game)
@@ -225,9 +226,10 @@ object GBCastBridge {
         return globalSuperWidescreen()
     }
     fun setGameSuperWidescreen(game: String, enabled: Boolean) {
-        val value = displayFor(game) == DisplayMode.Wide && enabled
+        val mode = displayFor(game)
+        val value = mode.supportsSuperWidescreen && enabled
         displayPrefs.edit().putBoolean(superWidescreenKey(game), value).apply()
-        setBool("config", "rend.SuperWideScreen", value)
+        mode.apply(::setBool, value)
     }
     private fun displayFor(game: String): DisplayMode {
         return parseDisplayMode(displayPrefs.getString(displayKey(game), null)) ?: parseDisplayMode(displayPrefs.getString("display", null))
@@ -235,7 +237,7 @@ object GBCastBridge {
     }
     private fun applyDisplayFor(game: String) {
         val mode = displayFor(game)
-        mode.apply(::setBool, mode == DisplayMode.Wide && gameSuperWidescreen(game))
+        mode.apply(::setBool, mode.supportsSuperWidescreen && gameSuperWidescreen(game))
     }
 
     fun bool(section: String, name: String) = JNIdc.configGetBool(section, name)

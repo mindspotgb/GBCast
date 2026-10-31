@@ -6,9 +6,13 @@ enum class DisplayMode(val label: String, val wide: Boolean, val fullscreen: Boo
     Wide("16:9", true, false),
     Fullscreen("Fullscreen", false, true);
 
+    val supportsSuperWidescreen: Boolean get() = wide || fullscreen
+
     fun apply(setBool: (String, String, Boolean) -> Unit, superWidescreen: Boolean = false) {
-        setBool("config", "rend.WideScreen", wide)
-        setBool("config", "rend.SuperWideScreen", wide && superWidescreen)
+        val superWideEnabled = supportsSuperWidescreen && superWidescreen
+        // Flycast requires Widescreen for SuperWideScreen to expand the rendered scene.
+        setBool("config", "rend.WideScreen", wide || (fullscreen && superWideEnabled))
+        setBool("config", "rend.SuperWideScreen", superWideEnabled)
         setBool("config", "rend.StretchToWindow", fullscreen)
     }
 

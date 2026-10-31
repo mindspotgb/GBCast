@@ -73,3 +73,14 @@ The profile remains GLES, Native, Bilinear, VSync On, anisotropic Off, Per-strip
 - Build 37 keeps the reduced `GetLastFrame()` target in the GLES renderer, binds it for each capture, recreates it only when capture dimensions change, and releases it before GL teardown. The rendered source, capture dimensions, RGB readback, and AutoSkip cadence are unchanged.
 - Build 37 was installed and launched by the GBFrame intent. The game image remained intact. Two 12-second simpleperf captures measured `AutoSkipPresent` at 1.81% and 2.94%, and `GetLastFrame` at 1.80% and 2.69%; the earlier profile was around 3.2% for each. The range and shorter captures make the exact gain uncertain, but repeated profiling no longer reports FBO/renderbuffer creation/destruction in the capture path.
 - This is a small capture-path CPU reduction; it does not change the dominant `DrawStrips`/Mali GLES draw-submission cost or establish a gameplay FPS increase.
+
+### Retest with the user's current settings and Auto frame skip Off, 2026-10-31
+
+The settings were read from the in-game quick menus after the GBFrame intent/profile handoff. No video setting was changed during this retest; Auto frame skip was changed from Normal to Off at the user's direction and left Off.
+
+- Video: 4:3, GLES, Native 640x480, Bilinear, shader None, VSync Off, anisotropic Off, Per-strip sorting Off, Fog Off, Mipmaps Off, Delay frame swapping On, Emulate framebuffer Off.
+- Performance: Auto frame skip Off, Dynarec On, Threaded rendering On, Frame pacing On. Fast CD load On; CD read speed Original.
+- The intent loaded `Crazy Taxi_2.state`; Slot 1 was then loaded for the measured run. Both states return to the title/attract scene, whose camera and traffic vary.
+- Ten one-second OSD samples with Slot 1: FPS 36.8, 36.8, 53.7, 32.9, 37.8, 25.9, 23.9, 34.8, 50.7, 32.8. Median 35.8 FPS. Speed median about 59.7%. The scene variation is large, so this does not establish that the user's settings outperform the earlier profile; prior data used Auto frame skip Normal and different VSync/Fog/Mipmap values.
+- A 15-second `simpleperf` recording (25,225 samples; no lost samples) showed `OpenGLRenderer::Render` 82.9% inclusive, `renderFrame` 81.2%, `DrawStrips` 72.7%, Mali GLES driver 57.1%, and TA processing 10.9%. `AutoSkipPresent` was 1.47% and `GetLastFrame` 1.35%, consistent with the reusable capture FBO reducing this side cost. GPU utilization remains unavailable (`Mali-G52|--` in the OSD).
+- This validates the current user configuration and confirms the render-thread/driver submission bottleneck. Keep the tested settings; compare their FPS only against another run with the same savestate, Auto frame skip Off, and the same display/overlay conditions.

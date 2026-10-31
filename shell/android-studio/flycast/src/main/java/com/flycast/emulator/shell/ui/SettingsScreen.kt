@@ -76,6 +76,8 @@ import gb.frame.SystemBiosFolderSetting
 import gb.frame.SystemBiosFile
 import gb.frame.SystemStartupOptions
 import gb.frame.SystemToggleSetting
+import gb.frame.SystemCdReadSpeedSetting
+import gb.frame.CdReadSpeedOption
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -274,6 +276,14 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
                 cfg.tick++
             },
         ),
+        cdReadSpeed = SystemCdReadSpeedSetting(
+            value = cfg.int("config", "Dreamcast.CdReadSpeed"),
+            options = listOf(2, 4, 8, 16).mapIndexed { index, speed ->
+                CdReadSpeedOption(speed, listOf("Original", "4x", "8x", "16x")[index])
+            },
+            onChange = { cfg.setInt("config", "Dreamcast.CdReadSpeed", it) },
+            description = "Faster settings shorten disc loading. Use Original if streamed video or music goes out of sync.",
+        ),
         startupExtras = {
             gb.frame.FastCdLoadSettingsRow(
                 cfg.bool("config", "FastGDRomLoad"),
@@ -397,14 +407,6 @@ private fun PerformancePage(tick: Int, cfg: Cfg) {
             cfg.setInt("config", "pvr.AutoSkipFrame", it)
         }
         SettingsDivider()
-        val cdSpeeds = listOf(2, 4, 8, 16)
-        gb.frame.CdReadSpeedSettingsRow(
-            cfg.int("config", "Dreamcast.CdReadSpeed"),
-            cdSpeeds.mapIndexed { index, speed -> gb.frame.CdReadSpeedOption(speed, listOf("Original", "4x", "8x", "16x")[index]) },
-            sub = "Shorter loading screens. Original is the Dreamcast speed; use it if streamed video or music goes out of sync.",
-        ) {
-            cfg.setInt("config", "Dreamcast.CdReadSpeed", it)
-        }
     }
 }
 

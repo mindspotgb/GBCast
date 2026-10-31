@@ -166,7 +166,15 @@ void SetGPState(const PolyParam* gp,u32 cflip=0)
 	
 	glcache.UseProgram(CurrentShader->program);
 	if (CurrentShader->trilinear_alpha != -1)
-		glUniform1f(CurrentShader->trilinear_alpha, trilinear_alpha);
+	{
+		if (!gl.is_gles || !CurrentShader->cachedTrilinearAlphaValid
+				|| CurrentShader->cachedTrilinearAlpha != trilinear_alpha)
+		{
+			glUniform1f(CurrentShader->trilinear_alpha, trilinear_alpha);
+			CurrentShader->cachedTrilinearAlpha = trilinear_alpha;
+			CurrentShader->cachedTrilinearAlphaValid = true;
+		}
+	}
 	if (gpuPalette != 0)
 	{
 		int paletteIndex;
@@ -174,17 +182,46 @@ void SetGPState(const PolyParam* gp,u32 cflip=0)
 			paletteIndex = gp->tcw.PalSelect << 4;
 		else
 			paletteIndex = (gp->tcw.PalSelect >> 4) << 8;
-		glUniform1i(CurrentShader->palette_index, paletteIndex);
+		if (!gl.is_gles || !CurrentShader->cachedPaletteIndexValid
+				|| CurrentShader->cachedPaletteIndex != paletteIndex)
+		{
+			glUniform1i(CurrentShader->palette_index, paletteIndex);
+			CurrentShader->cachedPaletteIndex = paletteIndex;
+			CurrentShader->cachedPaletteIndexValid = true;
+		}
 		if (gpuPalette == 2 && CurrentShader->texSize != -1)
 		{
 			float texSize[] { (float)texture->width, (float)texture->height };
-			glUniform2fv(CurrentShader->texSize, 1, texSize);
+			if (!gl.is_gles || !CurrentShader->cachedTextureSizeValid
+					|| CurrentShader->cachedTextureWidth != texSize[0]
+					|| CurrentShader->cachedTextureHeight != texSize[1])
+			{
+				glUniform2fv(CurrentShader->texSize, 1, texSize);
+				CurrentShader->cachedTextureWidth = texSize[0];
+				CurrentShader->cachedTextureHeight = texSize[1];
+				CurrentShader->cachedTextureSizeValid = true;
+			}
 		}
 	}
 
 	if (clipmode == TileClipping::Inside)
-		glUniform4f(CurrentShader->pp_ClipTest, (float)clip_rect.origin.x, (float)clip_rect.origin.y,
-				(float)clip_rect.bottomRight().x, (float)clip_rect.bottomRight().y);
+	{
+		const float clipTest[4] = {
+			(float)clip_rect.origin.x, (float)clip_rect.origin.y,
+			(float)clip_rect.bottomRight().x, (float)clip_rect.bottomRight().y
+		};
+		if (!gl.is_gles || !CurrentShader->cachedClipTestValid
+				|| CurrentShader->cachedClipTest[0] != clipTest[0]
+				|| CurrentShader->cachedClipTest[1] != clipTest[1]
+				|| CurrentShader->cachedClipTest[2] != clipTest[2]
+				|| CurrentShader->cachedClipTest[3] != clipTest[3])
+		{
+			glUniform4f(CurrentShader->pp_ClipTest, clipTest[0], clipTest[1], clipTest[2], clipTest[3]);
+			for (int i = 0; i < 4; i++)
+				CurrentShader->cachedClipTest[i] = clipTest[i];
+			CurrentShader->cachedClipTestValid = true;
+		}
+	}
 
 	if (config::ModifierVolumes)
 	{

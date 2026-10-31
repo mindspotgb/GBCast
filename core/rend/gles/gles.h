@@ -49,6 +49,19 @@ struct PipelineShader
 {
 	GLuint program;
 
+	// GLES drivers can spend noticeable CPU time processing redundant uniform
+	// updates for every polygon. Keep these values per program: uniforms persist
+	// when another program is bound, so only changed values need to be uploaded.
+	bool cachedTrilinearAlphaValid = false;
+	float cachedTrilinearAlpha = 0.f;
+	bool cachedPaletteIndexValid = false;
+	GLint cachedPaletteIndex = 0;
+	bool cachedTextureSizeValid = false;
+	float cachedTextureWidth = 0.f;
+	float cachedTextureHeight = 0.f;
+	bool cachedClipTestValid = false;
+	float cachedClipTest[4] = {};
+
 	GLint depth_scale;
 	GLint pp_ClipTest;
 	GLint cp_AlphaTestValue;

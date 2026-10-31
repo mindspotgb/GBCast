@@ -1,6 +1,6 @@
 #pragma once
 #include "wsi/gl_context.h"
-#include <map>
+#include <unordered_map>
 
 #define TEXTURE_ID_CACHE_SIZE 32
 
@@ -317,7 +317,7 @@ private:
 	} _scissor;
 	GLuint _texture_ids[TEXTURE_ID_CACHE_SIZE];
 	GLsizei _texture_cache_size = 0;
-	std::map<GLuint, TextureParameters> _texture_params;
+	std::unordered_map<GLuint, TextureParameters> _texture_params;
 	bool _disable_cache;
 };
 

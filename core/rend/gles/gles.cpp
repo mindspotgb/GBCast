@@ -809,6 +809,10 @@ bool CompilePipelineShader(PipelineShader* s)
 	FragmentShaderSource fragmentSource(s);
 
 	s->program = gl_CompileAndLink(vertexShader.c_str(), fragmentSource.generate().c_str());
+	s->cachedTrilinearAlphaValid = false;
+	s->cachedPaletteIndexValid = false;
+	s->cachedTextureSizeValid = false;
+	s->cachedClipTestValid = false;
 
 	//setup texture 0 as the input for the shader
 	GLint gu = glGetUniformLocation(s->program, "tex");

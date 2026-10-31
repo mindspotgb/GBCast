@@ -55,3 +55,15 @@ Fast CD load and CD read speed affect disc loading, not steady-state game FPS. I
 ## Validation
 
 Local GBCast Release build 33 installed on the RG DS. The exact GBFrame intent logged `Crazy%20Taxi.chd`; the library resolved it to Crazy Taxi, queued the Low profile, and the native core logged `renderer=0 resolution=480 autoSkip=1`. The same state file was then loaded. This confirms the profile handoff and launch path; it is not a GitHub build or mainline status.
+
+## GLES-only follow-up: native 1x, 2026-10-31
+
+Scope was limited to GLES renderers at Native 640x480. The RG DS reports OpenGL ES 3.2 on ARM Mali-G52. Each run used the same GBFrame intent and Crazy Taxi save state; the title/attract camera and traffic continue to change, so per-sample FPS is noisy.
+
+- Per-strip sorting On: eight OSD samples had a median of about 29.9 FPS in the repeated run. Per-strip sorting Off: median about 27.4 FPS. This difference is within scene variation; no repeatable gain or visual defect was established. Keep it Off in the recommended profile.
+- The local GLES-only change combines per-program caching of clipping rectangle, palette index/texture size, and trilinear alpha uniforms with an `unordered_map` for cached GL texture parameters. It skips redundant `glUniform*` updates and removes the tree lookup from the texture-parameter cache. Draw order, shader selection, and Vulkan are untouched.
+- Builds 35 and 36 compiled locally; build 36 (the combined change) is installed. The exact GBFrame intent opened Crazy Taxi; logs confirm GLES 3.2, Mali-G52, and the game profile's native 480-line resolution. The tested frame remained visually intact.
+- `simpleperf` on build 36 (6-second capture) showed `DrawStrips` at 73.4% inclusive, Mali GLES driver at 57.3%, and `OpenGLRenderer::Process` at 10.4%. The map lookup symbol disappeared after switching the parameter cache to a hash table, but overall renderer/driver share remained near the earlier profile range (DrawStrips 66-72%, Mali 52-56%); the short capture does not establish a measurable FPS or frame-time gain.
+- The current evidence points to CPU-side GLES draw submission/driver work as the largest renderer cost. The GPU load is still unavailable from the device overlay, so this does not establish GPU saturation. The next high-value investigation is reducing compatible draw submissions while preserving Saturn/Dreamcast polygon ordering; a state-compatible multi-draw path needs runtime extension confirmation and visual validation before adoption.
+
+The profile remains GLES, Native, Bilinear, VSync On, anisotropic Off, Per-strip sorting Off, Fog On, Mipmaps On, Delay frame swapping On, Emulate framebuffer Off, Auto frame skip Normal, Dynarec On, Threaded rendering On, and Frame pacing On. No change is recommended from this follow-up based on FPS alone.

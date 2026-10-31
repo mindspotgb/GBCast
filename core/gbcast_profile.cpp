@@ -16,6 +16,7 @@ struct Profile {
 	int dynarec = -1;
 	int threadedRendering = -1;
 	int textureFiltering = -1;
+	int framePacing = -1;
 	int fastCdLoad = -1;
 	int cdReadSpeed = -1;
 };
@@ -25,11 +26,11 @@ Profile pending;
 }
 
 void setRecommendedProfile(bool enabled, int renderer, int resolution, int autoSkip,
-		int dynarec, int threadedRendering, int textureFiltering, int fastCdLoad, int cdReadSpeed)
+		int dynarec, int threadedRendering, int textureFiltering, int framePacing, int fastCdLoad, int cdReadSpeed)
 {
 	std::lock_guard<std::mutex> lock(profileMutex);
 	pending = { enabled, renderer, resolution, autoSkip, dynarec, threadedRendering,
-		textureFiltering, fastCdLoad, cdReadSpeed };
+		textureFiltering, framePacing, fastCdLoad, cdReadSpeed };
 }
 
 void applyRecommendedProfile()
@@ -57,6 +58,8 @@ void applyRecommendedProfile()
 		config::ThreadedRendering.override(profile.threadedRendering != 0);
 	if (profile.textureFiltering >= 1 && profile.textureFiltering <= 2)
 		config::TextureFiltering.override(profile.textureFiltering);
+	if (profile.framePacing >= 0)
+		config::FramePacing.override(profile.framePacing != 0);
 	if (profile.fastCdLoad >= 0)
 		config::FastGDRomLoad.override(profile.fastCdLoad != 0);
 	if (profile.cdReadSpeed == 2 || profile.cdReadSpeed == 4 || profile.cdReadSpeed == 8 || profile.cdReadSpeed == 16)

@@ -371,9 +371,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_setPerGame
 
 extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_setRecommendedProfile(
 		JNIEnv *, jclass, jboolean enabled, jint renderer, jint resolution, jint autoSkip,
-		jint dynarec, jint threadedRendering, jint textureFiltering, jint fastCdLoad, jint cdReadSpeed) {
+		jint dynarec, jint threadedRendering, jint textureFiltering, jint framePacing, jint fastCdLoad, jint cdReadSpeed) {
 	gbcast::setRecommendedProfile(enabled == JNI_TRUE, renderer, resolution, autoSkip,
-		dynarec, threadedRendering, textureFiltering, fastCdLoad, cdReadSpeed);
+		dynarec, threadedRendering, textureFiltering, framePacing, fastCdLoad, cdReadSpeed);
 }
 
 extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_dataDirectory(JNIEnv *env, jclass) {

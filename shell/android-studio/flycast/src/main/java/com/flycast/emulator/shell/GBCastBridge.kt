@@ -253,7 +253,7 @@ object GBCastBridge {
     private fun queueRecommendedProfile(safPath: String) {
         if (!useRecommendedSettingsPerGame) {
             android.util.Log.i("GBCastProfile", "Measured per-game settings are disabled")
-            JNIdc.setRecommendedProfile(false, -1, -1, -1, -1, -1, -1, -1, -1)
+            JNIdc.setRecommendedProfile(false, -1, -1, -1, -1, -1, -1, -1, -1, -1)
             return
         }
         val title = Storage.cachedScan(Storage.gamesDir).firstOrNull { it.path == safPath }?.title
@@ -279,6 +279,7 @@ object GBCastBridge {
             (profile["dynarec"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["threadedRendering"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["textureFiltering"] as? Number)?.toInt() ?: -1,
+            (profile["framePacing"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["fastCdLoad"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["cdReadSpeed"] as? Number)?.toInt() ?: -1,
         )

@@ -291,14 +291,6 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
                 "Shortens GD-ROM DMA transfer delays. Separate from CD read speed and automatic skips; some games need original timing.",
             )
         },
-        coreSettings = {
-            gb.frame.DreamcastSystemSettings(
-                cable = cfg.int("config", "Dreamcast.Cable"),
-                onCableChange = { cfg.setInt("config", "Dreamcast.Cable", it) },
-                broadcast = cfg.int("config", "Dreamcast.Broadcast"),
-                onBroadcastChange = { cfg.setInt("config", "Dreamcast.Broadcast", it) },
-            )
-        },
     )
 }
 

@@ -85,6 +85,30 @@ static void applyAutomaticRegion()
 		config::Region.override(0);
 }
 
+static void applyAutomaticSystemVideoSettings()
+{
+	if (!settings.platform.isConsole())
+		return;
+
+	// Keep TV Composite/NTSC defaults regardless of legacy global or per-game
+	// preferences. Only games confirmed to require PAL differ.
+	config::Cable.override(3);
+	config::Broadcast.override(0);
+
+	const std::string& prod_id = settings.content.gameId;
+	if (prod_id == "T-9709D-50" // San Francisco Rush 2049 (EU)
+			|| prod_id == "T-8112D-50" // South Park Rally (EU)
+			|| prod_id == "T7014D  50" // Super Runabout (EU)
+			|| prod_id == "T10001D 50" // MTV Sport - Skateboarding (PAL)
+			|| prod_id == "MK-5101050" // Snow Surfers
+			|| prod_id == "12502D-50" // Caesar's Palace (PAL)
+			|| prod_id == "T46605D 80") // Evil Twin - Cyprien's Chronicles
+	{
+		NOTICE_LOG(BOOT, "Forcing PAL broadcasting for game %s", prod_id.c_str());
+		config::Broadcast.override(1);
+	}
+}
+
 static void loadSpecialSettings()
 {
 	std::string& prod_id = settings.content.gameId;
@@ -228,33 +252,6 @@ static void loadSpecialSettings()
 			config::ExtraDepthScale.override(10000.f);
 		}
 
-		applyAutomaticRegion();
-		if (config::Cable <= 1 && (!ip_meta.supportsVGA()
-				|| prod_id == "T-12504N"	// Caesar's Palace (NTSC)
-				|| prod_id == "12502D-50"))	// Caesar's Palace (PAL)
-		{
-			NOTICE_LOG(BOOT, "Game doesn't support VGA. Using TV Composite instead");
-			config::Cable.override(3);
-		}
-		if (config::Cable == 2 &&
-				(prod_id == "T40602N"	 // Centipede
-				|| prod_id == "T9710N"   // Gauntlet Legends (US)
-				|| prod_id == "MK-51152" // World Series Baseball 2K2
-				|| prod_id == "T-9701N"	 // Mortal Kombat Gold (US)
-				|| prod_id == "T1203N"	 // Street Fighter Alpha 3 (US)
-				|| prod_id == "T1203M"	 // Street Fighter Zero 3 (JP)
-				|| prod_id == "T13002N"	 // Vigilante 8 (US)
-				|| prod_id == "T13003N"	 // Toy Story 2 (US)
-				|| prod_id == "T1209N"	 // Gigawing (US)
-				|| prod_id == "T1208M"	 // Gigawing (JP)
-				|| prod_id == "T1235M"   // Vampire Chronicle for Matching Service
-				|| prod_id == "T22901N"  // Roadsters (US)
-				|| prod_id == "T28202M"  // Shin Nihon Pro Wrestling 4
-				|| prod_id == "T9512N")) // The Grinch (US)
-		{
-			NOTICE_LOG(BOOT, "Game doesn't support RGB. Using TV Composite instead");
-			config::Cable.override(3);
-		}
 		if (prod_id == "T7001D  50"	// Jimmy White's 2 Cueball
 			|| prod_id == "T40505D 50"	// Railroad Tycoon 2 (EU)
 			|| prod_id == "T18702M"		// Miss Moonlight
@@ -275,27 +272,6 @@ static void loadSpecialSettings()
 		{
 			NOTICE_LOG(BOOT, "Forcing HLE BIOS");
 			config::UseReios.override(true);
-		}
-		if (prod_id == "T-9707N"		// San Francisco Rush 2049 (US)
-			|| prod_id == "MK-51146"	// Sega Smash Pack - Volume 1
-			|| prod_id == "T-9702D-50"	// Hydro Thunder (PAL)
-			|| prod_id == "T41601N"		// Elemental Gimmick Gear (US)
-			|| prod_id == "T-8116N"		// South Park Rally (US)
-			|| prod_id == "T1206N")		// JoJo's Bizarre Adventure (US)
-		{
-			NOTICE_LOG(BOOT, "Forcing NTSC broadcasting");
-			config::Broadcast.override(0);
-		}
-		else if (prod_id == "T-9709D-50"	// San Francisco Rush 2049 (EU)
-			|| prod_id == "T-8112D-50"		// South Park Rally (EU)
-			|| prod_id == "T7014D  50"		// Super Runabout (EU)
-			|| prod_id == "T10001D 50"		// MTV Sport - Skateboarding (PAL)
-			|| prod_id == "MK-5101050"		// Snow Surfers
-			|| prod_id == "12502D-50"		// Caesar's Palace (PAL)
-			|| prod_id == "T46605D 80")		// Evil Twin - Cyprien's Chronicles
-		{
-			NOTICE_LOG(BOOT, "Forcing PAL broadcasting");
-			config::Broadcast.override(1);
 		}
 		if (prod_id == "T1102M"				// Densha de Go! 2
 				|| prod_id == "T00000A"		// The Ring of the Nibelungen (demo, hack)
@@ -905,6 +881,9 @@ void loadGameSpecificSettings()
 	config::Settings::instance().load(true);
 	// Region is automatic only: do this after loading old global/per-game configs too.
 	applyAutomaticRegion();
+	// Cable and broadcast are automatic only; reset saved values before
+	// applying the per-game exception catalog.
+	applyAutomaticSystemVideoSettings();
 
 	if (config::GGPOEnable || settings.raHardcoreMode)
 		config::Sh4Clock.override(200);

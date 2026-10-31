@@ -98,6 +98,6 @@ object GBCastRaBackend : RaBackend {
     override fun onGameRecognized() = Unit
 
     override fun onResetRequested() {
-        JNIdc.restartGame()
+        com.flycast.emulator.shell.GbcastGameUi.restartCurrentGame()
     }
 }

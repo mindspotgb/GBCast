@@ -59,7 +59,6 @@ protected:
 	EGLConfig eglConfig = nullptr;
 	bool presenterOn = false;
 	int presenterShader = -1;
-	int presenterFilter = -1;
 #endif
 };
 #endif

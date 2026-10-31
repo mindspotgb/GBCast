@@ -267,8 +267,6 @@ static int getCdSpeed() { return config::CdReadSpeed; }
 static void setCdSpeed(int v) { config::CdReadSpeed = v == 4 || v == 8 || v == 16 ? v : 2; }
 static int getPresenterShader() { return config::PresenterShader; }
 static void setPresenterShader(int v) { config::PresenterShader = v; }
-static int getPresenterFilter() { return config::PresenterFilter; }
-static void setPresenterFilter(int v) { config::PresenterFilter = std::clamp(v, 0, 1); }
 
 static int getScreenStretching() { return config::ScreenStretching; }
 static void setScreenStretching(int v) { config::ScreenStretching = std::clamp(v, 100, 250); }
@@ -293,7 +291,6 @@ static const IntOpt kInts[] = {
 	{"config", "pvr.AutoSkipFrame", getAutoSkip, setAutoSkip},
 	{"config", "Dreamcast.CdReadSpeed", getCdSpeed, setCdSpeed},
 	{"config", "GBCast.Shader", getPresenterShader, setPresenterShader},
-	{"config", "GBCast.Filter", getPresenterFilter, setPresenterFilter},
 };
 
 static bool same(const char *a, const std::string &b) { return b == a; }
@@ -387,6 +384,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_current
 	return env->NewStringUTF(settings.content.path.c_str());
 }
 
+
 extern "C" JNIEXPORT jboolean JNICALL Java_com_flycast_emulator_emu_JNIdc_hasWidescreenHack(JNIEnv *, jclass) {
 	return cheatManager.hasWidescreenHack() ? JNI_TRUE : JNI_FALSE;
 }
@@ -401,17 +399,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_guiSetStat
 
 extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_guiTogglePause(JNIEnv *, jclass) {
 	gui_togglePause();
-}
-
-extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_restartGame(JNIEnv *, jclass) {
-	gui_runOnUiThread([]() {
-	std::string path = settings.content.path;
-	if (gui_state == GuiState::Pause)
-		gui_setState(GuiState::Closed);
-	gui_stop_game();
-	if (!path.empty())
-		gui_start_game(path);
-	});
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_setFastForwardMode(JNIEnv *, jclass, jboolean enabled) {

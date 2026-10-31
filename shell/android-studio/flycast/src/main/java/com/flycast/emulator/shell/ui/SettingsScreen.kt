@@ -310,8 +310,8 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         SettingsDivider()
         gb.frame.WidescreenGameHacksRow(cfg.bool("config", "rend.WidescreenGameHacks")) { cfg.toggle("config", "rend.WidescreenGameHacks") }
         SettingsDivider()
-        gb.frame.PictureFilterSettingsRow(cfg.int("config", "GBCast.Filter"), sub = "Scaling of the shaded picture") {
-            cfg.setInt("config", "GBCast.Filter", it)
+        gb.frame.TextureFilterSettingsRow(cfg.int("config", "rend.TextureFiltering"), title = "Filter") {
+            cfg.setInt("config", "rend.TextureFiltering", it)
         }
         SettingsDivider()
         gb.frame.ShaderSettingsRow(cfg.int("config", "GBCast.Shader")) {
@@ -334,10 +334,6 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
             cfg.setInt("config", "rend.Resolution", it)
         }
         ToggleRow(Icons.Default.Tv, "VSync", "Matches drawing to the screen refresh to reduce tearing. It can add a little input delay or limit speed.", cfg.bool("config", "rend.vsync")) { cfg.toggle("config", "rend.vsync") }
-        SettingsDivider()
-        gb.frame.TextureFilterSettingsRow(cfg.int("config", "rend.TextureFiltering")) {
-            cfg.setInt("config", "rend.TextureFiltering", it)
-        }
         SettingsDivider()
         ChoiceRow("Anisotropic filtering", "Sharpens textures viewed at a steep angle. Higher values use more GPU time; the visual gain is most visible in 3D scenes.", listOf("Off", "2x", "4x", "8x", "16x"), indexOf(tick, intArrayOf(1, 2, 4, 8, 16), cfg.int("config", "rend.AnisotropicFiltering"))) {
             cfg.setInt("config", "rend.AnisotropicFiltering", intArrayOf(1, 2, 4, 8, 16)[it])

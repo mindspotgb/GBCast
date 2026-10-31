@@ -379,7 +379,7 @@ void gui_settings_video()
         ImGui::SameLine();
         ShowHelpMarker(T("Higher values keep textures sharper when viewed at an angle. They use more GPU time and are visible only in games that use mipmaps."));
 
-	ImGui::Text("%s", T("Texture Filtering:"));
+	ImGui::Text("%s", T("Filter:"));
 	// GBFrame exposes only Nearest and Bilinear; migrate old per-game-default values to the kit default.
 	if (config::TextureFiltering == 0)
 		config::TextureFiltering = 2;

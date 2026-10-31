@@ -117,7 +117,7 @@ bool EGLGraphicsContext::init()
 			ANativeWindow *nativeWindow = (ANativeWindow *)window;
 			ANativeWindow_acquire(nativeWindow); // SetWindow takes ownership of one reference
 			glr::SetWindow(nativeWindow);
-			glr::SetOptions(config::PresenterFilter, config::PresenterShader);
+			glr::SetOptions(1, config::PresenterShader);
 			glr::SetColorCorrection(0);
 			EGLint pbufferAttrs[] = { EGL_WIDTH, ANativeWindow_getWidth(nativeWindow), EGL_HEIGHT, ANativeWindow_getHeight(nativeWindow), EGL_NONE };
 			surface = eglCreatePbufferSurface(display, config, pbufferAttrs);
@@ -233,7 +233,7 @@ bool EGLGraphicsContext::presenterActive() const
 {
 	// Bilinear is the direct renderer's default. Route frames through the shared presenter when the user selects
 	// a post-process shader or a non-default output filter.
-	return config::PresenterShader != 0 || config::PresenterFilter != 1;
+	return config::PresenterShader != 0;
 }
 
 // Moves the game between the window (plain output) and an off-screen surface (presenter). Runs on the render thread:
@@ -265,17 +265,16 @@ void EGLGraphicsContext::applyPresenterMode(bool on)
 		ERROR_LOG(RENDERER, "EGL Error: could not set up the %s surface: %x", on ? "off-screen" : "window", eglGetError());
 	makeCurrent();
 	presenterOn = on;
-	presenterShader = presenterFilter = -1; // sends the shader and filter to the presenter on the next frame
+	presenterShader = -1; // sends the shader to the presenter on the next frame
 }
 
 // Reads the off-screen frame (OpenGL rows start at the bottom) and hands it to the presenter, top row first
 void EGLGraphicsContext::presentThroughPresenter()
 {
-	if (config::PresenterShader != presenterShader || config::PresenterFilter != presenterFilter)
+	if (config::PresenterShader != presenterShader)
 	{
 		presenterShader = config::PresenterShader;
-		presenterFilter = config::PresenterFilter;
-		glr::SetOptions(presenterFilter, presenterShader);
+		glr::SetOptions(1, presenterShader);
 	}
 	EGLint w, h;
 	eglQuerySurface(display, surface, EGL_WIDTH, &w);

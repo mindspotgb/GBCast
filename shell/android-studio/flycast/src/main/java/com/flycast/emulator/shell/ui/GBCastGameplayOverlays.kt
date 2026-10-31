@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.flycast.emulator.emu.JNIdc
 import gb.frame.PerfOptions
 import gb.frame.PerfOverlay
 import gb.frame.GameplayOverlayChrome
-import gb.frame.gameOverlayInsets
 import kotlinx.coroutines.delay
 
 object GBCastOverlayOptions : gb.frame.MonitoringSettings {
@@ -77,7 +75,5 @@ fun GBCastGameplayOverlays(onMenu: () -> Unit) {
                     gpuName = { JNIdc.overlayGpuName().orEmpty() }, modifier = m)
             },
         )
-        if (stats.getOrElse(5) { 0 } != 0) Text("Fast-forward", color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.align(Alignment.BottomEnd).gameOverlayInsets().padding(12.dp))
     }
 }

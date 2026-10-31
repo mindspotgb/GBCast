@@ -225,7 +225,6 @@ private:
 	bool swapOnVSync = true;
 	bool gbFramePresenter = false;
 	bool gbFramePresenterAHBInterop = false;
-	int gbFramePresenterLastFilter = -1;
 	int gbFramePresenterLastShader = -1;
 	vk::UniqueInstance instance;
 	vk::PhysicalDevice physicalDevice;

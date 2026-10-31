@@ -50,7 +50,6 @@ public final class JNIdc
 	public static native int guiState();
 	public static native void guiSetState(int state);
 	public static native void guiTogglePause();
-	public static native void restartGame();
 	public static native void saveCurrentSlot();
 	public static native String saveSlotWithPreview(int slot);
 	public static native int[] overlayStats();

@@ -173,6 +173,21 @@ object GbcastGameUi {
         glView?.requestFocus()
     }
 
+    @JvmStatic
+    fun restartCurrentGame() {
+        val activity = attachedActivity ?: return
+        val path = JNIdc.currentGamePath().takeIf { it.isNotBlank() } ?: return
+        // Recreate the GL surface before starting the same disc. Hot-reloading a Flycast session
+        // under the active PVR queue can leave the renderer queue bound to the previous context.
+        activity.intent.putExtra(GBCastBridge.EXTRA_PATH, path)
+        activity.intent.putExtra(GBCastBridge.EXTRA_SLOT, -1)
+        activity.intent.putExtra(GBCastBridge.EXTRA_LOAD, false)
+        activity.intent.putExtra(GBCastBridge.EXTRA_RESTORE_AUTO_LOAD, false)
+        visible = false
+        menuOwnsKeys = false
+        activity.recreate()
+    }
+
     private fun hideForNative(state: Int) {
         JNIdc.guiSetState(state)
         visible = false
@@ -290,16 +305,11 @@ object GbcastGameUi {
                     id = "resolution",
                 ) { setInt("config", "rend.Resolution", it) }
 
-                gb.frame.PictureFilterQuickMenuItem(currentInt("config", "GBCast.Filter"), id = "presenter-filter") {
-                    setInt("config", "GBCast.Filter", it)
+                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering"), id = "filter", title = "Filter") {
+                    setInt("config", "rend.TextureFiltering", it)
                 }
                 gb.frame.ShaderQuickMenuItem(currentInt("config", "GBCast.Shader")) {
                     setInt("config", "GBCast.Shader", it)
-                }
-
-                // Flycast texture sampling is core-specific and follows the six shared controls above.
-                gb.frame.TextureFilterQuickMenuItem(currentInt("config", "rend.TextureFiltering")) {
-                    setInt("config", "rend.TextureFiltering", it)
                 }
 
                 for ((key, label) in listOf(
@@ -458,12 +468,8 @@ object GbcastGameUi {
                 ) {
                     openPage(discPickerPage, returnFocusItemId = "disc-swap")
                 }
-                gb.frame.QuickMenuItemRow(
-                    id = "restart", icon = androidx.compose.material.icons.Icons.Default.RestartAlt,
-                    label = "Reset",
-                ) {
-                    JNIdc.restartGame()
-                    resume()
+                gb.frame.ResetQuickMenuItem {
+                    restartCurrentGame()
                 }
 
                 gb.frame.QuickMenuItemRow(

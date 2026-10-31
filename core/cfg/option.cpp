@@ -104,9 +104,8 @@ Option<int> CrosshairSize("rend.CrosshairSize", 40);
 Option<int> SkipFrame("ta.skip");
 Option<int> MaxThreads("pvr.MaxThreads", 3);
 Option<int> AutoSkipFrame("pvr.AutoSkipFrame", 0);
-// Presenter of the kit (gb.frame.Shaders ids; 0 = plain window output) and its scaling filter (0 nearest, 1 bilinear)
+// Presenter of the kit (gb.frame.Shaders ids; 0 = plain window output)
 Option<int> PresenterShader("GBCast.Shader", 0);
-Option<int> PresenterFilter("GBCast.Filter", 1);
 Option<int> RenderResolution("rend.Resolution", 480);
 Option<bool> IntegerScale("rend.IntegerScale", false);
 Option<bool> LinearInterpolation("rend.LinearInterpolation", true);

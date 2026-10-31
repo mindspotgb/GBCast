@@ -1114,12 +1114,10 @@ void VulkanContext::FlushGBFramePresenterFrames(bool wait)
 {
 #if defined(__ANDROID__)
 	if (!gbFramePresenter || !device) return;
-	const int filter = config::PresenterFilter;
 	const int shader = config::PresenterShader;
-	if (filter != gbFramePresenterLastFilter || shader != gbFramePresenterLastShader) {
-		gbFramePresenterLastFilter = filter;
+	if (shader != gbFramePresenterLastShader) {
 		gbFramePresenterLastShader = shader;
-		glr::SetOptions(filter, shader);
+		glr::SetOptions(1, shader);
 	}
 	if (wait) device->waitIdle();
 	for (size_t i = 0; i < gbFramePresenterFrames.size(); ++i) {
@@ -1299,8 +1297,7 @@ bool VulkanContext::init()
 	if (gbFramePresenter) {
 		ANativeWindow_acquire(static_cast<ANativeWindow *>(window));
 		glr::SetWindow(static_cast<ANativeWindow *>(window));
-		glr::SetOptions(config::PresenterFilter, config::PresenterShader);
-		gbFramePresenterLastFilter = config::PresenterFilter;
+		glr::SetOptions(1, config::PresenterShader);
 		gbFramePresenterLastShader = config::PresenterShader;
 		glr::SetColorCorrection(0);
 	}
@@ -1919,7 +1916,7 @@ VulkanContext::VulkanContext(void *window, void *display)
 	// Keep Flycast's native Vulkan swapchain for the default output. The GBFrame GLES presenter is
 	// only needed when a non-default filter or a post-process shader is selected; always enabling
 	// the AHardwareBuffer bridge prevented Vulkan games from starting on the RG Rotate's Mali-G52.
-	gbFramePresenter = config::PresenterShader != 0 || config::PresenterFilter != 1;
+	gbFramePresenter = config::PresenterShader != 0;
 	#endif
 	if (!init())
 		throw FlycastException("Vulkan initialization failed");

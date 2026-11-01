@@ -249,7 +249,7 @@ void gui_settings_video()
 					T("Fills displays wider than 16:9 by cropping the sides. This can remove black bars but may hide game content."));
 			ImGui::Unindent();
 	}
-		OptionCheckbox(T("Widescreen game hacks"), config::WidescreenGameHacks,
+		OptionCheckbox(T("Widescreen hack"), config::WidescreenGameHacks,
 				T("Uses built-in widescreen codes in supported games. It can show more of the scene, but may cause visual glitches."));
 		OptionSlider(T("Horizontal image stretch"), config::ScreenStretching, 100, 250,
 				T("Stretches the picture sideways. Higher values distort shapes and do not improve emulation speed."), "%d%%");

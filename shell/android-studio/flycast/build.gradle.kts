@@ -107,20 +107,45 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Use the permanent key for both variants whenever it is configured, so local debug APKs
+    // can update release installs without uninstalling the app or losing its data.
+    val localBuildProperties = Properties().apply {
+        rootProject.file("local.properties").takeIf { it.isFile }?.inputStream()?.use { load(it) }
+    }
+    val releaseKeyPath = System.getenv("GBCAST_KEYSTORE_FILE")
+        ?: localBuildProperties.getProperty("gbcast.keystore.file")
+    val releaseKey = releaseKeyPath?.let { file(it) }?.takeIf { it.exists() }
+    val releaseKeyPasswordFile = localBuildProperties.getProperty("gbcast.keystore.passwordFile")
+        ?.let { file(it) }
+        ?.takeIf { it.isFile }
+    val releaseKeyPassword = System.getenv("GBCAST_KEYSTORE_PASSWORD")
+        ?: releaseKeyPasswordFile?.readText()?.trim()
+    if (releaseKeyPath != null && releaseKey == null) {
+        throw GradleException("Configured GBCast keystore path does not exist")
+    }
+    if (releaseKey != null && releaseKeyPassword.isNullOrBlank()) {
+        throw GradleException("A GBCast keystore password is required when the permanent signing key is configured")
+    }
+
     signingConfigs {
         getByName("debug") {
-            storeFile = file("../debug.keystore")
+            if (releaseKey != null) {
+                storeFile = releaseKey
+                storePassword = releaseKeyPassword
+                keyAlias = "gbcast"
+                keyPassword = releaseKeyPassword
+            } else {
+                storeFile = file("../debug.keystore")
+            }
         }
-        // Permanent release key: CI decodes the GBCAST_KEYSTORE_BASE64 secret to GBCAST_KEYSTORE_FILE (local builds point
-        // it at the owner's copy). Every APK signed with it installs over the previous one. Without it (forks) the
-        // repository's debug keystore is used, which can't update a released GBCast.
-        val releaseKey = System.getenv("GBCAST_KEYSTORE_FILE")?.let { file(it) }?.takeIf { it.exists() }
+        // CI decodes GBCAST_KEYSTORE_BASE64 to GBCAST_KEYSTORE_FILE; local builds point it at the owner's copy.
+        // Forks without the permanent key retain the repository debug-key fallback.
         create("release") {
             if (releaseKey != null) {
                 storeFile = releaseKey
-                storePassword = System.getenv("GBCAST_KEYSTORE_PASSWORD")
+                storePassword = releaseKeyPassword
                 keyAlias = "gbcast"
-                keyPassword = System.getenv("GBCAST_KEYSTORE_PASSWORD")
+                keyPassword = releaseKeyPassword
             } else {
                 initWith(getByName("debug"))
             }
@@ -131,6 +156,7 @@ android {
         debug {
             // Physical development devices use arm64; CI keeps x86_64 for its emulator.
             ndk.abiFilters += listOf("arm64-v8a", "x86_64")
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             // GBCast targets modern 64-bit Android hardware only.

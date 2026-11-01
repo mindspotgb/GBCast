@@ -6,9 +6,10 @@ GBCast is an emulator for Android. GBCast has no ads, analytics or user tracking
 
 ## Data kept on your device
 
-GBCast keeps app settings, save data and save states, cheats, play time, downloaded cover images, the BIOS files you
-select, and the location of your games folder on the device. Game images are read from the folder you choose and are
-not uploaded by the library. If you use RetroAchievements, the app also keeps the login token supplied by that service
+GBCast keeps app settings, save data and save states, cheats, play time, downloaded cover images, the local ownership
+state for an optional Google Play purchase, the BIOS files you select, and the location of your games folder on the
+device. Game images are read from the folder you choose and are not uploaded by the library. If you use RetroAchievements,
+the app also keeps the login token supplied by that service
 in Android's no-backup storage and locally queues casual-mode achievement unlocks while offline. The token is not
 copied by Android backup or device transfer.
 
@@ -26,10 +27,21 @@ your choice.
   the issued token, a game-disc hash, profile information and achievement unlocks.
 - **Cover art** (`thumbnails.libretro.com`): requested when a game has no local cover; the normalized game title is part
   of the image address.
+- **Google Play Billing**: used only if you choose to buy or restore the optional visual customization pack. Google Play
+  processes payment. GBCast receives purchase status and a Play purchase token used to confirm the transaction; it does
+  not receive card credentials or send purchase data to a developer server.
 - **Online and network-emulation features**: broadband-adapter emulation, Naomi networking, battle cable and GGPO can
   communicate with hosts selected or configured by the user when enabled.
 Those remote services can receive standard connection information such as the device's IP address and have their own
 privacy practices.
+
+## Optional visual customization purchase
+
+GBCast offers one optional, non-consumable purchase through Google Play. It unlocks the **Grid** and **All in One**
+library layouts and the ability to choose custom cover images. The default **Showcase** layout, automatically sourced
+cover art, emulation, and RetroAchievements remain available without this purchase. Google Play handles payment; GBCast
+stores only the resulting ownership state locally and excludes that cache from Android backup. Purchases can be restored
+from the same Google Play account. We do not receive payment credentials or send purchase data to a developer server.
 
 ## Permissions
 

@@ -116,6 +116,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                                 onQuit = onQuit,
                                 launch = { path, slot, fresh -> GBCastBridge.launch(ctx, path, slot, fresh) },
                                 onLaunchError = { message -> scope.launch { snackbar.showSnackbar(message) } },
+                                visualCustomizationProductId = "gbcast_visual_customization",
                             )
                             Screen.Settings -> SettingsScreen(
                                 onBack = {

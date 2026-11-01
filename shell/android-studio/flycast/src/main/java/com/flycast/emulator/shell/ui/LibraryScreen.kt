@@ -71,6 +71,7 @@ import gb.frame.HomeLibrary
 import gb.frame.HomeMenuItem
 import gb.frame.HomeMenuPanel
 import gb.frame.HomeTheme
+import gb.frame.VisualCustomizationPurchaseHost
 import gb.frame.HomeTopBar
 import gb.frame.LibraryBack
 import gb.frame.LibraryView
@@ -94,6 +95,7 @@ fun LibraryScreen(
     onQuit: () -> Unit,
     launch: suspend (String, Int, Boolean) -> String?,
     onLaunchError: (String) -> Unit,
+    visualCustomizationProductId: String? = null,
 ) {
     var menuOpen by MenuState.open
     val style by HomeTheme.style
@@ -312,6 +314,7 @@ fun LibraryScreen(
         if (openingGame) {
             LaunchLoadingOverlay("Preparing the disc image. A cached copy is created only when direct access is unavailable on this device.")
         }
+        visualCustomizationProductId?.let { VisualCustomizationPurchaseHost("GBCast", it) }
         gameMenu?.let { game ->
             GameOptions(
                 game,

@@ -31,10 +31,11 @@ before dropping a rendered frame. Max can drop a frame whenever GPU work is
 behind, even when CPU emulation is keeping up. Max can therefore preserve more
 emulation speed at the cost of more visible skipped frames.
 
-CPU recompiler (Dynarec) translates SH-4 code to host instructions and reduces
-CPU overhead. Flycast already runs audio output through its Oboe callback; it
-does not expose a separate threaded-audio option. Flycast has no distinct CPU
-sync control; Threaded rendering only moves PVR rendering to a separate thread.
+Dynarec (the SH-4 dynamic CPU recompiler) stays enabled in GBCast on Android;
+turning it off makes gameplay substantially slower, so there is no user toggle.
+Flycast already runs audio output through its Oboe callback; it does not expose
+a separate threaded-audio option. Flycast has no distinct CPU sync control;
+Threaded rendering only moves PVR rendering to a separate thread.
 
 ## System settings
 
@@ -56,8 +57,8 @@ CPU or GPU work. GBCast's core does not currently expose an equivalent option.
 ## Recommended settings per game
 
 GBFrame loads `assets/game_profiles.json`; GBCast maps measured renderer,
-resolution, auto-skip, Dynarec, threaded-rendering, texture-filtering, and disc
-settings to temporary Flycast overrides at game boot. A saved per-game override
+resolution, auto-skip, threaded-rendering, texture-filtering, and disc settings
+to temporary Flycast overrides at game boot. A saved per-game override
 takes priority, and unmatched games keep global settings. The initial measured
 profile is Crazy Taxi on the RG Rotate's Low tier, using Vulkan; the prior
 device run recorded 60.6 FPS / 101.1% in its title/attract sequence. Other games

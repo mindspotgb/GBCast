@@ -392,9 +392,6 @@ object GbcastGameUi {
             gb.frame.QuickMenuPage("performance", "Performance") {
                 val skip = currentInt("config", "pvr.AutoSkipFrame")
                 gb.frame.AutoFrameSkipQuickMenuItem(skip) { setInt("config", "pvr.AutoSkipFrame", it) }
-                gb.frame.CpuRecompilerQuickMenuItem(currentBool("config", "Dynarec.Enabled")) {
-                    setBool("config", "Dynarec.Enabled", it)
-                }
                 gb.frame.FastCdLoadQuickMenuItem(currentBool("config", "FastGDRomLoad")) {
                     setBool("config", "FastGDRomLoad", it)
                 }

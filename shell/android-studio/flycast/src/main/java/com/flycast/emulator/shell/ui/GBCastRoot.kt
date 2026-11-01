@@ -49,14 +49,24 @@ fun GBCastRoot(onQuit: () -> Unit) {
         val requested = gb.frame.LaunchIntent.pending.value
         androidx.compose.runtime.LaunchedEffect(requested, setup) {
             if (requested == null || !setup) return@LaunchedEffect
+            android.util.Log.i("GBCast-Intent", "processing launch request: $requested")
             gb.frame.LaunchIntent.done() // changes this effect's key: the work runs in the root scope so it isn't cancelled
             scope.launch {
-                val games = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    Storage.cachedScan(Storage.gamesDir).ifEmpty { Storage.scan(Storage.gamesDir) }
+                val gamesDir = Storage.gamesDir
+                val game = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    gb.frame.LaunchIntent.resolveOrRefresh(requested, Storage.cachedScan(gamesDir)) {
+                        Storage.scan(gamesDir)
+                    }
                 }
-                val game = gb.frame.LaunchIntent.resolve(requested, games)
-                val err = if (game == null) gb.frame.LaunchIntent.notFound(requested) else GBCastBridge.launch(ctx, game.path)
-                err?.let { snackbar.showSnackbar(it) }
+                android.util.Log.i(
+                    "GBCast-Intent",
+                    "resolved launch request '$requested' to ${game?.title ?: "no library match"} path=${game?.path}",
+                )
+                val error = if (game == null) gb.frame.LaunchIntent.notFound(requested) else GBCastBridge.launch(ctx, game.path)
+                if (error != null) {
+                    android.util.Log.e("GBCast-Intent", "could not launch '$requested': $error")
+                    snackbar.showSnackbar(error)
+                }
             }
         }
 

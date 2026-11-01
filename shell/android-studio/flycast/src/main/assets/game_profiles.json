@@ -8,7 +8,6 @@
         "renderer": "opengl",
         "resolution": 480,
         "autoFrameSkip": 0,
-        "dynarec": true,
         "threadedRendering": true,
         "framePacing": true,
         "textureFiltering": 2
@@ -20,7 +19,6 @@
         "renderer": "opengl",
         "resolution": 960,
         "autoFrameSkip": 0,
-        "dynarec": true,
         "threadedRendering": true,
         "framePacing": true
       }

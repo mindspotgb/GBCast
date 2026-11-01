@@ -400,10 +400,6 @@ private fun AudioPage(tick: Int, cfg: Cfg) {
 @Composable
 private fun PerformancePage(tick: Int, cfg: Cfg) {
     SettingsGroup("Performance", Icons.Default.Speed) {
-        gb.frame.CpuRecompilerSettingsRow(cfg.bool("config", "Dynarec.Enabled")) {
-            cfg.setBool("config", "Dynarec.Enabled", it)
-        }
-        SettingsDivider()
         ToggleRow(Icons.Default.Speed, "Threaded rendering", "Moves graphics work to another thread. It may improve speed on some devices, but can add latency or cause glitches.", cfg.bool("config", "rend.ThreadedRendering")) { cfg.setBool("config", "rend.ThreadedRendering", it) }
         SettingsDivider()
         ToggleRow(Icons.Default.Speed, "Frame pacing", "Smooths uneven frame delivery. It may improve motion but can add a small amount of waiting.", cfg.bool("config", "rend.FramePacing")) { cfg.setBool("config", "rend.FramePacing", it) }

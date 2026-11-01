@@ -13,7 +13,6 @@ struct Profile {
 	int renderer = -1;
 	int resolution = -1;
 	int autoSkip = -1;
-	int dynarec = -1;
 	int threadedRendering = -1;
 	int textureFiltering = -1;
 	int framePacing = -1;
@@ -26,15 +25,17 @@ Profile pending;
 }
 
 void setRecommendedProfile(bool enabled, int renderer, int resolution, int autoSkip,
-		int dynarec, int threadedRendering, int textureFiltering, int framePacing, int fastCdLoad, int cdReadSpeed)
+		int threadedRendering, int textureFiltering, int framePacing, int fastCdLoad, int cdReadSpeed)
 {
 	std::lock_guard<std::mutex> lock(profileMutex);
-	pending = { enabled, renderer, resolution, autoSkip, dynarec, threadedRendering,
+	pending = { enabled, renderer, resolution, autoSkip, threadedRendering,
 		textureFiltering, framePacing, fastCdLoad, cdReadSpeed };
 }
 
 void applyRecommendedProfile()
 {
+	// Dynarec is mandatory for usable Android performance, independent of whether a measured profile is enabled.
+	config::DynarecEnabled.override(true);
 	Profile profile;
 	{
 		std::lock_guard<std::mutex> lock(profileMutex);
@@ -52,8 +53,6 @@ void applyRecommendedProfile()
 		config::RenderResolution.override(profile.resolution);
 	if (profile.autoSkip >= 0 && profile.autoSkip <= 2)
 		config::AutoSkipFrame.override(profile.autoSkip);
-	if (profile.dynarec >= 0 && !settings.raHardcoreMode)
-		config::DynarecEnabled.override(profile.dynarec != 0);
 	if (profile.threadedRendering >= 0)
 		config::ThreadedRendering.override(profile.threadedRendering != 0);
 	if (profile.textureFiltering >= 1 && profile.textureFiltering <= 2)

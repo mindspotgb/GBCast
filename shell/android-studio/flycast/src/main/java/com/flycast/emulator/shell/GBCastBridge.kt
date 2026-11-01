@@ -73,6 +73,8 @@ object GBCastBridge {
         gb.frame.preloadAppIcon(app.resources, GBCastR.drawable.ic_launcher_foreground)
         Covers.preloadCached(Storage.cachedScan(Storage.gamesDir).take(40).map { it.title })
         app.ensureCore()?.let { error -> throw IllegalStateException(error) }
+        // Flycast's SH-4 dynarec is required for usable Android performance; migrate older saved Off values.
+        setBool("config", "Dynarec.Enabled", true)
         JNIdc.initAutoSkip()
         // The global display mode as Settings last left it (before the per-game choices existed it lived only in the
         // emulator config, which a game's own choice overwrites)
@@ -300,7 +302,7 @@ object GBCastBridge {
     private fun queueRecommendedProfile(safPath: String) {
         if (!useRecommendedSettingsPerGame) {
             android.util.Log.i("GBCastProfile", "Measured per-game settings are disabled")
-            JNIdc.setRecommendedProfile(false, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+            JNIdc.setRecommendedProfile(false, -1, -1, -1, -1, -1, -1, -1, -1)
             return
         }
         val title = Storage.cachedScan(Storage.gamesDir).firstOrNull { it.path == safPath }?.title
@@ -323,7 +325,6 @@ object GBCastBridge {
             profile.isNotEmpty(), renderer,
             (profile["resolution"] as? Number)?.toInt() ?: -1,
             (profile["autoFrameSkip"] as? Number)?.toInt() ?: -1,
-            (profile["dynarec"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["threadedRendering"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,
             (profile["textureFiltering"] as? Number)?.toInt() ?: -1,
             (profile["framePacing"] as? Boolean)?.let { if (it) 1 else 0 } ?: -1,

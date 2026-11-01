@@ -66,6 +66,7 @@ class LibraryActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         gb.frame.LaunchIntent.handle(this, intent)
     }
 

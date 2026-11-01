@@ -221,12 +221,11 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                         console = "Dreamcast",
                         icon = rememberAppIconPainter(R.drawable.ic_launcher_foreground),
                         credits = listOf(
-                            AboutCredit("Flycast", "Emulation core for Dreamcast, Naomi, Naomi 2 and Atomiswave."),
-                            AboutCredit("GBFrame", "Shared Android interface, settings, controls and menu components."),
-                            AboutCredit("libretro-database", "Offline Dreamcast cheat database by its contributors (CC BY-SA 4.0). License included in the APK assets."),
-                            AboutCredit("GBCast", "Android frontend and integration with Flycast."),
+                            AboutCredit("Flycast", "Dreamcast, Naomi, Naomi 2 and Atomiswave emulation core (GNU GPL v2)."),
+                            AboutCredit("rcheevos", "RetroAchievements client library (MIT)."),
+                            AboutCredit("libretro-database", "Bundled Dreamcast cheat database (CC BY-SA 4.0; license included in the APK)."),
                         ),
-                        license = "See the GBCast repository LICENSE and Flycast's upstream license notices for the full terms that apply to each component.",
+                        license = "This Android emulator and its Flycast core are distributed under GNU GPL v2. The bundled cheat database has separate CC BY-SA 4.0 terms; its license is included with the catalog. Dreamcast is a Sega trademark; this project is not affiliated with Sega.",
                     )
                 }
                 Spacer(Modifier.height(24.dp))

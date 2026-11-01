@@ -48,3 +48,41 @@ The strong Dynarec Off regression and full `Flycast-emu` core use establish that
 ## End state
 
 No code or profile asset was changed: the existing `mid` Crazy Taxi profile already selects Vulkan, and these noisy samples do not support adding more overrides. Test-only changes were restored: Recommended settings per game On, Vulkan at 2x, Auto frame skip Off, Dynarec On, DSP Off, Nearest Filter, and the original VSync/frame-pacing/audio settings. The RG Rotate display was returned to sleep after testing.
+
+## Follow-up: threaded rendering, audio, and 3x (2026-11-01)
+
+Repeated on RG Rotate with GBCast 0.4.0 build 59, launched by GBFrame intent (`--es ROM Crazy%20Taxi.chd`) and confirmed in `NativeGLActivity` with the FPS/GPU overlay active. Recommended per-game settings were disabled during the matrix so they could not overwrite the test values. Dynarec stayed On, Auto frame skip Off, OIT excluded, VSync and frame pacing On, and audio buffer at 64 ms. The original device config and preferences were restored after testing; the screen was returned to sleep.
+
+### Threaded rendering at 2x
+
+Six OSD samples per condition; these are different points in the changing attract sequence, not frame-matched captures.
+
+| Renderer | Threaded On median | Threaded Off median | On minus Off |
+|---|---:|---:|---:|
+| Vulkan | 58.65 FPS / 97.70% / 39.65% GPU | 57.85 FPS / 96.45% / 40.90% GPU | +0.80 FPS / +1.25 percentage points |
+| GLES | 59.05 FPS / 98.40% / 42.05% GPU | 58.70 FPS / 97.80% / 42.25% GPU | +0.35 FPS / +0.60 percentage points |
+
+Threaded On was slightly ahead in both renderers, but the margins are small relative to the scene variation and do not establish a reliable performance gain. Off launched and ran in this build/device combination; the crash reported in the earlier build 55 test was not reproduced. Keep On as the default, and do not infer that Off is safe on every build/device.
+
+### Audio toggles
+
+| Test | Median FPS / speed / GPU | Reading |
+|---|---:|---|
+| DSP On, Crazy Taxi Vulkan | 59.50 / 99.25% / 39.00% | No defensible throughput change versus DSP Off; scene variation is larger than the apparent difference. |
+| Auto latency Off, Crazy Taxi Vulkan | 58.70 / 97.90% / 40.70% | No measured speed benefit versus Auto On. |
+| DSP On, Sega Rally 2 GLES | 60.25 / 100.40% / 29.35% | Effectively unchanged versus DSP Off. |
+| Auto latency Off, Sega Rally 2 GLES | 59.70 / 99.60% / 29.30% | Slightly lower median; not a clear regression beyond scene variation. |
+
+AudioFlinger reported zero aggregate partial/empty mixer underruns during the checks. There was no audio loopback or listening test, so these results do not validate crackle, audible latency, or sound quality. Keep the existing DSP Off and automatic latency On defaults; neither toggle showed a repeatable frame-rate advantage. Flycast has no separate Threaded Audio toggle.
+
+### 3x headroom check
+
+Because the 2x runs were near target and GPU use was well below saturation, the selected renderer was sampled at 3x (internal resolution 1440) with Threaded Rendering On:
+
+| Renderer | Median FPS | Median speed | Median GPU | Median CPU overlay |
+|---|---:|---:|---:|---:|
+| Vulkan | 58.60 | 97.65% | 42.00% | 15.70% |
+
+The 3x sequence remained close to the 2x result, without a clear FPS regression in this attract loop. The 3x CPU overlay median was 15.70% system-wide. Thread-level CPU sampling was performed in the separate Sega Rally 2 session, not in Crazy Taxi; see that report for the emulation-thread saturation evidence. No profile change is justified by this short capture.
+
+Raw OSD samples are in [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv) and [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv). The 2x file contains the primary six-sample matrix, audio runs, and a second six-sample Sega Rally 2 GLES/Threaded On baseline check.

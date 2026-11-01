@@ -69,7 +69,8 @@ jobs:
             echo "GBCAST_KEYSTORE_FILE=$RUNNER_TEMP/gbcast-release.jks" >> "$GITHUB_ENV"
             echo "::notice title=Signing::APK signed with the GBCast release key"
           else
-            echo "::warning title=Signing::GBCAST_KEYSTORE_BASE64 secret not set; APK signed with the repository debug key"
+            echo "::error title=Signing::GBCAST_KEYSTORE_BASE64 secret must be configured for release builds"
+            exit 1
           fi
 
       # Tests run locally before dispatch; cloud runners only package the release APK.

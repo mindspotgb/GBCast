@@ -20,6 +20,7 @@ core/deps/glslang/
 .cache/
 compile_commands.json
 CMakeUserPresets.json
+shell/android-studio/playstore.jks
 
 # Device-test artifacts from tools/gbcast.ps1
 test-output/

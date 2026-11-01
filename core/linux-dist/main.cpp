@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 		die("Flycast initialization failed\n");
 
 #if defined(USE_BREAKPAD)
-	auto async = std::async(std::launch::async, uploadCrashes, "/tmp");
+	auto async = std::async(std::launch::async, cleanCrashDumps, "/tmp");
 #endif
 
 	try {

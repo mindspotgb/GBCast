@@ -545,7 +545,6 @@ void os_UpdateInputState()
 
 #ifdef USE_BREAKPAD
 
-#include "http_client.h"
 #include "version.h"
 #include "log/InMemoryListener.h"
 #include "wsi/context.h"
@@ -591,76 +590,31 @@ void registerCrash(const char *directory, const char *path)
 	}
 }
 
-void uploadCrashes(const std::string& directory)
+void cleanCrashDumps(const std::string& directory)
 {
 	FILE *f = nowide::fopen((directory + "/" FLYCAST_CRASH_LIST).c_str(), "rt");
 	if (f == nullptr)
 		return;
-	http::init();
-	char line[256];
-	bool uploadFailure = false;
+	char line[4096];
 	while (fgets(line, sizeof(line), f) != nullptr)
 	{
-		char *p = line + strlen(line) - 1;
-		if (*p == '\n')
-			*p = '\0';
-		if (file_exists(line))
+		std::string dumpPath(line);
+		while (!dumpPath.empty() && (dumpPath.back() == '\n' || dumpPath.back() == '\r'))
+			dumpPath.pop_back();
+		if (!dumpPath.empty() && file_exists(dumpPath))
 		{
-			std::string dmpfile(line);
-			std::string logfile = get_file_basename(dmpfile) + ".log";
-#ifdef SENTRY_UPLOAD
-			if (config::UploadCrashLogs)
-			{
-				NOTICE_LOG(COMMON, "Uploading minidump %s", line);
-				std::string version = std::string(GIT_VERSION);
-				if (file_exists(logfile))
-				{
-					nowide::ifstream ifs(logfile);
-					if (ifs.is_open())
-					{
-						std::string line;
-						while (std::getline(ifs, line))
-							if (line.substr(0, 9) == "Version: ")
-							{
-								version = line.substr(9);
-								break;
-							}
-					}
-				}
-				std::vector<http::PostField> fields;
-				fields.emplace_back("upload_file_minidump", dmpfile, "application/octet-stream");
-				fields.emplace_back("sentry[release]", version);
-				if (file_exists(logfile))
-					fields.emplace_back("flycast_log", logfile, "text/plain");
-				// TODO config, gpu/driver, ...
-				int rc = http::post(SENTRY_UPLOAD, fields);
-				if (rc >= 200 && rc < 300) {
-					nowide::remove(dmpfile.c_str());
-					nowide::remove(logfile.c_str());
-				}
-				else
-				{
-					WARN_LOG(COMMON, "Upload failed: HTTP error %d", rc);
-					uploadFailure = true;
-				}
-			}
-			else
-#endif
-			{
-				nowide::remove(dmpfile.c_str());
-				nowide::remove(logfile.c_str());
-			}
+			const std::string logPath = get_file_basename(dumpPath) + ".log";
+			nowide::remove(dumpPath.c_str());
+			nowide::remove(logPath.c_str());
 		}
 	}
-	http::term();
 	fclose(f);
-	if (!uploadFailure)
-		nowide::remove((directory + "/" FLYCAST_CRASH_LIST).c_str());
+	nowide::remove((directory + "/" FLYCAST_CRASH_LIST).c_str());
 }
 
 #else
 
 void registerCrash(const char *directory, const char *path) {}
-void uploadCrashes(const std::string& directory) {}
+void cleanCrashDumps(const std::string& directory) {}
 
 #endif

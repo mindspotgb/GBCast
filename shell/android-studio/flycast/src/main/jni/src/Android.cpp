@@ -96,9 +96,9 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor, 
 	return succeeded;
 }
 
-static void *uploadCrashThread(void *p)
+static void *cleanCrashThread(void *p)
 {
-	uploadCrashes(*(std::string *)p);
+	cleanCrashDumps(*(std::string *)p);
 
 	return nullptr;
 }
@@ -176,9 +176,9 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_initEnv
         else
         {
 			static std::string crashPath;
-			static cThread uploadThread(uploadCrashThread, &crashPath, "SentryUpload");
+			static cThread cleanupThread(cleanCrashThread, &crashPath, "CrashCleanup");
 			crashPath = get_writable_config_path("");
-			uploadThread.Start();
+			cleanupThread.Start();
         }
 #endif
 

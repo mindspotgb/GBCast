@@ -2286,14 +2286,6 @@ msgstr "ログをファイルに保存"
 msgid "Log debug information to flycast.log"
 msgstr "flycast.logにデバッグ情報を記録する"
 
-#: core/ui/settings.cpp:125
-msgid "Automatically Report Crashes"
-msgstr "クラッシュを自動的に報告"
-
-#: core/ui/settings.cpp:126
-msgid "Automatically upload crash reports to sentry.io to help in troubleshooting. No personal information is included."
-msgstr "トラブルシューティングに役立てるため、クラッシュレポートをsentry.ioに自動的にアップロードします。個人情報は含まれません。"
-
 #: core/ui/settings.cpp:131
 msgid "Lua Scripting"
 msgstr "Luaスクリプト"

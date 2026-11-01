@@ -2286,14 +2286,6 @@ msgstr "Journal dans fichier"
 msgid "Log debug information to flycast.log"
 msgstr "Sauvegarde le journal de débogage dans flycast.log"
 
-#: core/ui/settings.cpp:125
-msgid "Automatically Report Crashes"
-msgstr "Rapport de crash automatique"
-
-#: core/ui/settings.cpp:126
-msgid "Automatically upload crash reports to sentry.io to help in troubleshooting. No personal information is included."
-msgstr "Envoie un rapport de crash automatiquement à sentry.io. Aucune information personnelle n'est envoyée."
-
 #: core/ui/settings.cpp:131
 msgid "Lua Scripting"
 msgstr "Script Lua"

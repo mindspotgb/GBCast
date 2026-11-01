@@ -188,8 +188,6 @@ static bool getRa() { return config::EnableAchievements; }
 static void setRa(bool v) { config::EnableAchievements = v; }
 static bool getHardcore() { return config::AchievementsHardcoreMode; }
 static void setHardcore(bool v) { config::AchievementsHardcoreMode = v; }
-static bool getCrash() { return config::UploadCrashLogs; }
-static void setCrash(bool v) { config::UploadCrashLogs = v; }
 
 static const BoolOpt kBools[] = {
     {"config", "rend.CustomTextures", getCustomTextures, setCustomTextures},
@@ -229,7 +227,6 @@ static const BoolOpt kBools[] = {
 	{"network", "BattleCable", getBattle, setBattle},
 	{"achievements", "Enabled", getRa, setRa},
 	{"achievements", "HardcoreMode", getHardcore, setHardcore},
-	{"config", "UploadCrashLogs", getCrash, setCrash},
 };
 
 static int getRes() { return config::RenderResolution; }

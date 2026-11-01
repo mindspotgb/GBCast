@@ -2285,14 +2285,6 @@ msgstr "Log para o Arquivo"
 msgid "Log debug information to flycast.log"
 msgstr "Registrar informações de depuração em flycast.log"
 
-#: core/ui/settings.cpp:125
-msgid "Automatically Report Crashes"
-msgstr "Relatar falhas automaticamente"
-
-#: core/ui/settings.cpp:126
-msgid "Automatically upload crash reports to sentry.io to help in troubleshooting. No personal information is included."
-msgstr "Enviar automaticamente relatórios de falha para sentry.io para ajudar na resolução de problemas. Nenhuma informação pessoal será incluída."
-
 #: core/ui/settings.cpp:131
 msgid "Lua Scripting"
 msgstr "Lua Scripting"

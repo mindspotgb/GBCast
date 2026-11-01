@@ -116,10 +116,6 @@ static void gui_settings_advanced()
 			config::saveBool("log", "LogToFile", logToFile);
         ImGui::SameLine();
         ShowHelpMarker(T("Log debug information to flycast.log"));
-#ifdef SENTRY_UPLOAD
-        OptionCheckbox(T("Automatically Report Crashes"), config::UploadCrashLogs,
-        		T("Automatically upload crash reports to sentry.io to help in troubleshooting. No personal information is included."));
-#endif
     }
 
 #ifdef USE_LUA

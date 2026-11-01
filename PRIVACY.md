@@ -1,6 +1,6 @@
 # GBCast — Privacy Policy
 
-_Last updated: October 26, 2026_
+_Last updated: November 1, 2026_
 
 GBCast is an emulator for Android. GBCast has no ads, analytics or user tracking, and does not sell personal data.
 
@@ -9,7 +9,11 @@ GBCast is an emulator for Android. GBCast has no ads, analytics or user tracking
 GBCast keeps app settings, save data and save states, cheats, play time, downloaded cover images, the BIOS files you
 select, and the location of your games folder on the device. Game images are read from the folder you choose and are
 not uploaded by the library. If you use RetroAchievements, the app also keeps the login token supplied by that service
-and locally queues casual-mode achievement unlocks while offline.
+in Android's no-backup storage and locally queues casual-mode achievement unlocks while offline. The token is not
+copied by Android backup or device transfer.
+
+Crash dumps and diagnostic logs may be written to app-private storage after a crash. They are deleted automatically
+on the next app start and are not uploaded by GBCast.
 
 Android may include eligible app-private files in its platform backup when device backup is enabled. Clearing the app's
 data or uninstalling it removes app-private data, except for files that you exported or otherwise placed in a folder of
@@ -24,15 +28,15 @@ your choice.
   of the image address.
 - **Online and network-emulation features**: broadband-adapter emulation, Naomi networking, battle cable and GGPO can
   communicate with hosts selected or configured by the user when enabled.
-- **Crash reports**: if **Upload crash logs** is enabled, a native crash dump and GBCast/Flycast log can be sent to the
-  crash-report endpoint compiled into that build. The setting can be disabled in the app.
-
 Those remote services can receive standard connection information such as the device's IP address and have their own
 privacy practices.
 
 ## Permissions
 
 - **Internet**: for the optional services and network features listed above.
+- **Microphone**: when a Dreamcast microphone is configured, GBCast captures microphone input for games that use that
+  emulated peripheral. The samples are passed to the emulator and are not uploaded by GBCast.
+- **Wi-Fi/Bluetooth**: for optional online/network emulation and connected input devices.
 - **Folder/file access**: Android's system picker grants access only to game, BIOS, cheat or other files and folders the
   user selects.
 

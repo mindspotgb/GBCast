@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -198,8 +199,8 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                         if (!importingBios) dreamcastBiosPicker.launch(arrayOf("*/*"))
                     }
                     SettingsPage.Video -> VideoPage(tick, cfg)
-                    SettingsPage.Audio -> AudioPage(tick, cfg)
-                    SettingsPage.Performance -> PerformancePage(tick, cfg)
+                    SettingsPage.Audio -> key(tick) { AudioPage(tick, cfg) }
+                    SettingsPage.Performance -> key(tick) { PerformancePage(tick, cfg) }
                     SettingsPage.Controls -> ControlsPage(DreamcastControls) {
                         val devices = intArrayOf(0, 18, 5, 6, 7, 8, 10)
                         val selected = indexOf(tick, devices, cfg.int("input", "device1"))
@@ -213,7 +214,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                             cfg.setInt("input", "VirtualGamepadVibration", vibeValues[it])
                         }
                     }
-                    SettingsPage.Extras -> ExtrasPage(tick, cfg)
+                    SettingsPage.Extras -> key(tick) { ExtrasPage(tick, cfg) }
                     SettingsPage.About -> AboutPage(
                         appName = "GBCast",
                         manufacturer = "Sega",
@@ -260,7 +261,7 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
         onAutoLoad = { cfg.setBool("config", "Dreamcast.AutoLoadState", it) },
         hleBios = {
             ToggleRow(Icons.Default.Tune, "HLE BIOS", "Uses Flycast's built-in BIOS instead of the console BIOS. It can start games without a BIOS file, but some games may need the original BIOS.", cfg.bool("config", "UseReios")) {
-                cfg.toggle("config", "UseReios")
+                cfg.setBool("config", "UseReios", it)
             }
         },
         startup = SystemStartupOptions(
@@ -349,7 +350,7 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         ) {
             cfg.setInt("config", "rend.Resolution", it)
         }
-        ToggleRow(Icons.Default.Tv, "VSync", "Matches drawing to the screen refresh to reduce tearing. It can add a little input delay or limit speed.", cfg.bool("config", "rend.vsync")) { cfg.toggle("config", "rend.vsync") }
+        ToggleRow(Icons.Default.Tv, "VSync", "Matches drawing to the screen refresh to reduce tearing. It can add a little input delay or limit speed.", cfg.bool("config", "rend.vsync")) { cfg.setBool("config", "rend.vsync", it) }
         SettingsDivider()
         ChoiceRow("Anisotropic filtering", "Sharpens textures viewed at a steep angle. Higher values use more GPU time; the visual gain is most visible in 3D scenes.", listOf("Off", "2x", "4x", "8x", "16x"), indexOf(tick, intArrayOf(1, 2, 4, 8, 16), cfg.int("config", "rend.AnisotropicFiltering"))) {
             cfg.setInt("config", "rend.AnisotropicFiltering", intArrayOf(1, 2, 4, 8, 16)[it])
@@ -365,15 +366,15 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         gb.frame.TexturePackImportRow(GBCastBridge.texturesFolder())
     }
     SettingsGroup("Accuracy", null) {
-        ToggleRow(Icons.Default.Tune, "Per-strip sorting", "Sorts transparent polygons by strip. It can be faster, but may show incorrect overlap; turn it off for per-triangle sorting if a game looks wrong.", cfg.bool("config", "rend.PerStripSorting")) { cfg.toggle("config", "rend.PerStripSorting") }
+        ToggleRow(Icons.Default.Tune, "Per-strip sorting", "Sorts transparent polygons by strip. It can be faster, but may show incorrect overlap; turn it off for per-triangle sorting if a game looks wrong.", cfg.bool("config", "rend.PerStripSorting")) { cfg.setBool("config", "rend.PerStripSorting", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Tune, "Fog effects", "Keeps distance haze and fog effects used by some games. Disabling it may improve speed slightly but changes the picture.", cfg.bool("config", "rend.Fog")) { cfg.toggle("config", "rend.Fog") }
+        ToggleRow(Icons.Default.Tune, "Fog effects", "Keeps distance haze and fog effects used by some games. Disabling it may improve speed slightly but changes the picture.", cfg.bool("config", "rend.Fog")) { cfg.setBool("config", "rend.Fog", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Tune, "Mipmaps", "Uses smaller versions of textures at a distance to reduce shimmering. This can use extra memory and a little GPU time.", cfg.bool("config", "rend.UseMipmaps")) { cfg.toggle("config", "rend.UseMipmaps") }
+        ToggleRow(Icons.Default.Tune, "Mipmaps", "Uses smaller versions of textures at a distance to reduce shimmering. This can use extra memory and a little GPU time.", cfg.bool("config", "rend.UseMipmaps")) { cfg.setBool("config", "rend.UseMipmaps", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Tune, "Delay frame swap", "Waits for rendering to finish before showing a frame. This can fix missing or flickering effects, but may reduce speed.", cfg.bool("config", "rend.DelayFrameSwapping")) { cfg.toggle("config", "rend.DelayFrameSwapping") }
+        ToggleRow(Icons.Default.Tune, "Delay frame swap", "Waits for rendering to finish before showing a frame. This can fix missing or flickering effects, but may reduce speed.", cfg.bool("config", "rend.DelayFrameSwapping")) { cfg.setBool("config", "rend.DelayFrameSwapping", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Tune, "Framebuffer emulation", "More accurately reproduces games that read the screen back as they draw. It can be demanding; enable it only if a game needs it.", cfg.bool("config", "rend.EmulateFramebuffer")) { cfg.toggle("config", "rend.EmulateFramebuffer") }
+        ToggleRow(Icons.Default.Tune, "Framebuffer emulation", "More accurately reproduces games that read the screen back as they draw. It can be demanding; enable it only if a game needs it.", cfg.bool("config", "rend.EmulateFramebuffer")) { cfg.setBool("config", "rend.EmulateFramebuffer", it) }
     }
 }
 
@@ -384,15 +385,15 @@ private fun AudioPage(tick: Int, cfg: Cfg) {
     // The kit's standard options first, then Flycast's own
     gb.frame.AudioSettingsGroups(GBCastAudio)
     SettingsGroup("Sound chip (AICA)", Icons.AutoMirrored.Filled.VolumeUp) {
-        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "DSP effects", "Enables the sound chip's digital signal processor for extra audio effects. It is more demanding; turn it off if performance is low.", cfg.bool("config", "aica.DSPEnabled")) { cfg.toggle("config", "aica.DSPEnabled") }
+        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "DSP effects", "Enables the sound chip's digital signal processor for extra audio effects. It is more demanding; turn it off if performance is low.", cfg.bool("config", "aica.DSPEnabled")) { cfg.setBool("config", "aica.DSPEnabled", it) }
         SettingsDivider()
-        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "Automatic audio latency", "Adjusts the audio buffer while you play to avoid crackling. Lower latency responds faster but needs more CPU headroom.", cfg.bool("config", "aica.AutoLatency")) { cfg.toggle("config", "aica.AutoLatency") }
+        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "Automatic audio latency", "Adjusts the audio buffer while you play to avoid crackling. Lower latency responds faster but needs more CPU headroom.", cfg.bool("config", "aica.AutoLatency")) { cfg.setBool("config", "aica.AutoLatency", it) }
         SettingsDivider()
         ChoiceRow("Audio buffer", "Smaller buffers reduce audio delay but are more likely to crackle on a busy device. Larger buffers are steadier and add delay.", listOf("64 ms", "96 ms", "128 ms"), latency) {
             cfg.setInt("config", "aica.BufferSize", listOf(64, 96, 128)[it] * 44100 / 1000)
         }
         SettingsDivider()
-        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "VMU sounds", "Plays the memory card's beeps. This has negligible performance cost.", cfg.bool("audio", "VmuSound")) { cfg.toggle("audio", "VmuSound") }
+        ToggleRow(Icons.AutoMirrored.Filled.VolumeUp, "VMU sounds", "Plays the memory card's beeps. This has negligible performance cost.", cfg.bool("audio", "VmuSound")) { cfg.setBool("audio", "VmuSound", it) }
     }
 }
 
@@ -403,9 +404,9 @@ private fun PerformancePage(tick: Int, cfg: Cfg) {
             cfg.setBool("config", "Dynarec.Enabled", it)
         }
         SettingsDivider()
-        ToggleRow(Icons.Default.Speed, "Threaded rendering", "Moves graphics work to another thread. It may improve speed on some devices, but can add latency or cause glitches.", cfg.bool("config", "rend.ThreadedRendering")) { cfg.toggle("config", "rend.ThreadedRendering") }
+        ToggleRow(Icons.Default.Speed, "Threaded rendering", "Moves graphics work to another thread. It may improve speed on some devices, but can add latency or cause glitches.", cfg.bool("config", "rend.ThreadedRendering")) { cfg.setBool("config", "rend.ThreadedRendering", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Speed, "Frame pacing", "Smooths uneven frame delivery. It may improve motion but can add a small amount of waiting.", cfg.bool("config", "rend.FramePacing")) { cfg.toggle("config", "rend.FramePacing") }
+        ToggleRow(Icons.Default.Speed, "Frame pacing", "Smooths uneven frame delivery. It may improve motion but can add a small amount of waiting.", cfg.bool("config", "rend.FramePacing")) { cfg.setBool("config", "rend.FramePacing", it) }
         SettingsDivider()
         gb.frame.AutoFrameSkipSettingsRow(cfg.int("config", "pvr.AutoSkipFrame")) {
             cfg.setInt("config", "pvr.AutoSkipFrame", it)
@@ -418,16 +419,16 @@ private fun PerformancePage(tick: Int, cfg: Cfg) {
 @Composable
 private fun ExtrasPage(tick: Int, cfg: Cfg) {
     SettingsGroup("Arcade", null) {
-        ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.toggle("config", "ForceFreePlay") }
+        ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.setBool("config", "ForceFreePlay", it) }
     }
     SettingsGroup("Network and achievements", Icons.Default.Wifi) {
-        ToggleRow(Icons.Default.Wifi, "Broadband adapter", "Emulates the Dreamcast network adapter for games that support online or LAN features.", cfg.bool("network", "EmulateBBA")) { cfg.toggle("network", "EmulateBBA") }
+        ToggleRow(Icons.Default.Wifi, "Broadband adapter", "Emulates the Dreamcast network adapter for games that support online or LAN features.", cfg.bool("network", "EmulateBBA")) { cfg.setBool("network", "EmulateBBA", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Wifi, "Naomi network", "Enables network features for compatible Naomi arcade games.", cfg.bool("network", "Enable")) { cfg.toggle("network", "Enable") }
+        ToggleRow(Icons.Default.Wifi, "Naomi network", "Enables network features for compatible Naomi arcade games.", cfg.bool("network", "Enable")) { cfg.setBool("network", "Enable", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Wifi, "Battle cable", "Connects compatible arcade games for local multiplayer. Both emulated systems need matching network settings.", cfg.bool("network", "BattleCable")) { cfg.toggle("network", "BattleCable") }
+        ToggleRow(Icons.Default.Wifi, "Battle cable", "Connects compatible arcade games for local multiplayer. Both emulated systems need matching network settings.", cfg.bool("network", "BattleCable")) { cfg.setBool("network", "BattleCable", it) }
         SettingsDivider()
-        ToggleRow(Icons.Default.Wifi, "GGPO", "Rollback netplay. Host, delay and chat options are in the advanced network screen.", cfg.bool("network", "GGPO")) { cfg.toggle("network", "GGPO") }
+        ToggleRow(Icons.Default.Wifi, "GGPO", "Rollback netplay. Host, delay and chat options are in the advanced network screen.", cfg.bool("network", "GGPO")) { cfg.setBool("network", "GGPO", it) }
     }
     gb.frame.RetroAchievementsSettings("GBCast")
 }

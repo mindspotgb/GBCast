@@ -62,6 +62,7 @@ import com.flycast.emulator.shell.DreamcastBios
 import com.flycast.emulator.shell.DisplayMode
 import com.flycast.emulator.shell.Storage
 import gb.frame.AboutCredit
+import gb.frame.AboutLicenseDocument
 import gb.frame.AboutPage
 import gb.frame.rememberAppIconPainter
 import gb.frame.ActionRow
@@ -225,7 +226,13 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                             AboutCredit("rcheevos", "RetroAchievements client library (MIT)."),
                             AboutCredit("libretro-database", "Bundled Dreamcast cheat database (CC BY-SA 4.0; license included in the APK)."),
                         ),
-                        license = "This Android emulator and its Flycast core are distributed under GNU GPL v2. The bundled cheat database has separate CC BY-SA 4.0 terms; its license is included with the catalog. Dreamcast is a Sega trademark; this project is not affiliated with Sega.",
+                        license = "GBCast and Flycast are distributed under GNU GPL v2. The full GPL, rcheevos MIT and bundled cheat-database CC BY-SA 4.0 license texts are below. Dreamcast is a Sega trademark; GBCast is not affiliated with Sega.",
+                        tagline = "Brought to you by GameBeacon.dev: pure speed and nostalgia for the definitive Sega Dreamcast experience.",
+                        licenseDocuments = listOf(
+                            AboutLicenseDocument("GNU GPL v2 — GBCast and Flycast", "licenses/GNU-GPL-2.0.txt"),
+                            AboutLicenseDocument("MIT — rcheevos", "licenses/rcheevos-MIT.txt"),
+                            AboutLicenseDocument("CC BY-SA 4.0 — libretro-database", "cheats/LICENSE-libretro-database.txt"),
+                        ),
                     )
                 }
                 Spacer(Modifier.height(24.dp))

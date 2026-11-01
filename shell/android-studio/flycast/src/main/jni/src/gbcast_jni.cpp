@@ -13,7 +13,9 @@
 #include "hw/pvr/Renderer_if.h"
 #include "hw/pvr/pvr_regs.h"
 #include "rend/transform_matrix.h"
+#include "rend/gpu_usage.h"
 #include "wsi/context.h"
+#include "gl_renderer.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -468,6 +470,19 @@ extern "C" JNIEXPORT jintArray JNICALL Java_com_flycast_emulator_emu_JNIdc_overl
 extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_overlayGpuName(JNIEnv *env, jclass) {
 	auto *context = GraphicsContext::Instance();
 	return env->NewStringUTF(context != nullptr ? context->getDriverName().c_str() : "");
+}
+
+extern "C" JNIEXPORT jfloat JNICALL Java_com_flycast_emulator_emu_JNIdc_overlayGpuLoad(JNIEnv *, jclass) {
+	static auto last = std::chrono::steady_clock::now();
+	const auto now = std::chrono::steady_clock::now();
+	const double elapsedNs = std::chrono::duration<double, std::nano>(now - last).count();
+	last = now;
+	const uint64_t gpuNs = gpu_usage::TakeNanoseconds() + glr::TakeGpuNs();
+	if (!gpu_usage::IsSupported() && !glr::GpuTimed())
+		return -1.f;
+	if (elapsedNs <= 0.0)
+		return 0.f;
+	return static_cast<jfloat>(std::min(100.0, static_cast<double>(gpuNs) / elapsedNs * 100.0));
 }
 
 extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_pollOverlayMessage(JNIEnv *env, jclass) {

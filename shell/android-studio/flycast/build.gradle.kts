@@ -154,8 +154,8 @@ android {
 
     buildTypes {
         debug {
-            // Physical development devices use arm64; CI keeps x86_64 for its emulator.
-            ndk.abiFilters += listOf("arm64-v8a", "x86_64")
+            // GBCast targets the ARM64 Android devices used for development and distribution.
+            ndk.abiFilters += "arm64-v8a"
             signingConfig = signingConfigs.getByName("debug")
         }
         release {

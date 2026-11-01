@@ -54,6 +54,8 @@ public final class JNIdc
 	public static native String saveSlotWithPreview(int slot);
 	public static native int[] overlayStats();
 	public static native String overlayGpuName();
+	/** Flycast plus GBFrame presenter GPU time as a percentage of elapsed time; negative when no GPU timer is available. */
+	public static native float overlayGpuLoad();
 	public static native String pollOverlayMessage();
 	public static native String raOverlayEvents();
 	public static native byte[] stateThumbnail(int slot);

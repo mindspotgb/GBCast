@@ -12,6 +12,7 @@
 #endif
 
 #include <unordered_map>
+#include <array>
 #include <glm/glm.hpp>
 
 #ifndef GL_TEXTURE_MAX_ANISOTROPY
@@ -567,6 +568,17 @@ protected:
 private:
 	bool renderFrame(int width, int height);
 	std::unique_ptr<GlFramebuffer> lastFrameCaptureFramebuffer;
+#if defined(__ANDROID__)
+	void beginGpuTiming();
+	void endGpuTiming();
+	static constexpr size_t kGpuTimingQueryCount = 4;
+	std::array<GLuint, kGpuTimingQueryCount> gpuTimingQueries{};
+	std::array<bool, kGpuTimingQueryCount> gpuTimingPending{};
+	size_t nextGpuTimingQuery = 0;
+	size_t activeGpuTimingQuery = 0;
+	bool gpuTimingEnabled = false;
+	bool gpuTimingQueryActive = false;
+#endif
 
 protected:
 	bool frameRendered = false;

@@ -72,7 +72,7 @@ fun GBCastGameplayOverlays(onMenu: () -> Unit) {
                 PerfOverlay(GBCastOverlayOptions.options, "GBCast", fps, stats.getOrElse(3) { 60 }.toFloat().coerceAtLeast(1f),
                     when (stats.getOrElse(4) { 0 }) { 4 -> "Vulkan"; 5 -> "Vulkan OIT"; 3 -> "OpenGL OIT"; else -> "OpenGL ES" },
                     stats.getOrElse(1) { 640 }, stats.getOrElse(2) { 480 }, if (fps > 0f) 1000f / fps else 0f,
-                    gpuName = { JNIdc.overlayGpuName().orEmpty() }, modifier = m)
+                    gpuName = { JNIdc.overlayGpuName().orEmpty() }, gpuLoad = { JNIdc.overlayGpuLoad() }, modifier = m)
             },
         )
     }

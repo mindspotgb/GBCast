@@ -1,5 +1,6 @@
 #include "glcache.h"
 #include "gles.h"
+#include "rend/gpu_usage.h"
 #include "quad.h"
 #include "hw/pvr/ta.h"
 #ifndef LIBRETRO
@@ -972,6 +973,27 @@ bool OpenGLRenderer::Init()
 
 	gl_create_resources();
 
+#if defined(__ANDROID__)
+	gpuTimingQueries.fill(0);
+	gpuTimingPending.fill(false);
+	nextGpuTimingQuery = 0;
+	gpuTimingQueryActive = false;
+	gpuTimingEnabled = GLAD_GL_EXT_disjoint_timer_query
+		&& glGenQueriesEXT != nullptr && glDeleteQueriesEXT != nullptr
+		&& glBeginQueryEXT != nullptr && glEndQueryEXT != nullptr
+		&& glGetQueryObjectuivEXT != nullptr && glGetQueryObjectui64vEXT != nullptr;
+	if (gpuTimingEnabled)
+	{
+		glGenQueriesEXT(static_cast<GLsizei>(gpuTimingQueries.size()), gpuTimingQueries.data());
+		gpuTimingEnabled = std::all_of(gpuTimingQueries.begin(), gpuTimingQueries.end(), [](GLuint query) { return query != 0; });
+	}
+	gpu_usage::SetSupported(gpu_usage::Backend::OpenGLES, gpuTimingEnabled);
+	if (gpuTimingEnabled)
+		NOTICE_LOG(RENDERER, "OpenGL GPU timer queries available for performance overlay");
+	else
+		INFO_LOG(RENDERER, "OpenGL GPU timer queries unavailable; the overlay will use the driver load when readable");
+#endif
+
 #if 0
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -1319,6 +1341,16 @@ void OpenGLRenderer::initVideoRoutingFrameBuffer()
 
 void OpenGLRenderer::Term()
 {
+	#if defined(__ANDROID__)
+	if (gpuTimingQueryActive)
+		endGpuTiming();
+	if (gpuTimingEnabled)
+		glDeleteQueriesEXT(static_cast<GLsizei>(gpuTimingQueries.size()), gpuTimingQueries.data());
+	gpuTimingQueries.fill(0);
+	gpuTimingPending.fill(false);
+	gpuTimingEnabled = false;
+	gpu_usage::SetSupported(gpu_usage::Backend::OpenGLES, false);
+	#endif
 	lastFrameCaptureFramebuffer.reset();
 	TexCache.Clear();
 	gles_term();
@@ -1326,10 +1358,18 @@ void OpenGLRenderer::Term()
 
 bool OpenGLRenderer::Render()
 {
+#if defined(__ANDROID__)
+	beginGpuTiming();
+#endif
+	try
+	{
 	saveCurrentFramebuffer();
 	renderFrame(gl.rendContext->framebufferWidth, gl.rendContext->framebufferHeight);
 	if (gl.rendContext->isRTT) {
 		restoreCurrentFramebuffer();
+#if defined(__ANDROID__)
+		endGpuTiming();
+#endif
 		return false;
 	}
 
@@ -1341,9 +1381,67 @@ bool OpenGLRenderer::Render()
 		renderVideoRouting();
 	}
 	restoreCurrentFramebuffer();
+	}
+	catch (...)
+	{
+#if defined(__ANDROID__)
+		endGpuTiming();
+#endif
+		throw;
+	}
+#if defined(__ANDROID__)
+	endGpuTiming();
+#endif
 
 	return true;
 }
+
+#if defined(__ANDROID__)
+void OpenGLRenderer::beginGpuTiming()
+{
+	if (!gpuTimingEnabled || gpuTimingQueryActive)
+		return;
+
+	GLint disjoint = GL_FALSE;
+	glGetIntegerv(GL_GPU_DISJOINT_EXT, &disjoint);
+	for (size_t i = 0; i < gpuTimingQueries.size(); ++i)
+	{
+		if (!gpuTimingPending[i])
+			continue;
+		GLuint available = GL_FALSE;
+		glGetQueryObjectuivEXT(gpuTimingQueries[i], GL_QUERY_RESULT_AVAILABLE_EXT, &available);
+		if (!available)
+			continue;
+		GLuint64 nanoseconds = 0;
+		glGetQueryObjectui64vEXT(gpuTimingQueries[i], GL_QUERY_RESULT_EXT, &nanoseconds);
+		gpuTimingPending[i] = false;
+		if (!disjoint && nanoseconds > 0)
+			gpu_usage::AddNanoseconds(nanoseconds);
+	}
+
+	for (size_t offset = 0; offset < gpuTimingQueries.size(); ++offset)
+	{
+		const size_t index = (nextGpuTimingQuery + offset) % gpuTimingQueries.size();
+		if (gpuTimingPending[index])
+			continue;
+		activeGpuTimingQuery = index;
+		nextGpuTimingQuery = (index + 1) % gpuTimingQueries.size();
+		gpuTimingQueryActive = true;
+		glBeginQueryEXT(GL_TIME_ELAPSED_EXT, gpuTimingQueries[index]);
+		return;
+	}
+	// All query slots are still in flight. Skip sampling this frame instead of waiting on the GPU.
+}
+
+void OpenGLRenderer::endGpuTiming()
+{
+	if (!gpuTimingQueryActive)
+		return;
+	glEndQueryEXT(GL_TIME_ELAPSED_EXT);
+	gpuTimingPending[activeGpuTimingQuery] = true;
+	gpuTimingQueryActive = false;
+}
+#endif
 
 void OpenGLRenderer::renderVideoRouting()
 {

@@ -208,6 +208,12 @@ private:
 	void DestroyGBFramePresenterImages();
 	bool InitDevice();
 	bool InitInstance(const char** extensions, uint32_t extensions_count);
+#if defined(__ANDROID__)
+	void InitGpuTimingQueries(size_t frameCount);
+	void CollectGpuTimingQuery(size_t frameIndex);
+	void BeginGpuTimingQuery(vk::CommandBuffer commandBuffer);
+	void EndGpuTimingQuery(vk::CommandBuffer commandBuffer);
+#endif
 	void InitImgui();
 	void DoSwapAutomation();
 	void DrawFrame(vk::ImageView imageView, const vk::Extent2D& extent, float aspectRatio);
@@ -265,6 +271,13 @@ private:
 
 	std::vector<vk::UniqueCommandPool> commandPools;
 	std::vector<vk::UniqueCommandBuffer> commandBuffers;
+#if defined(__ANDROID__)
+	std::vector<vk::UniqueQueryPool> gpuTimingQueryPools;
+	std::vector<uint8_t> gpuTimingPending;
+	uint32_t gpuTimestampValidBits = 0;
+	float gpuTimestampPeriodNs = 0.f;
+	bool gpuTimestampSupported = false;
+#endif
 
 	std::vector<vk::UniqueFramebuffer> framebuffers;
 

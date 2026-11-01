@@ -46,6 +46,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 #include <memory>
 #include <set>
+#include <limits>
 #include <vulkan/vulkan_format_traits.hpp>
 #include <algorithm>
 #include <cstring>
@@ -53,6 +54,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #if defined(__ANDROID__)
 #include <android/native_window.h>
 #include "gl_renderer.hpp"
+#include "rend/gpu_usage.h"
 #endif
 
 struct AndroidPresenterFrame {
@@ -601,6 +603,13 @@ bool VulkanContext::InitDevice()
 			ERROR_LOG(RENDERER, "Could not find a queue for graphics or present");
 			return false;
 		}
+#if defined(__ANDROID__)
+		gpuTimestampValidBits = queueFamilyProperties[graphicsQueueIndex].timestampValidBits;
+		gpuTimestampPeriodNs = physicalDeviceProperties.limits.timestampPeriod;
+		gpuTimestampSupported = gpuTimestampValidBits > 0 && gpuTimestampPeriodNs > 0.f;
+		if (!gpuTimestampSupported)
+			INFO_LOG(RENDERER, "Vulkan timestamp queries unavailable on the graphics queue");
+#endif
 		if (graphicsQueueIndex == presentQueueIndex)
 			DEBUG_LOG(RENDERER, "Using Graphics+Present queue family");
 		else
@@ -878,6 +887,10 @@ void VulkanContext::CreateSwapChain()
 			if (res != vk::Result::eSuccess)
 				WARN_LOG(RENDERER, "VulkanContext::CreateSwapChain: waitForFences failed %d", (int)res);
 		}
+#if defined(__ANDROID__)
+		gpuTimingQueryPools.clear();
+		gpuTimingPending.clear();
+#endif
 		inFlightObjects.clear();
 		overlay->Term();
 		framebuffers.clear();
@@ -1074,6 +1087,9 @@ void VulkanContext::CreateSwapChain()
 	    	imageAcquiredSemaphores.push_back(device->createSemaphoreUnique(vk::SemaphoreCreateInfo()));
 	    }
 	    inFlightObjects.resize(imageViews.size());
+#if defined(__ANDROID__)
+	    InitGpuTimingQueries(imageViews.size());
+#endif
 	    currentSemaphore = 0;
 	    quadPipeline->Init(shaderManager.get(), *renderPass, 0);
 	    quadPipelineWithAlpha->Init(shaderManager.get(), *renderPass, 0);
@@ -1156,6 +1172,8 @@ void VulkanContext::CreateGBFramePresenterTargets()
 		commandBuffers.clear();
 		commandPools.clear();
 		inFlightObjects.clear();
+		gpuTimingQueryPools.clear();
+		gpuTimingPending.clear();
 		renderPass.reset();
 		DestroyGBFramePresenterImages();
 
@@ -1208,6 +1226,7 @@ void VulkanContext::CreateGBFramePresenterTargets()
 			renderCompleteSemaphores.push_back(device->createSemaphoreUnique(vk::SemaphoreCreateInfo()));
 		}
 		inFlightObjects.resize(kFrameCount);
+		InitGpuTimingQueries(kFrameCount);
 		gbFramePresenterImages.reserve(4);
 		for (size_t i = 0; i < 4; ++i)
 			gbFramePresenterImages.push_back(std::make_unique<AndroidPresenterImage>());
@@ -1345,11 +1364,17 @@ void VulkanContext::NewFrame()
 			WARN_LOG(RENDERER, "vk:SystemError waiting for GBFrame output slot: %s", e.what());
 			throw FlycastException("Vulkan system error");
 		}
+#if defined(__ANDROID__)
+		CollectGpuTimingQuery(currentImage);
+#endif
 		FlushGBFramePresenterFrames(false);
 		device->resetCommandPool(*commandPools[currentImage], vk::CommandPoolResetFlagBits::eReleaseResources);
 		inFlightObjects[currentImage].clear();
 		vk::CommandBuffer commandBuffer = *commandBuffers[currentImage];
 		commandBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+#if defined(__ANDROID__)
+		BeginGpuTimingQuery(commandBuffer);
+#endif
 		assert(!rendering);
 		rendering = true;
 		return;
@@ -1365,10 +1390,16 @@ void VulkanContext::NewFrame()
 		WARN_LOG(RENDERER, "vk:SystemError: %s", e.what());
 		throw FlycastException("Vulkan system error");
 	}
+#if defined(__ANDROID__)
+	CollectGpuTimingQuery(currentImage);
+#endif
 	device->resetCommandPool(*commandPools[currentImage], vk::CommandPoolResetFlagBits::eReleaseResources);
 	inFlightObjects[currentImage].clear();
 	vk::CommandBuffer commandBuffer = *commandBuffers[currentImage];
 	commandBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit));
+#if defined(__ANDROID__)
+	BeginGpuTimingQuery(commandBuffer);
+#endif
 	assert(!rendering);
 	rendering = true;
 }
@@ -1453,12 +1484,15 @@ void VulkanContext::EndFrame(vk::CommandBuffer overlayCmdBuffer)
 			VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdPipelineBarrier(static_cast<VkCommandBuffer>(commandBuffer), VK_PIPELINE_STAGE_TRANSFER_BIT,
 				VK_PIPELINE_STAGE_HOST_BIT, 0, 0, nullptr, 1, &hostBarrier, 0, nullptr);
 		}
+		EndGpuTimingQuery(commandBuffer);
 		commandBuffer.end();
 		std::vector<vk::CommandBuffer> allCmdBuffers;
 		if (overlayCmdBuffer) allCmdBuffers.push_back(overlayCmdBuffer);
 		allCmdBuffers.push_back(commandBuffer);
 		device->resetFences(*drawFences[currentImage]);
 		graphicsQueue.submit(vk::SubmitInfo({}, {}, allCmdBuffers, {}), *drawFences[currentImage]);
+		if (currentImage < gpuTimingPending.size() && !gpuTimingQueryPools.empty())
+			gpuTimingPending[currentImage] = 1;
 		frame.outputPending = true;
 		assert(rendering);
 		rendering = false;
@@ -1466,6 +1500,9 @@ void VulkanContext::EndFrame(vk::CommandBuffer overlayCmdBuffer)
 #endif
 		return;
 	}
+	#if defined(__ANDROID__)
+	EndGpuTimingQuery(commandBuffer);
+	#endif
 	commandBuffer.end();
 	vk::PipelineStageFlags wait_stage(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	std::vector<vk::CommandBuffer> allCmdBuffers;
@@ -1475,6 +1512,10 @@ void VulkanContext::EndFrame(vk::CommandBuffer overlayCmdBuffer)
 	vk::SubmitInfo submitInfo(*imageAcquiredSemaphores[currentSemaphore], wait_stage, allCmdBuffers, *renderCompleteSemaphores[currentSemaphore]);
 	device->resetFences(*drawFences[currentImage]);
 	graphicsQueue.submit(submitInfo, *drawFences[currentImage]);
+#if defined(__ANDROID__)
+	if (currentImage < gpuTimingPending.size() && !gpuTimingQueryPools.empty())
+		gpuTimingPending[currentImage] = 1;
+#endif
 	assert(rendering);
 	rendering = false;
 	renderDone = true;
@@ -1546,6 +1587,71 @@ void VulkanContext::Present() noexcept
 		} catch (const InvalidVulkanContext&) {
 		}
 }
+
+#if defined(__ANDROID__)
+void VulkanContext::InitGpuTimingQueries(size_t frameCount)
+{
+	gpuTimingQueryPools.clear();
+	gpuTimingPending.clear();
+	gpu_usage::SetSupported(gpu_usage::Backend::Vulkan, false);
+	if (!gpuTimestampSupported || !device || frameCount == 0)
+		return;
+
+	try
+	{
+		const vk::QueryPoolCreateInfo createInfo({}, vk::QueryType::eTimestamp, 2);
+		gpuTimingQueryPools.reserve(frameCount);
+		for (size_t i = 0; i < frameCount; ++i)
+			gpuTimingQueryPools.push_back(device->createQueryPoolUnique(createInfo));
+		gpuTimingPending.resize(frameCount, 0);
+	}
+	catch (const vk::SystemError& error)
+	{
+		WARN_LOG(RENDERER, "Vulkan timestamp query pool creation failed: %s", error.what());
+		gpuTimingQueryPools.clear();
+		gpuTimingPending.clear();
+		return;
+	}
+
+	gpu_usage::SetSupported(gpu_usage::Backend::Vulkan, true);
+	NOTICE_LOG(RENDERER, "Vulkan GPU timestamp queries available for performance overlay");
+}
+
+void VulkanContext::CollectGpuTimingQuery(size_t frameIndex)
+{
+	if (frameIndex >= gpuTimingPending.size() || !gpuTimingPending[frameIndex])
+		return;
+
+	std::array<uint64_t, 2> timestamps{};
+	const vk::Result result = device->getQueryPoolResults(*gpuTimingQueryPools[frameIndex], 0, 2,
+		sizeof(timestamps), timestamps.data(), sizeof(uint64_t), vk::QueryResultFlagBits::e64);
+	gpuTimingPending[frameIndex] = 0;
+	if (result != vk::Result::eSuccess)
+		return;
+
+	uint64_t ticks = timestamps[1] - timestamps[0];
+	if (gpuTimestampValidBits < 64)
+		ticks &= (uint64_t{1} << gpuTimestampValidBits) - 1;
+	const long double nanoseconds = static_cast<long double>(ticks) * gpuTimestampPeriodNs;
+	if (nanoseconds > 0 && nanoseconds < std::numeric_limits<uint64_t>::max())
+		gpu_usage::AddNanoseconds(static_cast<uint64_t>(nanoseconds));
+}
+
+void VulkanContext::BeginGpuTimingQuery(vk::CommandBuffer commandBuffer)
+{
+	if (currentImage >= gpuTimingQueryPools.size())
+		return;
+	const vk::QueryPool queryPool = *gpuTimingQueryPools[currentImage];
+	commandBuffer.resetQueryPool(queryPool, 0, 2);
+	commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, queryPool, 0);
+}
+
+void VulkanContext::EndGpuTimingQuery(vk::CommandBuffer commandBuffer)
+{
+	if (currentImage < gpuTimingQueryPools.size())
+		commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, *gpuTimingQueryPools[currentImage], 1);
+}
+#endif
 
 void VulkanContext::DrawFrame(vk::ImageView imageView, const vk::Extent2D& extent, float aspectRatio)
 {
@@ -1667,6 +1773,11 @@ void VulkanContext::term()
 	lastFrameView = nullptr;
 	if (device && graphicsQueue)
 		WaitIdle();
+#if defined(__ANDROID__)
+	gpuTimingQueryPools.clear();
+	gpuTimingPending.clear();
+	gpu_usage::SetSupported(gpu_usage::Backend::Vulkan, false);
+#endif
 	if (gbFramePresenter) {
 		FlushGBFramePresenterFrames(true);
 		DestroyGBFramePresenterImages();

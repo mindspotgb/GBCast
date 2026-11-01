@@ -92,3 +92,5 @@ With 2x holding near the target and GPU utilization well below saturation, GLES 
 The 3x result stayed near the 2x result in this changing attract/demo loop. A thread-level `top -H` sample showed `Flycast-emu` around 90–96% of one core at 2x and 92–95% at 3x; `Flycast-rend` was around 33–36% at 2x and 36–40% at 3x. The renderer/GPU is not saturated in these samples, but the emulation thread has little CPU margin. Treat 3x as viable for this tested scene, not as a guaranteed full-speed setting for the entire game.
 
 Raw measurements are in [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv) and [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv). The 2x file includes a repeated six-sample GLES/Threaded On check after the 3x run.
+
+The 3x Frame pacing × Auto frame skip matrix across both renderers is documented in [the follow-up report](GBCAST_FRAME_PACING_SKIP_RGROTATE_2026-11-01.md).

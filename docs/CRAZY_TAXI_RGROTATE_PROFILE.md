@@ -86,3 +86,5 @@ Because the 2x runs were near target and GPU use was well below saturation, the 
 The 3x sequence remained close to the 2x result, without a clear FPS regression in this attract loop. The 3x CPU overlay median was 15.70% system-wide. Thread-level CPU sampling was performed in the separate Sega Rally 2 session, not in Crazy Taxi; see that report for the emulation-thread saturation evidence. No profile change is justified by this short capture.
 
 Raw OSD samples are in [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_2x.csv) and [GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv](GBCAST_THREADING_AUDIO_RGROTATE_2026-11-01_3x.csv). The 2x file contains the primary six-sample matrix, audio runs, and a second six-sample Sega Rally 2 GLES/Threaded On baseline check.
+
+The 3x Frame pacing × Auto frame skip matrix across both renderers is documented in [the follow-up report](GBCAST_FRAME_PACING_SKIP_RGROTATE_2026-11-01.md).

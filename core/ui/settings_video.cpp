@@ -245,7 +245,7 @@ void gui_settings_video()
 			DisabledScope scope(!config::Widescreen || config::IntegerScale);
 
 			ImGui::Indent();
-			OptionCheckbox(T("Super widescreen"), config::SuperWidescreen,
+			OptionCheckbox(T("Extended screen"), config::SuperWidescreen,
 					T("Fills displays wider than 16:9 by cropping the sides. This can remove black bars but may hide game content."));
 			ImGui::Unindent();
 	}

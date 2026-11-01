@@ -453,7 +453,7 @@ extern "C" JNIEXPORT jintArray JNICALL Java_com_flycast_emulator_emu_JNIdc_overl
 	int height = config::RenderResolution > 0 ? static_cast<int>(config::RenderResolution) : 480;
 	const float aspect = getOutputFramebufferAspectRatio();
 	int width = static_cast<int>(height * aspect);
-	// Super widescreen on a screen narrower than 4:3 keeps the 4:3 width and renders more lines
+	// Extended screen on a screen narrower than 4:3 keeps the 4:3 width and renders more lines
 	if (config::Widescreen && config::SuperWidescreen && !config::Rotate90 && aspect < 4.f / 3.f) {
 		width = height * 4 / 3;
 		height = static_cast<int>(width / aspect);

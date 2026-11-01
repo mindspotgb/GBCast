@@ -1,6 +1,6 @@
 package com.flycast.emulator.shell
 
-/** Base display choices; Super widescreen is a separate toggle while a widescreen mode is active. */
+/** Base display choices; Extended screen is a separate toggle while a widescreen mode is active. */
 enum class DisplayMode(val label: String, val wide: Boolean, val fullscreen: Boolean) {
     Original("4:3", false, false),
     Wide("16:9", true, false),

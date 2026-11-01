@@ -27,7 +27,7 @@ static float displayAspectRatio() {
 	return settings.display.height > 0 ? (float)settings.display.width / settings.display.height : 4.f / 3.f;
 }
 
-// GBCast: super widescreen follows the screen, also when it is narrower than 4:3 (the view then grows vertically)
+// GBCast: Extended screen follows the screen, also when it is narrower than 4:3 (the view then grows vertically)
 static bool superWidescreenIsTall() {
 	return config::SuperWidescreen && displayAspectRatio() < 4.f / 3.f - 0.01f;
 }
@@ -120,7 +120,7 @@ void TransformMatrix::CalcMatrices(const rend_context *renderingContext, int wid
 		{
 			if (superWidescreenIsTall())
 			{
-				// GBCast: on screens narrower than 4:3 (e.g. 1:1) super widescreen extends the view above and below
+				// GBCast: on screens narrower than 4:3 (e.g. 1:1) Extended screen extends the view above and below
 				verticalShift = 1.f - dcViewport.y / dcViewport.x * renderViewport.x / renderViewport.y;
 				dcViewport.y *= 4.f / 3.f / displayAspectRatio();
 			}

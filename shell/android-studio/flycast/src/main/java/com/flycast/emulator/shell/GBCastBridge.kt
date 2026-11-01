@@ -83,7 +83,7 @@ object GBCastBridge {
                 .putBoolean(GLOBAL_SUPER_WIDESCREEN, mode.supportsSuperWidescreen && bool("config", "rend.SuperWideScreen"))
                 .apply()
         } else if (prefs.getString("display", null) == "SuperWide") {
-            // Migrate the former exclusive mode into 16:9 plus the separate Super widescreen toggle.
+            // Migrate the former "SuperWide" display mode into 16:9 plus the separate Extended screen toggle.
             prefs.edit().putString("display", DisplayMode.Wide.name).putBoolean(GLOBAL_SUPER_WIDESCREEN, true).apply()
         }
         com.flycast.emulator.shell.ui.GBCastOverlayOptions.initialize(app)
@@ -189,7 +189,7 @@ object GBCastBridge {
     private fun displayKey(game: String) = "display:" + SaveData.gameFolderName(game)
     private fun superWidescreenKey(game: String) = "superWidescreen:" + SaveData.gameFolderName(game)
     private fun parseDisplayMode(value: String?): DisplayMode? = when (value) {
-        // Previous releases saved Super widescreen as a display mode. Keep it as 16:9 plus the separate toggle.
+        // Previous releases saved "SuperWide" as a display mode. Keep it as 16:9 plus the separate toggle.
         "SuperWide" -> DisplayMode.Wide
         else -> DisplayMode.entries.firstOrNull { it.name == value }
     }

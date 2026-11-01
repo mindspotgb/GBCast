@@ -141,7 +141,7 @@ Option<bool> GDBWaitForConnection("Debug.GDBWaitForConnection");
 Option<bool> UseReios("UseReios");
 Option<bool> FastGDRomLoad("FastGDRomLoad", false);
 // CD read speed factor (2 = original, 4, 8, 16): scales the GD-ROM transfer rate of large reads (the kit's CD read speed)
-Option<int> CdReadSpeed("Dreamcast.CdReadSpeed", 2);
+Option<int> CdReadSpeed("Dreamcast.CdReadSpeed", 8);
 Option<bool> FastBoot("GBFrame.FastBoot", true);
 Option<bool> RamMod32MB("Dreamcast.RamMod32MB", false);
 

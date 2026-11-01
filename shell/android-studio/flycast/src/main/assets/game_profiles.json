@@ -1,5 +1,5 @@
 {
-  "about": "Measured Dreamcast recommendations by game and GBFrame device tier. Crazy Taxi has a Vulkan profile for RG Rotate (60.6 FPS, 101.1%) and an OpenGL ES profile for RG DS/RK3568 based on repeated attract-mode samples. Only measured settings are included; unspecified settings inherit the user's global settings. Saved per-game overrides always take priority.",
+  "about": "Measured Dreamcast recommendations by game and GBFrame device tier. Crazy Taxi has a Vulkan profile for RG Rotate and an OpenGL ES profile for RG DS/RK3568. Sega Rally 2's mid profile is a provisional RG Rotate/T618 measurement: GLES 2x used less GPU than Vulkan while maintaining the same target speed in attract-mode samples. Only measured settings are included; unspecified settings inherit the user's global settings. Saved per-game overrides always take priority.",
   "games": [
     {
       "titles": ["CRAZY TAXI", "CRAZY TAXI (USA)"],
@@ -12,6 +12,17 @@
         "threadedRendering": true,
         "framePacing": true,
         "textureFiltering": 2
+      }
+    },
+    {
+      "titles": ["SEGA RALLY 2"],
+      "mid": {
+        "renderer": "opengl",
+        "resolution": 960,
+        "autoFrameSkip": 0,
+        "dynarec": true,
+        "threadedRendering": true,
+        "framePacing": true
       }
     }
   ]

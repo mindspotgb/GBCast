@@ -421,7 +421,7 @@ private fun ExtrasPage(tick: Int, cfg: Cfg) {
     SettingsGroup("Arcade", null) {
         ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.setBool("config", "ForceFreePlay", it) }
     }
-    SettingsGroup("Network and achievements", Icons.Default.Wifi) {
+    SettingsGroup("Network", Icons.Default.Wifi) {
         ToggleRow(Icons.Default.Wifi, "Broadband adapter", "Emulates the Dreamcast network adapter for games that support online or LAN features.", cfg.bool("network", "EmulateBBA")) { cfg.setBool("network", "EmulateBBA", it) }
         SettingsDivider()
         ToggleRow(Icons.Default.Wifi, "Naomi network", "Enables network features for compatible Naomi arcade games.", cfg.bool("network", "Enable")) { cfg.setBool("network", "Enable", it) }

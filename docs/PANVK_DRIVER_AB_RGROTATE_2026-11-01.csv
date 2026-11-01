@@ -1,0 +1,13 @@
+driver,game,renderer,resolution,frame_pacing,auto_frameskip,sample,fps,speed_pct,gpu_pct
+Stock,Crazy Taxi,Vulkan,3x,On,Off,1,42.7,71.1,80.4
+Stock,Crazy Taxi,Vulkan,3x,On,Off,2,48.1,80.1,83.6
+Stock,Crazy Taxi,Vulkan,3x,On,Off,3,55.7,92.9,78.6
+Stock,Crazy Taxi,Vulkan,3x,On,Off,4,44.7,74.6,85.0
+Stock,Crazy Taxi,Vulkan,3x,On,Off,5,52.2,87.0,87.2
+Stock,Crazy Taxi,Vulkan,3x,On,Off,6,38.8,64.6,89.0
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,1,27.8,46.4,n/a
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,2,33.8,56.3,n/a
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,3,38.8,64.7,n/a
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,4,40.8,68.0,n/a
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,5,40.8,68.0,n/a
+PanVK,Crazy Taxi,Vulkan,3x,On,Off,6,41.8,69.6,n/a

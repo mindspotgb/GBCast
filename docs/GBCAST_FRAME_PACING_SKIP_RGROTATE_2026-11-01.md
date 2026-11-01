@@ -1,5 +1,7 @@
 # GBCast frame pacing and auto frame skip at 3x — RG Rotate
 
+> **Correction (2026-11-01):** Do not rely on the measurements below as a controlled comparison. The PowerShell config helper expanded `$1` before passing the replacement to .NET, stripping the configuration key instead of preserving it. A corrected test of the actual 3x settings is recorded in [PANVK_DRIVER_AB_RGROTATE_2026-11-01.md](PANVK_DRIVER_AB_RGROTATE_2026-11-01.md). The full pacing/skip matrix needs to be rerun with the fixed helper.
+
 ## Result
 
 At 3x resolution, frame pacing On stayed close to the 60 FPS target but reported a slightly lower median FPS/speed than Off in all four game/renderer pairs. Auto frame skip Off, Normal, and Max did not produce a repeatable performance winner. The results do not justify changing defaults or per-game profiles: keep frame pacing On for presentation timing and auto frame skip Off for these measured scenes.

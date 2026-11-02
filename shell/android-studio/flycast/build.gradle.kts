@@ -160,7 +160,7 @@ android {
         release {
             // GBCast targets modern 64-bit Android hardware only.
             ndk.abiFilters += "arm64-v8a"
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

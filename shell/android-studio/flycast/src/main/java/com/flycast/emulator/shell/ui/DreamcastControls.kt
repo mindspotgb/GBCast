@@ -33,6 +33,7 @@ object DreamcastControls : ControlsHost {
     private const val PREF_HOTKEYS = "gbcast.controls.hotkeys"
     private const val PREF_FF_TOGGLE = "gbcast.controls.fastForwardToggle"
     private const val PREF_TOUCH_MODE = "gbcast.controls.touchMode"
+    private const val PREF_TOUCH_HAPTICS = "gbcast.controls.touchHaptics"
 
     override val console = "Dreamcast"
     override val pad = DreamcastPad
@@ -76,6 +77,7 @@ object DreamcastControls : ControlsHost {
         private set
     private var ffToggleState by androidx.compose.runtime.mutableStateOf(false)
     private var touchState by androidx.compose.runtime.mutableStateOf(TouchControlsMode.AUTO)
+    private var touchHapticsState by androidx.compose.runtime.mutableStateOf(true)
 
     override val hotkeys: Map<HotkeyAction, Set<Int>> get() = storedHotkeys
 
@@ -93,6 +95,13 @@ object DreamcastControls : ControlsHost {
             preferences().edit().putString(PREF_TOUCH_MODE, value.name).remove("gbcast.controls.showTouch").apply()
         }
 
+    override var touchHapticsEnabled: Boolean
+        get() = touchHapticsState
+        set(value) {
+            touchHapticsState = value
+            preferences().edit().putBoolean(PREF_TOUCH_HAPTICS, value).apply()
+        }
+
     private fun preferences(): SharedPreferences =
         if (::prefs.isInitialized) prefs else error("DreamcastControls has not been initialized")
 
@@ -105,6 +114,7 @@ object DreamcastControls : ControlsHost {
         touchState = runCatching {
             TouchControlsMode.valueOf(prefs.getString(PREF_TOUCH_MODE, TouchControlsMode.AUTO.name) ?: TouchControlsMode.AUTO.name)
         }.getOrDefault(TouchControlsMode.AUTO)
+        touchHapticsState = prefs.getBoolean(PREF_TOUCH_HAPTICS, true)
     }
 
     private fun readKeyMap(): Map<Int, String> {

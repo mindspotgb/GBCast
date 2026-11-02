@@ -197,7 +197,8 @@ public class VirtualJoystickDelegate implements TouchEventHandler
                         // Button down
                         InputDeviceManager.getInstance().virtualButtonInput(control, true);
                         pidToControlId.put(pid, control);
-                        vibratorThread.click();
+                        if (com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getTouchHapticsEnabled())
+                            vibratorThread.click();
                         return true;
                     }
                 }
@@ -237,7 +238,8 @@ public class VirtualJoystickDelegate implements TouchEventHandler
                         // New button down
                         InputDeviceManager.getInstance().virtualButtonInput(control, true);
                         pidToControlId.put(pid, control);
-                        vibratorThread.click();
+                        if (com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getTouchHapticsEnabled())
+                            vibratorThread.click();
                     }
                 }
                 break;

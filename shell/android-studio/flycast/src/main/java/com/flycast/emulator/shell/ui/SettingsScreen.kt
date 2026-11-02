@@ -210,7 +210,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                             AboutCredit("libretro-database", "Bundled Dreamcast cheat database (CC BY-SA 4.0; license included in the APK)."),
                         ),
                         license = "GBCast source code is distributed under GNU GPL v3. Flycast files that permit GPL-2.0-or-later and GBFrame are used under GPLv3 here; third-party components keep their own licenses. Google Play Billing and Play Services are supplied under Google's separate SDK terms. See the notices below. Dreamcast is a Sega trademark; GBCast is not affiliated with Sega.",
-                        privacyPolicyUrl = "https://github.com/mindspotgb/GBCast/blob/main/PRIVACY.md",
+                        privacyPolicyUrl = "https://raw.githubusercontent.com/mindspotgb/GBCast/main/PRIVACY.md",
                         tagline = "Brought to you by GameBeacon.dev: pure speed and nostalgia for the definitive Sega Dreamcast experience.",
                         licenseDocuments = listOf(
                             AboutLicenseDocument("GNU GPL v3 — GBCast source", "licenses/GNU-GPL-3.0.txt"),

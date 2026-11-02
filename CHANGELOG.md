@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0
+- First standalone Android release. Includes the Dreamcast and arcade core, GLES and Vulkan rendering, GBFrame library and menus, per-game profiles, cheats, save states, and RetroAchievements.
+- Align shared renderer, enhanced-resolution, filtering, shader, frame-skip, recompiler, CD-load and profile controls with GBFrame.
+- Keep Dynarec enabled by default, support widescreen and 60 FPS patches, and remove redundant Android settings.
 - Move shared renderer, enhanced-resolution, filtering, shader, frame-skip, recompiler, and CD-load controls into GBFrame; add measured per-game recommendations with global settings as fallback.
 - Remove Integer scaling, Rotate 90°, and crash-report upload controls from Android settings.
 - Keep CD read speed separate from Fast CD load and clarify Dreamcast RAM, region, and renderer behavior.

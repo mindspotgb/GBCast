@@ -35,10 +35,10 @@ your choice.
 Those remote services can receive standard connection information such as the device's IP address and have their own
 privacy practices.
 
-## Optional visual customization purchase
+## Optional theme purchase
 
 GBCast offers one optional, non-consumable purchase through Google Play. It unlocks the **Grid** and **All in One**
-library layouts and the ability to choose custom cover images. The default **Showcase** layout, automatically sourced
+library themes and supports the developer. Custom cover images, the default **Showcase** theme, automatically sourced
 cover art, emulation, and RetroAchievements remain available without this purchase. Google Play handles payment; GBCast
 stores only the resulting ownership state locally and excludes that cache from Android backup. Purchases can be restored
 from the same Google Play account. We do not receive payment credentials or send purchase data to a developer server.

@@ -8,7 +8,7 @@ Flycast core · GLES and Vulkan · Save states · RetroAchievements
 
 [Download the latest APK](https://github.com/mindspotgb/GBCast/releases/latest) · [Changelog](CHANGELOG.md) · [Privacy policy](PRIVACY.md)
 
-<img src="docs/screenshots/library.png" width="760" alt="GBCast game library with Dreamcast and arcade covers">
+<img src="docs/screenshots/library.png" width="760" alt="Current GBCast game library running on Android">
 
 </div>
 
@@ -28,11 +28,11 @@ GBCast is an Android emulator built around the [Flycast](https://github.com/flyi
 
 ## Screenshots
 
-The library screenshot uses real game titles and their actual cover art. Settings and achievements examples are available below.
+Screenshots below were captured from the current GBCast Android build. The library shows real game titles and their covers.
 
 <p align="center">
-  <img src="docs/screenshots/settings.png" width="32%" alt="GBCast settings">
-  <img src="docs/screenshots/achievements.png" width="32%" alt="GBCast RetroAchievements screen">
+  <img src="docs/screenshots/menu.png" width="32%" alt="GBCast main menu">
+  <img src="docs/screenshots/settings.png" width="32%" alt="GBCast video settings">
 </p>
 
 ## All features

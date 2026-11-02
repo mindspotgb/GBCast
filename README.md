@@ -2,6 +2,19 @@
 
 Android shell for the Flycast core (Dreamcast, Naomi, Naomi 2 and Atomiswave) using the shared [GBFrame](https://github.com/mindspotgb/GBFrame) library. The launcher is the GBCast game library. `NativeGLActivity` still renders with Flycast's existing GLES/Vulkan path.
 
+[Download the latest APK](https://github.com/mindspotgb/GBCast/releases/latest) · [Changelog](CHANGELOG.md)
+
+## Screenshots
+
+<table>
+<tr>
+<td><img src="shell/android-studio/screenshots/screenshot_library.png" alt="GBCast Android library showing real Dreamcast and arcade game covers"><br><sub>Android library</sub></td>
+<td><img src="shell/android-studio/screenshots/TV/tv_screenshot_library.png" alt="GBCast TV library showing real Dreamcast and arcade game covers"><br><sub>Android TV library</sub></td>
+</tr>
+</table>
+
+<sub>Both library screenshots show real game titles and their actual box art; no game discs or ROMs are bundled with the app.</sub>
+
 GBFrame is the git submodule `libs/gbframe`; the repository records its required revision. The Android `applicationId` and Gradle `namespace` are both `app.gbcast.emulator`. `minSdk` is **28** because that is GBFrame's minimum; the previous Flycast Android app allowed API 21.
 
 **Migration note:** changing the application ID from `com.flycast.emulator` to `app.gbcast.emulator` makes Android treat GBCast as a different app. Existing installations will not be updated in place, and app-private data will not automatically transfer. Back up any important data before switching.
@@ -18,6 +31,7 @@ GBFrame is the git submodule `libs/gbframe`; the repository records its required
 - Overlay toggles (FPS, speed, CPU, GPU, renderer, resolution and frame time) live in **Settings > Video > Overlays** and **Quick menu > Overlays**. Automatic save/load remain in **Settings > System**; the quick menu does not duplicate these switches or the video Rotate switch.
 - Game selection uses GBFrame's shared `HomeActions`: A/tap follows normal auto-load, Y/long press opens per-game options, Open starts without auto-loading a state, and Continue loads the selected state. The shared manual slot limit is five; quick/auto states are separate.
 - GBFrame supplies the shared library layouts, main-menu icons and navigation, footer help bar, About page, and the standard Controls page (including remapping/hotkey capture with a Dreamcast-specific pad diagram). The in-game pause panel uses GBFrame's `QuickMenuHost`, with Flycast-backed save/load slots, video/audio/performance options, disc swap, restart, and per-game settings. The in-game Cheats entry uses GBFrame's shared `CheatsScreen` with a Flycast GameShark adapter. The shared GBFrame RetroAchievements settings and running-game achievements screen use the Flycast rcheevos client through a `RaBackend` adapter; HTTP is routed through GBFrame so casual-mode sessions can use its in-app offline cache, unlock queue, and reconnect synchronization. Hash lookup for library games that are not currently running is not exposed by the adapter yet.
+- **Gold themes** are an optional one-time Google Play purchase that unlocks additional library themes. Standard cover images and custom box art remain available without Gold; purchases can be restored with the same Google Play account.
 - Frontends (ES-DE, Daijishou, Pegasus) and scripts can start a game through the library Activity with GBFrame's `LaunchIntent`: `am start -n app.gbcast.emulator/com.flycast.emulator.MainActivity -a android.intent.action.VIEW -d <content:// or file:// URI>` or `--es ROM "<path>"`. The game must be in the games folder (matched by file name), so multi-file discs, play time and auto load work as from the library. The legacy Flycast `VIEW` filter on `NativeGLActivity` still hands a URI straight to the core.
 - Android Back during a game calls `gui_togglePause` and opens the quick menu. The system bars stay hidden (`BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`). A controller B press that is also reported as Back is not treated as the menu while gameplay is in front.
 

@@ -31,7 +31,7 @@ GBCast is an Android emulator built around the [Flycast](https://github.com/flyi
 Screenshots below were captured from the current GBCast Android build. The library shows real game titles and their covers.
 
 <p align="center">
-  <img src="docs/screenshots/menu.png" width="32%" alt="GBCast main menu">
+  <img src="docs/screenshots/gameplay.png" width="32%" alt="Crazy Taxi gameplay in GBCast">
   <img src="docs/screenshots/settings.png" width="32%" alt="GBCast video settings">
 </p>
 

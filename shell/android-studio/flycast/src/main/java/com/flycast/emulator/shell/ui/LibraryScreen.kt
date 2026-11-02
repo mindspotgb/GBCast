@@ -310,6 +310,7 @@ fun LibraryScreen(
             onQuit = { confirmQuit = true },
             header = { RaUserHeader() },
             onFocusChanged = { MenuState.menuHasFocus = it },
+            highContrastSelection = true,
         )
         if (openingGame) {
             LaunchLoadingOverlay("Preparing the disc image. A cached copy is created only when direct access is unavailable on this device.")

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Info
@@ -32,12 +31,10 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -47,12 +44,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,6 +64,7 @@ import gb.frame.ChoiceRow
 import gb.frame.ControlsPage
 import gb.frame.ControlsCapturePrompts
 import gb.frame.SettingsDivider
+import gb.frame.SettingsPageBackButton
 import gb.frame.SettingsGroup
 import gb.frame.ToggleRow
 import gb.frame.SystemSettings
@@ -80,7 +75,6 @@ import gb.frame.SystemStartupOptions
 import gb.frame.SystemToggleSetting
 import gb.frame.SystemCdReadSpeedSetting
 import gb.frame.CdReadSpeedOption
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -122,15 +116,6 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
     val tick = cfg.tick
     val scope = rememberCoroutineScope()
     var importingBios by remember { mutableStateOf(false) }
-    val backFocus = remember { FocusRequester() }
-    val view = LocalView.current
-    LaunchedEffect(current) {
-        repeat(8) {
-            view.requestFocusFromTouch()
-            if (runCatching { backFocus.requestFocus() }.isSuccess) return@LaunchedEffect
-            delay(50)
-        }
-    }
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
         if (uri != null) {
             Storage.takeFolder(uri)
@@ -184,9 +169,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                 }
             },
             navigationIcon = {
-                IconButton(onClick = onBack, modifier = Modifier.focusRequester(backFocus)) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                }
+                SettingsPageBackButton(current, onBack)
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )

@@ -27,9 +27,10 @@ your choice.
   the issued token, a game-disc hash, profile information and achievement unlocks.
 - **Cover art** (`thumbnails.libretro.com`): requested when a game has no local cover; the normalized game title is part
   of the image address.
-- **Google Play Billing**: used only if you choose to buy or restore the optional visual customization pack. Google Play
-  processes payment. GBCast receives purchase status and a Play purchase token used to confirm the transaction; it does
-  not receive card credentials or send purchase data to a developer server.
+- **Google Play Billing and GameBeacon license service** (`gblicence.lovable.app`): used only if you choose to buy or
+  restore Gold themes. Google Play processes payment. To verify the license, GBCast sends the Play purchase token,
+  app/product IDs, and Android ID to the GameBeacon server over HTTPS. The server records the license; it does not
+  receive your payment credentials or Google account password.
 - **Online and network-emulation features**: broadband-adapter emulation, Naomi networking, battle cable and GGPO can
   communicate with hosts selected or configured by the user when enabled.
 Those remote services can receive standard connection information such as the device's IP address and have their own
@@ -39,9 +40,11 @@ privacy practices.
 
 GBCast offers one optional, non-consumable purchase through Google Play. It unlocks the **Grid** and **All in One**
 library themes and supports the developer. Custom cover images, the default **Showcase** theme, automatically sourced
-cover art, emulation, and RetroAchievements remain available without this purchase. Google Play handles payment; GBCast
-stores only the resulting ownership state locally and excludes that cache from Android backup. Purchases can be restored
-from the same Google Play account. We do not receive payment credentials or send purchase data to a developer server.
+cover art, emulation, and RetroAchievements remain available without this purchase. Google Play handles payment. For
+verification and restoration, GBCast sends the purchase token, app/product IDs, and Android ID to the GameBeacon license
+service over HTTPS, which records the license. GBCast also caches the resulting ownership state locally and excludes that
+cache from Android backup. Purchases can be restored on devices using the same Google Play account. We do not receive
+payment credentials, your Google account password, or your account email through this verification.
 
 ## Permissions
 

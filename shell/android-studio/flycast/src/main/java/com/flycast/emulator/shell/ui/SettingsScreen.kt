@@ -405,6 +405,7 @@ private fun PerformancePage(tick: Int, cfg: Cfg) {
 
 @Composable
 private fun ExtrasPage(tick: Int, cfg: Cfg) {
+    gb.frame.AppLanguageSettings()
     SettingsGroup("Arcade", null) {
         ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.setBool("config", "ForceFreePlay", it) }
     }

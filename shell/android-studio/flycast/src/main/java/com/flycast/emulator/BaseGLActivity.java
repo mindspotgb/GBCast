@@ -5,6 +5,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -61,6 +62,11 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
     private String pendingIntentUrl;
     private boolean hasKeyboard = false;
     private AndroidStorage storage;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(gb.frame.AppLanguage.INSTANCE.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

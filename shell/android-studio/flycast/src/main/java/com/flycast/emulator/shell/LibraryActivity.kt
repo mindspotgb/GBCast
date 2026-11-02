@@ -1,6 +1,7 @@
 package com.flycast.emulator.shell
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.InputDevice
@@ -31,6 +32,10 @@ class LibraryActivity : ComponentActivity() {
     private var lastGamepadBDevice = -1
     private var pairedBackDevice = -1
     private var pairedBackDownTime = -1L
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(gb.frame.AppLanguage.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

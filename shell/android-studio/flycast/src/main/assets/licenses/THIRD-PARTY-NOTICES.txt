@@ -1,5 +1,5 @@
 GBCast Android — third-party dependency notices
-Corresponding source repository: https://github.com/mindspot7/GBCast (use the branch or release tag matching this binary).
+Corresponding source repository: https://github.com/mindspotgb/GBCast (use the branch or release tag matching this binary).
 Release configuration audited: arm64-v8a; Gradle releaseRuntimeClasspath and Android CMake target.
 
 Google Play Billing and Play Services are bundled under Google's separate Android SDK terms, not under an open-source license. Their terms are available at https://developer.android.com/studio/terms. This notice does not grant additional rights to those SDK components.

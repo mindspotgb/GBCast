@@ -1,6 +1,6 @@
 # GBCast
 
-Android shell for the Flycast core (Dreamcast, Naomi, Naomi 2 and Atomiswave) using the shared [GBFrame](https://github.com/mindspot7/GBFrame) library. The launcher is the GBCast game library. `NativeGLActivity` still renders with Flycast's existing GLES/Vulkan path.
+Android shell for the Flycast core (Dreamcast, Naomi, Naomi 2 and Atomiswave) using the shared [GBFrame](https://github.com/mindspotgb/GBFrame) library. The launcher is the GBCast game library. `NativeGLActivity` still renders with Flycast's existing GLES/Vulkan path.
 
 GBFrame is the git submodule `libs/gbframe`; the repository records its required revision. The Android `applicationId` and Gradle `namespace` are both `app.gbcast.emulator`. `minSdk` is **28** because that is GBFrame's minimum; the previous Flycast Android app allowed API 21.
 
@@ -23,13 +23,13 @@ GBFrame is the git submodule `libs/gbframe`; the repository records its required
 
 Build the APK from `shell/android-studio` (`assembleRelease` or `assembleDebug`). The single `Build GBCast` GitHub Actions workflow builds the ARM64 release APK after local validation. Unit/device tests, Android Lint and app-ID checks run locally; run `bash tools/check-app-id.sh` for the latter. See the [shared build and validation standard](libs/gbframe/docs/BUILD_VALIDATION_STANDARD.md). Device commands are available through `tools/gbcast.ps1` (requires `adb`; `Install` also requires authenticated `gh`). The release version is `shell/android-studio/VERSION` (versionName `<version> (build <versionCode>)`); a dispatch whose VERSION has no GitHub release yet publishes release `v<version>` with the matching `CHANGELOG.md` section. Releases are signed with the permanent GBCast key from the `GBCAST_KEYSTORE_BASE64` / `GBCAST_KEYSTORE_PASSWORD` secrets (alias `gbcast`); local release builds use it through `GBCAST_KEYSTORE_FILE` and `GBCAST_KEYSTORE_PASSWORD`, and fall back to the repository debug key without them.
 
-The launcher and GBFrame's `HomeTopBar`, `HomeMenuPanel`, and `AboutPage` use the same GBCast foreground artwork (`R.drawable.ic_launcher_foreground` is the inline-compatible form), so the installed app, library, menu, and About page keep one identity. Development builds are named `GBCast-v<version>-build<versionCode>.apk`, and the Actions artifact uses the same stem. Numbered user releases should be named `GBCast-v<releaseVersion>.apk`, following the [GBFrame app integration standard](https://github.com/mindspot7/GBFrame/blob/main/docs/APP_INTEGRATION_STANDARD.md).
+The launcher and GBFrame's `HomeTopBar`, `HomeMenuPanel`, and `AboutPage` use the same GBCast foreground artwork (`R.drawable.ic_launcher_foreground` is the inline-compatible form), so the installed app, library, menu, and About page keep one identity. Development builds are named `GBCast-v<version>-build<versionCode>.apk`, and the Actions artifact uses the same stem. Numbered user releases should be named `GBCast-v<releaseVersion>.apk`, following the [GBFrame app integration standard](https://github.com/mindspotgb/GBFrame/blob/main/docs/APP_INTEGRATION_STANDARD.md).
 
 GBCast has no ads or analytics. Its optional network features and on-device data are described in the [privacy policy](PRIVACY.md).
 
 ## License
 
-GBCast source code is distributed under [GNU GPL version 3](LICENSE). Third-party components retain their individual licenses and notices; see **Settings > About > Third-party dependency notices**. Flycast source files marked GPL-2.0-or-later are used under GPLv3, and the GPLv3 text is included in the app. Google Play Billing and Play Services are bundled under Google's separate Android SDK terms; see the publication review in [GBFrame's dependency audit](https://github.com/mindspot7/GBFrame/blob/codex/gpl2-or-later/docs/DEPENDENCY_LICENSE_AUDIT_2026-11.md).
+GBCast source code is distributed under [GNU GPL version 3](LICENSE). Third-party components retain their individual licenses and notices; see **Settings > About > Third-party dependency notices**. Flycast source files marked GPL-2.0-or-later are used under GPLv3, and the GPLv3 text is included in the app. Google Play Billing and Play Services are bundled under Google's separate Android SDK terms; see the publication review in [GBFrame's dependency audit](https://github.com/mindspotgb/GBFrame/blob/codex/gpl2-or-later/docs/DEPENDENCY_LICENSE_AUDIT_2026-11.md).
 
 # Flycast
 

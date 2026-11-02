@@ -25,7 +25,7 @@ param(
 
 $Title = 'GBCast'
 $Name = 'gbcast'
-$Repo = 'mindspot7/GBCast'
+$Repo = 'mindspotgb/GBCast'
 $Branch = 'android-port'
 $App = 'app.gbcast.emulator'
 $Activity = 'com.flycast.emulator.MainActivity'

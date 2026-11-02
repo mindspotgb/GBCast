@@ -62,4 +62,4 @@ GBCast is not directed at children and does not knowingly collect personal data 
 ## Changes and contact
 
 Policy changes are published in this source repository. Questions can be opened at
-<https://github.com/mindspot7/GBCast/issues>.
+<https://github.com/mindspotgb/GBCast/issues>.

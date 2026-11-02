@@ -209,11 +209,11 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                             AboutCredit("rcheevos", "RetroAchievements client library (MIT)."),
                             AboutCredit("libretro-database", "Bundled Dreamcast cheat database (CC BY-SA 4.0; license included in the APK)."),
                         ),
-                        license = "GBCast and Flycast are distributed under GNU GPL v2. The full GPL, rcheevos MIT and bundled cheat-database CC BY-SA 4.0 license texts are below. Dreamcast is a Sega trademark; GBCast is not affiliated with Sega.",
+                        license = "GBCast and Flycast are distributed under GNU GPL v2. GBFrame is available under GPL-2.0-or-later and is used under GPL v2 in GBCast. The full GPL, rcheevos MIT and bundled cheat-database CC BY-SA 4.0 license texts are below. Dreamcast is a Sega trademark; GBCast is not affiliated with Sega.",
                         privacyPolicyUrl = "https://github.com/mindspot7/GBCast/blob/android-port/PRIVACY.md",
                         tagline = "Brought to you by GameBeacon.dev: pure speed and nostalgia for the definitive Sega Dreamcast experience.",
                         licenseDocuments = listOf(
-                            AboutLicenseDocument("GNU GPL v2 — GBCast and Flycast", "licenses/GNU-GPL-2.0.txt"),
+                            AboutLicenseDocument("GNU GPL v2 — GBCast, GBFrame and Flycast", "licenses/GNU-GPL-2.0.txt"),
                             AboutLicenseDocument("MIT — rcheevos", "licenses/rcheevos-MIT.txt"),
                             AboutLicenseDocument("CC BY-SA 4.0 — libretro-database", "cheats/LICENSE-libretro-database.txt"),
                         ),

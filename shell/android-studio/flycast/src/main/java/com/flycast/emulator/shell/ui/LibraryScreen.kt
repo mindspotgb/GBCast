@@ -24,12 +24,12 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -310,7 +310,6 @@ fun LibraryScreen(
             onQuit = { confirmQuit = true },
             header = { RaUserHeader() },
             onFocusChanged = { MenuState.menuHasFocus = it },
-            highContrastSelection = true,
         )
         if (openingGame) {
             LaunchLoadingOverlay("Preparing the disc image. A cached copy is created only when direct access is unavailable on this device.")
@@ -416,25 +415,16 @@ private fun GameOptions(
             Column {
                 Text(if (game.playSeconds >= 60) "Played ${formatPlayTime(game.playSeconds)}" else "Not played yet")
                 Spacer(Modifier.height(12.dp))
-                TextButton(enabled = latest != null, onClick = { latest?.let(onContinue) }) {
-                    Icon(Icons.Default.PlayCircle, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(if (latest != null) "Continue" else "Continue (no save state)")
+                gb.frame.GameOptionsActionRow(Icons.Default.PlayCircle, if (latest != null) "Continue" else "Continue (no save state)", enabled = latest != null) {
+                    latest?.let(onContinue)
                 }
-                TextButton(onClick = onPlay) {
-                    Icon(Icons.Default.PlayArrow, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Play")
-                }
-                TextButton(onClick = { coverOptions = true }) {
-                    Icon(Icons.Default.Image, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Cover Image")
-                }
+                gb.frame.GameOptionsActionRow(Icons.Default.PlayArrow, "Play", onClick = onPlay)
+                gb.frame.GameOptionsActionRow(Icons.Default.Image, "Cover Image") { coverOptions = true }
+                gb.frame.GameOptionsActionRow(Icons.Default.Close, "Close", onClick = onDismiss)
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+        dismissButton = {},
     )
 }
 

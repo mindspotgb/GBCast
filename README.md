@@ -27,6 +27,10 @@ The launcher and GBFrame's `HomeTopBar`, `HomeMenuPanel`, and `AboutPage` use th
 
 GBCast has no ads or analytics. Its optional network features and on-device data are described in the [privacy policy](PRIVACY.md).
 
+## License
+
+GBCast source code is distributed under [GNU GPL version 3](LICENSE). Third-party components retain their individual licenses and notices; see **Settings > About > Third-party dependency notices**. Flycast source files marked GPL-2.0-or-later are used under GPLv3, and the GPLv3 text is included in the app. Google Play Billing and Play Services are bundled under Google's separate Android SDK terms; see the publication review in [GBFrame's dependency audit](https://github.com/mindspot7/GBFrame/blob/codex/gpl2-or-later/docs/DEPENDENCY_LICENSE_AUDIT_2026-11.md).
+
 # Flycast
 
 The emulation core comes from [Flycast](https://github.com/flyinghead/flycast), a Sega Dreamcast, Naomi, Naomi 2, and Atomiswave emulator derived from [reicast](https://github.com/skmp/reicast-emulator). This repository keeps the Android shell and the core code that APK builds. Desktop, Apple, Switch, UWP, and libretro projects are not part of GBCast.

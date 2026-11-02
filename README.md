@@ -29,7 +29,7 @@ GBCast has no ads or analytics. Its optional network features and on-device data
 
 ## License
 
-GBCast source code is distributed under [GNU GPL version 3](LICENSE). Third-party components retain their individual licenses and notices; see **Settings > About > Third-party dependency notices**. Flycast source files marked GPL-2.0-or-later are used under GPLv3, and the GPLv3 text is included in the app. Google Play Billing and Play Services are bundled under Google's separate Android SDK terms; see the publication review in [GBFrame's dependency audit](https://github.com/mindspotgb/GBFrame/blob/codex/gpl2-or-later/docs/DEPENDENCY_LICENSE_AUDIT_2026-11.md).
+GBCast source code is distributed under [GNU GPL version 3](LICENSE). Third-party components retain their individual licenses and notices; see **Settings > About > Third-party dependency notices**. Flycast source files marked GPL-2.0-or-later are used under GPLv3, and the GPLv3 text is included in the app. Google Play Billing and Play Services are bundled under Google's separate Android SDK terms; see the publication review in [GBFrame's dependency audit](https://github.com/mindspotgb/GBFrame/blob/main/docs/DEPENDENCY_LICENSE_AUDIT_2026-11.md).
 
 # Flycast
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver android:name="com.flycast.emulator.AutoSkipDiagnosticsReceiver" android:exported="true">
+            <intent-filter><action android:name="com.flycast.emulator.action.AUTO_SKIP_DIAGNOSTICS" /></intent-filter>
+        </receiver>
+        <!-- Development/test-only hook. Production builds use the in-process RA transport. -->
+        <receiver
+            android:name="com.flycast.emulator.RetroAchievementsHostOverrideReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.flycast.emulator.action.SET_RETROACHIEVEMENTS_HOST_OVERRIDE" />
+                <action android:name="com.flycast.emulator.action.CLEAR_RETROACHIEVEMENTS_HOST_OVERRIDE" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="com.flycast.emulator.TestDocumentsProvider"
+            android:authorities="app.gbcast.emulator.test.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+    </application>
+</manifest>
+

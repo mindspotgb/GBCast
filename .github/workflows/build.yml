@@ -1,0 +1,134 @@
+name: Build GBCast
+# Builds the GBCast release APK from the Flycast core and the GBFrame submodule.
+# Run manually after local validation and a successful GBFrame build.
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: Android version code, higher than the latest local and cloud builds
+        type: string
+        required: true
+
+
+jobs:
+  build:
+    name: Android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      GBCAST_VERSION_CODE: ${{ inputs.version_code }}
+
+    steps:
+      - name: Validate Android version code
+        env:
+          BUILD_VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          if [[ ! "$BUILD_VERSION_CODE" =~ ^[1-9][0-9]{0,9}$ ]] || ((10#$BUILD_VERSION_CODE > 2100000000)); then
+            echo "::error::Supply a positive Android version code up to 2100000000."
+            exit 1
+          fi
+
+      - name: Set up ccache
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install ccache
+
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-android-${{ github.sha }}
+          restore-keys: ccache-android-
+
+      - name: Release signing key (repository secrets)
+        env:
+          KEYSTORE_B64: ${{ secrets.GBCAST_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/gbcast-release.jks"
+            echo "GBCAST_KEYSTORE_FILE=$RUNNER_TEMP/gbcast-release.jks" >> "$GITHUB_ENV"
+            echo "::notice title=Signing::APK signed with the GBCast release key"
+          else
+            echo "::error title=Signing::GBCAST_KEYSTORE_BASE64 secret must be configured for release builds"
+            exit 1
+          fi
+
+      # Tests run locally before dispatch; cloud runners only package the release APK.
+      - name: Build release APK
+        working-directory: shell/android-studio
+        env:
+          GBCAST_KEYSTORE_PASSWORD: ${{ secrets.GBCAST_KEYSTORE_PASSWORD }}
+        # APK only. The App Bundle (.aab) is built for an official numbered release, when asked for.
+        run: ./gradlew :gbcast:assembleRelease --parallel -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease -PgbcastVersionCode="$GBCAST_VERSION_CODE"
+
+      - name: Name APK with app version
+        id: apk
+        run: |
+          VERSION=$(tr -d '[:space:]' < shell/android-studio/VERSION)
+          NAME="GBCast-v${VERSION}-build${GBCAST_VERSION_CODE}"
+          APK_DIR="shell/android-studio/flycast/build/outputs/apk/release"
+          APK=$(find "$APK_DIR" -maxdepth 1 -type f -name '*.apk' -print -quit)
+          test -n "$APK"
+          mv "$APK" "$APK_DIR/${NAME}.apk"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate APK 16 KB compatibility (GBFrame shared validator)
+        shell: bash
+        run: |
+          set -euo pipefail
+          VALIDATOR="$RUNNER_TEMP/check-android-16kb.sh"
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/mindspotgb/GBFrame/6fb96ecac381cf7613b7e3321ade39b73b052fd0/tools/check-android-16kb.sh" \
+            -o "$VALIDATOR"
+          APK_DIR="shell/android-studio/flycast/build/outputs/apk/release"
+          APK=$(find "$APK_DIR" -maxdepth 1 -type f -name '*.apk' -print -quit)
+          test -n "$APK"
+          bash "$VALIDATOR" "$APK"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: shell/android-studio/flycast/build/outputs/apk/release/${{ steps.apk.outputs.name }}.apk
+
+      # A release is published once per version: when shell/android-studio/VERSION changes to a version that has no
+      # release yet, this build is published as release v<version> with the APK named GBCast-v<version>.apk and the
+      # matching CHANGELOG.md section as release notes.
+      - name: Publish release for a new version
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(tr -d '[:space:]' < shell/android-studio/VERSION)
+          if gh release view "v${VER}" >/dev/null 2>&1; then
+            echo "Release v${VER} already exists; nothing to publish"
+            exit 0
+          fi
+          cp "shell/android-studio/flycast/build/outputs/apk/release/${{ steps.apk.outputs.name }}.apk" "GBCast-v${VER}.apk"
+          awk -v ver="$VER" '
+            /^## / { if (found) exit; if (index($0, "## " ver) == 1) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "GBCast ${VER}" > notes.md
+          gh release create "v${VER}" "GBCast-v${VER}.apk" --target "$GITHUB_SHA" --title "GBCast ${VER}" --notes-file notes.md
+          echo "::notice title=Release::Published v${VER}"
+

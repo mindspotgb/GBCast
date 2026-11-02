@@ -1,8 +1,8 @@
 # GBCast — Privacy Policy
 
-_Last updated: November 1, 2026_
+_Last updated: November 2, 2026_
 
-GBCast is an emulator for Android. GBCast has no ads, analytics or user tracking, and does not sell personal data.
+GBCast is an emulator for Android. It has no ads, analytics or user tracking, and does not sell personal data. If you choose to buy or restore Gold, the app sends a Google Play purchase token, app and product IDs, and Android ID to the GameBeacon license service to verify and record the license. Google Play handles payment; the developer does not receive your payment credentials, Google account password, or account email.
 
 ## Data kept on your device
 
@@ -63,3 +63,5 @@ GBCast is not directed at children and does not knowingly collect personal data 
 
 Policy changes are published in this source repository. Questions can be opened at
 <https://github.com/mindspotgb/GBCast/issues>.
+
+

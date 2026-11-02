@@ -90,10 +90,10 @@ static void applyAutomaticSystemVideoSettings()
 	if (!settings.platform.isConsole())
 		return;
 
-	// Keep TV Composite/NTSC defaults regardless of legacy global or per-game
-	// preferences. Only games confirmed to require PAL differ.
+	// Keep TV Composite and follow the automatically resolved console region.
+	// Specific confirmed game exceptions are applied below.
 	config::Cable.override(3);
-	config::Broadcast.override(0);
+	config::Broadcast.override(config::Region == 2 ? 1 : 0);
 
 	const std::string& prod_id = settings.content.gameId;
 	if (prod_id == "T-9709D-50" // San Francisco Rush 2049 (EU)

@@ -132,13 +132,10 @@ object GBCastBridge {
      * than it shows and used 75-80% of its Mali-G52, while 540 uses ~25% with the same picture.
      */
     fun screenResolution(): Int {
-        // The real display size: the app runs immersive, and the system metrics leave out the bars (680 of 720 px)
-        val m = android.util.DisplayMetrics()
-        val wm = appContext?.getSystemService(Context.WINDOW_SERVICE) as? android.view.WindowManager
-        @Suppress("DEPRECATION")
-        if (wm != null) wm.defaultDisplay.getRealMetrics(m)
-        else m.setTo(android.content.res.Resources.getSystem().displayMetrics)
-        val lines = (minOf(m.widthPixels, m.heightPixels) * 3 / 4 + 29) / 30 * 30
+        // The real display size: the app runs immersive, and the app's own metrics leave out the bars (680 of 720 px)
+        val (width, height) = appContext?.let { gb.frame.realScreenSize(it) }
+            ?: android.content.res.Resources.getSystem().displayMetrics.let { it.widthPixels to it.heightPixels }
+        val lines = (minOf(width, height) * 3 / 4 + 29) / 30 * 30
         return lines.coerceIn(480, 1920)
     }
 

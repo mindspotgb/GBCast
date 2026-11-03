@@ -17,7 +17,7 @@ private val GraphitePalette = EmuPalette(
     accent = GraphiteOrange,
     onAccent = Color(0xFFE8E9EC),
     highlight = CursorGray,
-    background = listOf(Color(0xFF1C1714), Color(0xFF241C19), Color(0xFF1A1513)),
+    background = listOf(Color(0xFF181411), Color(0xFF1F1815), Color(0xFF161210)),
     panel = Color(0xFF27201C).copy(alpha = 0.98f),
     card = Color(0xFF2B231F).copy(alpha = 0.98f),
     border = Color(0xFF666D77).copy(alpha = 0.42f),

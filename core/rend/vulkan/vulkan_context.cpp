@@ -52,10 +52,9 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include <cstring>
 
 #if defined(__ANDROID__)
-// The Flycast Vulkan-to-GBFrame AHardwareBuffer import crashes on tested Android GPUs
-// (Adreno 740 on Retroid Pocket Nova). Keep GBFrame's Vulkan presenter, but use its
-// existing staged CPU delivery path until this interop is validated on Flycast.
-static constexpr bool kEnableGBFrameAhbInterop = false;
+// Vulkan renders straight into GBFrame presenter buffers (no CPU readback). It was disabled while the import
+// rejected every buffer (externalFormat check) and the presenter could hand out the slot it was drawing.
+static constexpr bool kEnableGBFrameAhbInterop = true;
 #endif
 
 #if defined(__ANDROID__)
@@ -110,8 +109,10 @@ static bool ImportAndroidPresenterImage(VkDevice device, VkPhysicalDevice physic
 	VkAndroidHardwareBufferFormatPropertiesANDROID formatProps{VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID};
 	VkAndroidHardwareBufferPropertiesANDROID ahbProps{VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID};
 	ahbProps.pNext = &formatProps;
+	// externalFormat is a driver-defined id that is never zero (Adreno reports 28 for RGBA8): it only matters when
+	// `format` is VK_FORMAT_UNDEFINED, so it must not be checked here.
 	if (getProperties(device, buffer, &ahbProps) != VK_SUCCESS ||
-		formatProps.format != VK_FORMAT_R8G8B8A8_UNORM || formatProps.externalFormat != 0) return false;
+		formatProps.format != VK_FORMAT_R8G8B8A8_UNORM) return false;
 
 	VkExternalMemoryImageCreateInfo externalImage{VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO};
 	externalImage.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID;
@@ -1240,8 +1241,8 @@ void VulkanContext::CreateGBFramePresenterTargets()
 		}
 		inFlightObjects.resize(kFrameCount);
 		InitGpuTimingQueries(kFrameCount);
-		gbFramePresenterImages.reserve(4);
-		for (size_t i = 0; i < 4; ++i)
+		gbFramePresenterImages.reserve(glr::kTargetSlots); // one imported image per presenter slot
+		for (size_t i = 0; i < (size_t)glr::kTargetSlots; ++i)
 			gbFramePresenterImages.push_back(std::make_unique<AndroidPresenterImage>());
 		currentSemaphore = 0;
 		quadPipeline->Init(shaderManager.get(), *renderPass, 0);

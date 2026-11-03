@@ -163,11 +163,7 @@ public final class NativeGLActivity extends BaseGLActivity {
     }
 
     private void hideSystemBars() {
-        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        androidx.core.view.WindowInsetsControllerCompat controller =
-                new androidx.core.view.WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
-        controller.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars());
-        controller.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        gb.frame.FullScreen.INSTANCE.hideSystemBars(this);
     }
 
     private boolean hasPhysicalGamepad() {

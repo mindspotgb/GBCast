@@ -7,10 +7,6 @@ import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.flycast.emulator.shell.ui.GBCastRoot
 import com.flycast.emulator.shell.ui.DreamcastControls
 import gb.frame.ControlsCapture
@@ -39,7 +35,7 @@ class LibraryActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        gb.frame.FullScreen.apply(this) // edge-to-edge without the window APIs Android 15 deprecates
         lifecycleScope.launch {
             val error = withContext(Dispatchers.IO) {
                 runCatching {
@@ -86,12 +82,7 @@ class LibraryActivity : ComponentActivity() {
         if (hasFocus) hideSystemBars()
     }
 
-    private fun hideSystemBars() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.hide(WindowInsetsCompat.Type.systemBars())
-        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    }
+    private fun hideSystemBars() = gb.frame.FullScreen.hideSystemBars(this)
 
     private fun quit() {
         finishAndRemoveTask()

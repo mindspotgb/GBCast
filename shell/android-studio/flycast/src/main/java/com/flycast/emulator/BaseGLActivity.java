@@ -21,7 +21,6 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.Window;
 import android.view.WindowManager;
 import android.window.OnBackInvokedDispatcher;
 
@@ -43,10 +42,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.content.res.Configuration.HARDKEYBOARDHIDDEN_NO;
-import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-import static android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS;
-import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 
 public abstract class BaseGLActivity extends ComponentActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int AUDIO_PERM_REQUEST = 1002;
@@ -79,15 +74,8 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
             finish();
             return;
         }
-        // Set the navigation bar color to 0 to avoid left over when it fades out on Android 10
-        Window window = getWindow();
-        window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.clearFlags(FLAG_TRANSLUCENT_STATUS | FLAG_TRANSLUCENT_NAVIGATION);
-        window.setNavigationBarColor(0);
-        window.getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-        }
+        // Edge-to-edge without the window APIs Android 15 deprecates (GBFrame CONVENTIONS.md)
+        gb.frame.FullScreen.INSTANCE.apply(this);
 
         if (!getFilesDir().exists()) {
             getFilesDir().mkdir();

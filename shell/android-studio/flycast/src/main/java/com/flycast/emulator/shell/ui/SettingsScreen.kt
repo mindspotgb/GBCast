@@ -290,7 +290,8 @@ private fun SystemPage(tick: Int, cfg: Cfg, onFolder: () -> Unit, onBios: () -> 
 private fun VideoPage(tick: Int, cfg: Cfg) {
     val rendererValues = intArrayOf(0, 3, 4, 5)
     val renderer = indexOf(tick, rendererValues, cfg.int("config", "pvr.rend"))
-    val resolutionValues = intArrayOf(480, 960, 1440, 1920)
+    val resolutionChoices = GBCastBridge.resolutionChoices()
+    val resolutionValues = resolutionChoices.map { it.first }.toIntArray()
     val resolution = indexOf(tick, resolutionValues, cfg.int("config", "rend.Resolution"))
     SettingsGroup("Picture", Icons.Default.AspectRatio) {
         val displayModes = DisplayMode.entries.map { mode ->
@@ -336,8 +337,8 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         }
         SettingsDivider()
         gb.frame.EnhancedResolutionSettingsRow(
-            resolutionValues[resolution], resolutionValues.toList(), listOf("Native", "2x", "3x", "4x"),
-            "Sharper 3D sprites and polygons; higher values need a faster GPU. Native matches the screen.",
+            resolutionValues[resolution], resolutionValues.toList(), resolutionChoices.map { it.second },
+            "Sharper 3D sprites and polygons; higher values need a faster GPU. Screen matches this device's display: more than that only costs GPU time.",
         ) {
             cfg.setInt("config", "rend.Resolution", it)
         }

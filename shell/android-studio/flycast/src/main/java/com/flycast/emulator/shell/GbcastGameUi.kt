@@ -297,7 +297,7 @@ object GbcastGameUi {
                     options = rendererValues.map { gb.frame.RendererChoice(it.first, it.second) },
                 ) { setInt("config", "pvr.rend", it) }
 
-                val resolutionValues = listOf(480 to "Native", 960 to "2x", 1440 to "3x", 1920 to "4x")
+                val resolutionValues = GBCastBridge.resolutionChoices()
                 val resolution = currentInt("config", "rend.Resolution")
                 gb.frame.EnhancedResolutionQuickMenuItem(
                     value = resolution,

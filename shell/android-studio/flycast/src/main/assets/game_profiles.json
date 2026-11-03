@@ -17,7 +17,6 @@
       "titles": ["SEGA RALLY 2"],
       "mid": {
         "renderer": "opengl",
-        "resolution": 960,
         "autoFrameSkip": 0,
         "threadedRendering": true,
         "framePacing": true

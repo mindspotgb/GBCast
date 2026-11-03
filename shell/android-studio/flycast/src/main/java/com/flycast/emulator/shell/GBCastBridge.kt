@@ -57,7 +57,10 @@ object GBCastBridge {
     var disc: OpenDisc? = null
         private set
 
+    private var appContext: Context? = null
+
     fun start(context: Context) {
+        appContext = context.applicationContext
         val app = context.applicationContext as Emulator
         val prefs = android.preference.PreferenceManager.getDefaultSharedPreferences(app)
         displayPrefs = prefs
@@ -122,6 +125,30 @@ object GBCastBridge {
             .edit().putBoolean(PREF_SETUP, true).apply()
     }
 
+    /**
+     * Internal resolution (vertical lines) that matches the screen: the 4:3 picture fills the short side, so it needs
+     * short * 3/4 lines, rounded up to 30. A 720x720 screen (RG Rotate) needs 540; 2x (960) renders 3.2x more pixels
+     * than it shows and used 75-80% of its Mali-G52, while 540 uses ~25% with the same picture.
+     */
+    fun screenResolution(): Int {
+        // The real display size: the app runs immersive, and the system metrics leave out the bars (680 of 720 px)
+        val m = android.util.DisplayMetrics()
+        val wm = appContext?.getSystemService(Context.WINDOW_SERVICE) as? android.view.WindowManager
+        @Suppress("DEPRECATION")
+        if (wm != null) wm.defaultDisplay.getRealMetrics(m)
+        else m.setTo(android.content.res.Resources.getSystem().displayMetrics)
+        val lines = (minOf(m.widthPixels, m.heightPixels) * 3 / 4 + 29) / 30 * 30
+        return lines.coerceIn(480, 1920)
+    }
+
+    /** Resolution choices for the menus: Flycast's multiples of native plus the one that matches this screen. */
+    fun resolutionChoices(): List<Pair<Int, String>> {
+        val fixed = listOf(480 to "Native", 960 to "2x", 1440 to "3x", 1920 to "4x")
+        val screen = screenResolution()
+        return if (fixed.any { it.first == screen }) fixed
+        else (fixed + (screen to "Screen (${screen}p)")).sortedBy { it.first }
+    }
+
     suspend fun applyRecommendedPreset(): String {
         val device = withContext(Dispatchers.IO) { DeviceTier.detect() }
         val preset = when {
@@ -140,7 +167,7 @@ object GBCastBridge {
             }
             else -> {
                 setInt("config", "pvr.rend", 0)
-                setInt("config", "rend.Resolution", 960)
+                setInt("config", "rend.Resolution", screenResolution())
                 setBool("config", "rend.vsync", true)
                 setBool("config", "rend.FramePacing", true)
             }
@@ -154,7 +181,7 @@ object GBCastBridge {
         val (renderer, resolution) = when (preset) {
             "Compatible" -> "CPU (OpenGL)" to "480p"
             "Quality" -> "GPU (Vulkan)" to "${device.gpuMaxScale.coerceIn(2, 4)}x native"
-            else -> "CPU (OpenGL)" to "960p"
+            else -> "CPU (OpenGL)" to "${screenResolution()}p (matches the screen)"
         }
         val options = mutableListOf(
             "Renderer: $renderer",

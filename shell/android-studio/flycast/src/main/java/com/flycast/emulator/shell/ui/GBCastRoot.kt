@@ -108,6 +108,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                         MenuState.menuRefocus.intValue++
                     }
                 }
+                gb.frame.AppUpdatePrompt(UPDATE_CONFIG)
                 Scaffold(snackbarHost = { SnackbarHost(snackbar) }, containerColor = androidx.compose.ui.graphics.Color.Transparent) { pad ->
                     Box(Modifier.padding(pad).fillMaxSize()) {
                         when (screen) {

@@ -156,6 +156,11 @@ android {
     defaultConfig {
         if (releaseKey == null) applicationIdSuffix = ".dev"
         manifestPlaceholders["appLabel"] = if (releaseKey == null) "GBCast Dev" else "GBCast"
+        // Update channel (GBFrame docs/APP_UPDATES_STANDARD.md): -PgbChannel=play for the Google Play bundle, otherwise github.
+        val gbChannel = providers.gradleProperty("gbChannel").getOrElse("github")
+        manifestPlaceholders["gbUpdateChannel"] = gbChannel
+        manifestPlaceholders["gbInstallPermission"] =
+            if (gbChannel == "play") "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
     }
 
     buildTypes {

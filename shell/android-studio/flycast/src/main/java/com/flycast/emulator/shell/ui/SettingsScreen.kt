@@ -404,9 +404,13 @@ private fun PerformancePage(tick: Int, cfg: Cfg) {
 }
 
 
+/** Official repository the kit update check reads releases from (GBFrame docs/APP_UPDATES_STANDARD.md). */
+val UPDATE_CONFIG = gb.frame.AppUpdateConfig(githubRepo = "mindspotgb/GBCast")
+
 @Composable
 private fun ExtrasPage(tick: Int, cfg: Cfg) {
     gb.frame.AppLanguageSettings()
+    SettingsGroup("Updates", null) { gb.frame.UpdateCheckRow(gb.frame.rememberUpdateController(UPDATE_CONFIG)) }
     SettingsGroup("Arcade", null) {
         ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.setBool("config", "ForceFreePlay", it) }
     }

@@ -20,5 +20,8 @@ struct host_context_t {
 	u32 reg[15];
 #elif HOST_CPU == CPU_ARM64
 	u64 x0;
+	u64 x29;
+	u64 x30;
+	u64 sp;
 #endif
 };

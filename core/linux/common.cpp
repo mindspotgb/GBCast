@@ -12,6 +12,9 @@
   #include <sys/personality.h>
 #endif
 #include <unistd.h>
+#if defined(__ANDROID__) && HOST_CPU == CPU_ARM64
+#include <dlfcn.h>
+#endif
 #ifdef __linux__
 #include <pthread.h>
 #endif
@@ -66,6 +69,14 @@ void fault_handler(int sn, siginfo_t * si, void *segfault_ctx)
 	}
 
 	ERROR_LOG(COMMON, "SIGSEGV @ %p invalid access to %p", (void *)ctx.pc, si->si_addr);
+#if defined(__ANDROID__) && HOST_CPU == CPU_ARM64
+	Dl_info moduleInfo{};
+	const uintptr_t moduleBase = dladdr((void *)&fault_handler, &moduleInfo) != 0
+			? reinterpret_cast<uintptr_t>(moduleInfo.dli_fbase) : 0;
+	ERROR_LOG(COMMON, "ARM64 fault context: LR=%p FP=%p SP=%p x0=%p module=%p LR-offset=%p",
+			(void *)ctx.x30, (void *)ctx.x29, (void *)ctx.sp, (void *)ctx.x0,
+			(void *)moduleBase, (void *)(moduleBase ? ctx.x30 - moduleBase : 0));
+#endif
 #endif
 
 #ifdef __SWITCH__

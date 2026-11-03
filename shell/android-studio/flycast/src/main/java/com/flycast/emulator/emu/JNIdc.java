@@ -27,7 +27,6 @@ public final class JNIdc
 	public static native void setupMic(SipEmulator sip);
 
 	public static native void screenCharacteristics(float screenDpi, float refreshRate);
-	public static native void guiOpenSettings();
 	public static native boolean guiIsOpen();
 	public static native boolean guiIsContentBrowser();
 	public static native void guiSetInsets(int left, int right, int top, int bottom);

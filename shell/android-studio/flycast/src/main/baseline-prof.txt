@@ -28761,7 +28761,6 @@ HSPLcom/flycast/emulator/shell/GbcastGameUi;->getMenuOwnsKeys$annotations()V
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->getMenuOwnsKeys()Z
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->getMessage()Ljava/lang/String;
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->getVisible()Z
-HSPLcom/flycast/emulator/shell/GbcastGameUi;->hideForNative(I)V
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->noteGamepadB(Landroid/view/KeyEvent;)V
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->onAndroidBack(Landroid/app/Activity;)V
 HSPLcom/flycast/emulator/shell/GbcastGameUi;->prepareMenuKey(Landroid/view/KeyEvent;)V

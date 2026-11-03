@@ -194,7 +194,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                             cfg.setInt("input", "device1", devices[it])
                         }
                         SettingsDivider()
-                        ChoiceRow("Touch vibration", "Vibration strength for the on-screen controls", listOf("Off", "Low", "Mid", "High"), vibe) {
+                        ChoiceRow("Game rumble", "Vibration strength for rumble effects triggered by the game. Touch button feedback is configured separately.", listOf("Off", "Low", "Mid", "High"), vibe) {
                             cfg.setInt("input", "VirtualGamepadVibration", vibeValues[it])
                         }
                     }

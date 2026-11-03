@@ -8,7 +8,6 @@ package com.flycast.emulator.shell
  */
 internal object GbcastBackPolicy {
     enum class Action {
-        OPEN_NATIVE_SETTINGS,
         RETURN_TO_PAUSE_MENU,
         SHOW_PAUSE_MENU,
         RESUME_GAME,
@@ -17,8 +16,7 @@ internal object GbcastBackPolicy {
     }
 
     fun decide(state: Int, menuVisible: Boolean): Action = when (state) {
-        GbcastGameUi.LOADING, GbcastGameUi.VJOY, GbcastGameUi.VJOY_CMD ->
-            Action.OPEN_NATIVE_SETTINGS
+        GbcastGameUi.LOADING, GbcastGameUi.VJOY, GbcastGameUi.VJOY_CMD,
         GbcastGameUi.COMMANDS, GbcastGameUi.SETTINGS, GbcastGameUi.DISK,
         GbcastGameUi.CHEATS, GbcastGameUi.ACHIEVEMENTS ->
             Action.RETURN_TO_PAUSE_MENU

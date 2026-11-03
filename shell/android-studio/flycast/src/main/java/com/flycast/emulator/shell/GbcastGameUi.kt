@@ -135,7 +135,6 @@ object GbcastGameUi {
     @JvmStatic
     fun onAndroidBack(activity: Activity) {
         when (GbcastBackPolicy.decide(JNIdc.guiState(), visible)) {
-            GbcastBackPolicy.Action.OPEN_NATIVE_SETTINGS -> JNIdc.guiOpenSettings()
             GbcastBackPolicy.Action.RETURN_TO_PAUSE_MENU -> {
                 JNIdc.guiSetState(PAUSE)
                 show()
@@ -186,15 +185,6 @@ object GbcastGameUi {
         visible = false
         menuOwnsKeys = false
         activity.recreate()
-    }
-
-    private fun hideForNative(state: Int) {
-        JNIdc.guiSetState(state)
-        visible = false
-        menuOwnsKeys = false
-        compose?.isFocusable = false
-        compose?.isFocusableInTouchMode = false
-        glView?.requestFocus()
     }
 
     @Composable
@@ -487,10 +477,6 @@ object GbcastGameUi {
                     JNIdc.setPerGameConfig(!JNIdc.hasPerGameConfig())
                     tick++
                 }
-                gb.frame.QuickMenuItemRow(
-                    id = "native-settings", icon = androidx.compose.material.icons.Icons.Default.Tune,
-                    label = "Advanced emulator settings",
-                ) { hideForNative(SETTINGS) }
                 message?.let { Text(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
             }
         }

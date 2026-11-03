@@ -100,8 +100,8 @@ bool GamepadDevice::handleButtonInput(int port, DreamcastKey key, bool pressed)
 		switch (key)
 		{
 		case EMU_BTN_MENU:
-			if (pressed)
-				gui_open_settings();
+			// GBCast routes the in-game menu through GBFrame. Keep Flycast's
+			// native settings UI unreachable from physical controller bindings.
 			break;
 		case EMU_BTN_ESCAPE:
 			if (pressed)

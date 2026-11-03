@@ -5,10 +5,10 @@ import org.junit.Test
 
 class GbcastBackPolicyTest {
     @Test
-    fun nativeSubmenusReturnToNativeSettings() {
+    fun flycastMenuStatesReturnToTheSharedPauseMenu() {
         listOf(GbcastGameUi.LOADING, GbcastGameUi.VJOY, GbcastGameUi.VJOY_CMD).forEach { state ->
             assertEquals(
-                GbcastBackPolicy.Action.OPEN_NATIVE_SETTINGS,
+                GbcastBackPolicy.Action.RETURN_TO_PAUSE_MENU,
                 GbcastBackPolicy.decide(state, menuVisible = false),
             )
         }

@@ -52,6 +52,13 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include <cstring>
 
 #if defined(__ANDROID__)
+// The Flycast Vulkan-to-GBFrame AHardwareBuffer import crashes on tested Android GPUs
+// (Adreno 740 on Retroid Pocket Nova). Keep GBFrame's Vulkan presenter, but use its
+// existing staged CPU delivery path until this interop is validated on Flycast.
+static constexpr bool kEnableGBFrameAhbInterop = false;
+#endif
+
+#if defined(__ANDROID__)
 #include <android/native_window.h>
 #include "gl_renderer.hpp"
 #include "rend/gpu_usage.h"
@@ -540,9 +547,10 @@ void VulkanContext::InitImgui()
 #endif
 
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
-	ImGui_ImplVulkan_LoadFunctions(0, [](const char *function_name, void *) {
+	if (!ImGui_ImplVulkan_LoadFunctions(0, [](const char *function_name, void *) {
 		return VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr((VkInstance) *Instance()->instance, function_name);
-	});
+	}))
+		throw FlycastException("Vulkan ImGui function loading failed");
 #endif
 
 	if (!ImGui_ImplVulkan_Init(&initInfo))
@@ -640,15 +648,16 @@ bool VulkanContext::InitDevice()
 		};
 
 		// Required only when Vulkan itself owns the Android window surface.
-		if (!gbFramePresenter)
-			tryAddDeviceExtension(vk::KHRSwapchainExtensionName);
+		tryAddDeviceExtension(vk::KHRSwapchainExtensionName);
 
 #if defined(__ANDROID__)
 		if (gbFramePresenter) {
-			const bool ahb = tryAddDeviceExtension(VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME);
-			const bool foreign = tryAddDeviceExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME);
+			const bool ahb = kEnableGBFrameAhbInterop && tryAddDeviceExtension(VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME);
+			const bool foreign = kEnableGBFrameAhbInterop && tryAddDeviceExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME);
 			gbFramePresenterAHBInterop = ahb && foreign;
-			if (!gbFramePresenterAHBInterop)
+			if (!gbFramePresenterAHBInterop && !kEnableGBFrameAhbInterop)
+				NOTICE_LOG(RENDERER, "GBFrame Vulkan AHardwareBuffer import is disabled for Flycast; using staged CPU frame delivery");
+			else if (!gbFramePresenterAHBInterop)
 				NOTICE_LOG(RENDERER, "GBFrame Vulkan AHardwareBuffer import unavailable; using staged CPU frame delivery");
 		}
 #endif
@@ -1145,7 +1154,11 @@ void VulkanContext::FlushGBFramePresenterFrames(bool wait)
 		} else if (frame.color && frame.color->GetBufferData()) {
 			const auto *readback = frame.color->GetBufferData();
 			const auto *pixels = static_cast<const uint32_t *>(readback->MapMemory());
-			glr::Submit(pixels, width, height, 1);
+			if (pixels == nullptr) {
+				WARN_LOG(RENDERER, "GBFrame Vulkan readback mapping failed; dropping presenter frame");
+			} else {
+				glr::SubmitCpu(pixels, width, height, 1);
+			}
 			readback->UnmapMemory();
 		}
 		frame.outputPending = false;
@@ -1253,7 +1266,6 @@ void VulkanContext::CreateGBFramePresenterTargets()
 bool VulkanContext::init()
 {
 	std::vector<const char *> extensions;
-	if (!gbFramePresenter)
 		extensions.push_back(vk::KHRSurfaceExtensionName);
 #if defined(USE_SDL)
 	if (!sdl_recreate_window(SDL_WINDOW_VULKAN))
@@ -1271,8 +1283,7 @@ bool VulkanContext::init()
 #elif defined(VK_USE_PLATFORM_XLIB_KHR)
 	extensions.push_back(vk::KHRXlibSurfaceExtensionName);
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-	if (!gbFramePresenter)
-		extensions.push_back(vk::KHRAndroidSurfaceExtensionName);
+	extensions.push_back(vk::KHRAndroidSurfaceExtensionName);
 #endif
 	if (!InitInstance(extensions.data(), extensions.size())) {
 		term();

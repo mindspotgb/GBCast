@@ -31,8 +31,12 @@ GBCast is a Dreamcast and compatible arcade emulator for Android phones and hand
 Screenshots below were captured from the current GBCast Android build. The library shows real game titles and their covers.
 
 <p align="center">
-  <img src="docs/screenshots/gameplay.png" width="32%" alt="Crazy Taxi gameplay in GBCast">
-  <img src="docs/screenshots/library.png" width="32%" alt="GBCast game library on Retroid Pocket Nova">
+  <img src="docs/screenshots/gameplay-daytona.png" width="32%" alt="Daytona USA gameplay in GBCast">
+  <img src="docs/screenshots/gameplay-capcom-vs-snk-2.png" width="32%" alt="Capcom vs. SNK 2 gameplay in GBCast">
+  <img src="docs/screenshots/gameplay-ikaruga.png" width="32%" alt="Ikaruga gameplay in GBCast">
+</p>
+<p align="center">
+  <img src="docs/screenshots/library.png" width="760" alt="GBCast game library on Retroid Pocket Nova">
 </p>
 
 ## All features

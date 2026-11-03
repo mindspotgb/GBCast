@@ -89,6 +89,26 @@
                 <data android:pathPattern=".*\\.7z" />
                 <data android:pathPattern=".*\\.7Z" />
             </intent-filter>
+            <!-- Also accept the file/content intents some frontends send without a MIME type. -->
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:pathPattern=".*\\.gdi" />
+                <data android:pathPattern=".*\\.GDI" />
+                <data android:pathPattern=".*\\.chd" />
+                <data android:pathPattern=".*\\.CHD" />
+                <data android:pathPattern=".*\\.cdi" />
+                <data android:pathPattern=".*\\.CDI" />
+                <data android:pathPattern=".*\\.cue" />
+                <data android:pathPattern=".*\\.CUE" />
+                <data android:pathPattern=".*\\.zip" />
+                <data android:pathPattern=".*\\.ZIP" />
+                <data android:pathPattern=".*\\.7z" />
+                <data android:pathPattern=".*\\.7Z" />
+            </intent-filter>
         </activity>
         <activity-alias
             android:name="com.flycast.emulator.MainActivity"

@@ -136,12 +136,13 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
             Uri gameUri = intent.getData();
             // Flush the intent to prevent multiple calls
             getIntent().setData(null);
-            setIntent(null);
             if (gameUri != null) {
+                String gameUriString = "file".equalsIgnoreCase(gameUri.getScheme()) && gameUri.getPath() != null
+                        ? gameUri.getPath() : gameUri.toString();
                 if (storagePermissionGranted)
-                    JNIdc.setGameUri(gameUri.toString());
+                    JNIdc.setGameUri(gameUriString);
                 else
-                    pendingIntentUrl = gameUri.toString();
+                    pendingIntentUrl = gameUriString;
             }
         }
         // GBCast library hands the staged file path here. A content URI is not a path the core can open.
@@ -259,11 +260,6 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
         else {
             doResume();
         }
-    }
-
-    private boolean showMenu() {
-        JNIdc.guiOpenSettings();
-        return true;
     }
 
     private boolean processJoystickInput(MotionEvent event, InputDevice.MotionRange range) {
@@ -395,11 +391,6 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
                 if (!event.isCtrlPressed() && (event.isPrintingKey() || event.getKeyCode() == KeyEvent.KEYCODE_SPACE))
                     deviceManager.keyboardText(event.getUnicodeChar());
                 return true;
-            }
-            if (ViewConfiguration.get(this).hasPermanentMenuKey()) {
-                if (keyCode == KeyEvent.KEYCODE_MENU) {
-                    return showMenu();
-                }
             }
         }
         return super.onKeyDown(keyCode, event);

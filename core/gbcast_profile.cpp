@@ -47,8 +47,16 @@ void applyRecommendedProfile()
 		NOTICE_LOG(COMMON, "GBFrame recommended settings skipped: saved per-game settings take priority");
 		return;
 	}
-	if (profile.renderer == 0 || profile.renderer == 3 || profile.renderer == 4 || profile.renderer == 5)
+	// The window is created for the saved renderer's API, and a renderer of the other API can't start in it: switching
+	// Vulkan to OpenGL at game start found no GL context and crashed (Sega Rally 2 on the RG Rotate). The profile keeps
+	// the saved API and only picks the renderer within it.
+	const RenderType current = config::RendererType.get();
+	const bool profileRenderer = profile.renderer == 0 || profile.renderer == 3 || profile.renderer == 4 || profile.renderer == 5;
+	if (profileRenderer && isOpenGL(static_cast<RenderType>(profile.renderer)) == isOpenGL(current))
 		config::RendererType.override(static_cast<RenderType>(profile.renderer));
+	else if (profileRenderer)
+		NOTICE_LOG(COMMON, "GBFrame profile renderer %d skipped: it needs another graphics API than the saved %d",
+			profile.renderer, static_cast<int>(current));
 	if (profile.resolution >= 240 && profile.resolution <= 4320)
 		config::RenderResolution.override(profile.resolution);
 	if (profile.autoSkip >= 0 && profile.autoSkip <= 2)

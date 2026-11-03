@@ -338,7 +338,7 @@ private fun VideoPage(tick: Int, cfg: Cfg) {
         SettingsDivider()
         gb.frame.EnhancedResolutionSettingsRow(
             resolutionValues[resolution], resolutionValues.toList(), resolutionChoices.map { it.second },
-            "Sharper 3D sprites and polygons; higher values need a faster GPU. Screen matches this device's display: more than that only costs GPU time.",
+            "Sharper 3D sprites and polygons; higher values need a faster GPU. Best matches this device's display: more than that only costs GPU time.",
         ) {
             cfg.setInt("config", "rend.Resolution", it)
         }

@@ -169,6 +169,7 @@ public:
 				vk::SubmitInfo(nullptr, nullptr, buffers), fence);
 	}
 	bool hasPerPixel() override { return fragmentStoresAndAtomics; }
+	bool outputModeStale() const override;
 	bool hasProvokingVertex() { return provokingVertexSupported; }
 	bool recreateSwapChainIfNeeded();
 	void addToFlight(Deletable *object) override {

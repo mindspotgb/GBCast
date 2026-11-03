@@ -2037,12 +2037,22 @@ VulkanContext::VulkanContext(void *window, void *display)
 	: GraphicsContext(window, display)
 {
 	#if defined(__ANDROID__)
-	// The GBFrame GLES presenter is the output for every shader and filter, as in GBSat: a shader chosen in game takes
-	// effect at once. With a gate on the shader at start, a game started with no shader ignored later changes.
-	gbFramePresenter = true;
+	// The GBFrame GLES presenter is only used with a shader: with none, Flycast's own swapchain presents and costs
+	// less. The window can belong to only one of them, so choosing between none and a shader recreates the context
+	// (outputModeStale, mainui_loop); changing between shaders only calls SetOptions.
+	gbFramePresenter = config::PresenterShader != 0;
 	#endif
 	if (!init())
 		throw FlycastException("Vulkan initialization failed");
+}
+
+bool VulkanContext::outputModeStale() const
+{
+#if defined(__ANDROID__)
+	return gbFramePresenter != (config::PresenterShader != 0);
+#else
+	return false;
+#endif
 }
 
 VulkanContext::~VulkanContext() {

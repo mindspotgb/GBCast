@@ -36,6 +36,9 @@ public:
 	virtual std::string getDriverVersion() = 0;
 	virtual bool isAMD() = 0;
 	virtual bool hasPerPixel() { return false; }
+	// True when the output path no longer matches the settings (the shader presenter is on without a shader, or off
+	// with one): the main loop then recreates the context so the change shows at once, with the game running
+	virtual bool outputModeStale() const { return false; }
 	// Set the game swap interval: 1 for 60 FPS, 2 for 30 FPS
 	virtual void setSwapInterval(int interval) {}
 

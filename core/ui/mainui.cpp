@@ -116,6 +116,8 @@ void mainui_loop(bool forceStart)
 		if (imguiDriver == nullptr)
 			forceReinit = true;
 
+		if (GraphicsContext::Instance() != nullptr && GraphicsContext::Instance()->outputModeStale())
+			forceReinit = true;
 		if (config::RendererType != currentRenderer || forceReinit)
 		{
 			mainui_term();

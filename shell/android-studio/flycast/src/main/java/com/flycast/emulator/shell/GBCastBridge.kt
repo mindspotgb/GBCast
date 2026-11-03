@@ -147,8 +147,9 @@ object GBCastBridge {
     fun resolutionChoices(): List<Pair<Int, String>> {
         val fixed = listOf(480 to EnhancedResolutionOneX, 960 to "2x", 1440 to "3x", 1920 to "4x")
         val screen = screenResolution()
+        // Best comes after 4x, whatever its size, so the list reads from the console's own resolution up
         return if (fixed.any { it.first == screen }) fixed
-        else (fixed + (screen to enhancedResolutionBestLabel("${screen}p"))).sortedBy { it.first }
+        else fixed + (screen to enhancedResolutionBestLabel("${screen}p"))
     }
 
     suspend fun applyRecommendedPreset(): String {

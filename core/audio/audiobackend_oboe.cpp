@@ -17,6 +17,7 @@
     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifdef USE_OBOE
+#include "gbcast_cputune.h"
 #include "audiostream.h"
 #include "cfg/option.h"
 #include "stdclass.h"
@@ -144,7 +145,10 @@ public:
 	u32 push(const void* frame, u32 samples, bool wait) override
 	{
 		while (!ringBuffer.write((const u8 *)frame, samples * 4) && wait)
+		{
+			gbcast::CpuTuneWait waiting; // audio pacing: not part of the frame's work
 			pushWait.Wait();
+		}
 
 		return 1;
 	}

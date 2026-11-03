@@ -1,3 +1,4 @@
+#include "gbcast_cputune.h"
 #include "gbcast_skip.h"
 #include "gbcast_profile.h"
 #include <jni.h>
@@ -715,7 +716,10 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_flycast_emulator_emu_JNIdc_raAchie
 #endif
 
 
-extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_initAutoSkip(JNIEnv*, jclass) { gbcast::InitAutoSkip(); }
+extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_emu_JNIdc_initAutoSkip(JNIEnv*, jclass) {
+	gbcast::InitAutoSkip();
+	gbcast::InitCpuTune(); // started with the Skip Engine: both follow the emulation thread's VBlanks
+}
 extern "C" JNIEXPORT jlongArray JNICALL Java_com_flycast_emulator_emu_JNIdc_autoSkipStats(JNIEnv* env, jclass) {
     auto values = gbcast::AutoSkipStats();
     jlong data[10]; for (int i = 0; i < 10; ++i) data[i] = values[i];

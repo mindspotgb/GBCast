@@ -1,3 +1,4 @@
+#include "gbcast_cputune.h"
 #include "gbcast_skip.h"
 #include "Renderer_if.h"
 #include "spg.h"
@@ -107,6 +108,7 @@ public:
 				{
 					if (type == Stop)
 						return;
+					gbcast::CpuTuneWait waiting;
 					dequeueEvent.Wait();
 				}
 			} while (dupe);
@@ -605,7 +607,10 @@ int rend_end_render(int tag, int cycles, int jitter, void *arg)
 		asic_RaiseInterrupt(holly_RENDER_DONE_vd);
 	}
 	if (pend_rend && config::ThreadedRendering)
+	{
+		gbcast::CpuTuneWait waiting;
 		renderEnd.Wait();
+	}
 
 	return 0;
 }
@@ -680,7 +685,10 @@ void rend_allow_rollback()
 void rend_start_rollback()
 {
 	if (config::ThreadedRendering)
+	{
+		gbcast::CpuTuneWait waiting;
 		vramRollback.Wait();
+	}
 }
 
 void rend_enable_renderer(bool enabled) {

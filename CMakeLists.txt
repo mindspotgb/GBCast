@@ -337,11 +337,10 @@ if(ANDROID)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/gbframe/native)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/libs/gbframe/native/gb_native.cmake)
 	gb_native_storage(${PROJECT_NAME})
-	gb_native_auto_skip(${PROJECT_NAME})
-	# OpenGL ES presenter (shaders and filters) of the kit, fed with the emulated frame
-	target_sources(${PROJECT_NAME} PRIVATE libs/gbframe/native/gl_renderer.cpp)
-	target_link_libraries(${PROJECT_NAME} PRIVATE EGL GLESv3 nativewindow log)
-	target_sources(${PROJECT_NAME} PRIVATE core/gbcast_skip.cpp)
+	# The kit's native helpers, as in every GB app: OpenGL ES presenter, CPU tuning (gbcast_cputune), PGO support,
+	# perf probe and the Skip Engine
+	gb_native_add(${PROJECT_NAME} APP_ID "app.gbcast.emulator")
+	target_sources(${PROJECT_NAME} PRIVATE core/gbcast_skip.cpp core/gbcast_cputune.cpp)
 	target_sources(${PROJECT_NAME} PRIVATE core/gbcast_profile.cpp)
 endif()
 if(LIBRETRO)

@@ -385,6 +385,15 @@ object GbcastGameUi {
                 gb.frame.FastCdLoadQuickMenuItem(currentBool("config", "FastGDRomLoad")) {
                     setBool("config", "FastGDRomLoad", it)
                 }
+                // The kit's Skip Engine rows, as in GBSat's in-game menu (they were only in Settings here)
+                gb.frame.SkipEngineQuickMenuRows(
+                    skipLoadingScreens = currentBool("config", "GBFrame.SkipLoadingScreens"),
+                    onSkipLoadingScreensChange = { setBool("config", "GBFrame.SkipLoadingScreens", it) },
+                    skipTransitions = currentBool("config", "GBFrame.SkipTransitions"),
+                    onSkipTransitionsChange = { setBool("config", "GBFrame.SkipTransitions", it) },
+                    skipSaveWaits = currentBool("config", "GBFrame.SkipSaveWaits"),
+                    onSkipSaveWaitsChange = { setBool("config", "GBFrame.SkipSaveWaits", it) },
+                )
                 val cdSpeeds = listOf(
                     gb.frame.CdReadSpeedOption(2, "Original"),
                     gb.frame.CdReadSpeedOption(4, "4x"),

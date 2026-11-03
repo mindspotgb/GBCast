@@ -28,17 +28,13 @@ GBCast is a Dreamcast and compatible arcade emulator for Android phones and hand
 
 ## Screenshots
 
-Screenshots below were captured from the current GBCast Android build. The library shows real game titles and their covers.
+Screenshots below show real Dreamcast gameplay captured in GBCast.
 
 <p align="center">
   <img src="docs/screenshots/gameplay-daytona.png" width="32%" alt="Daytona USA gameplay in GBCast">
   <img src="docs/screenshots/gameplay-capcom-vs-snk-2.png" width="32%" alt="Capcom vs. SNK 2 gameplay in GBCast">
   <img src="docs/screenshots/gameplay-ikaruga.png" width="32%" alt="Ikaruga gameplay in GBCast">
 </p>
-<p align="center">
-  <img src="docs/screenshots/library.png" width="760" alt="GBCast game library on Retroid Pocket Nova">
-</p>
-
 ## All features
 
 - **Emulation:** Dreamcast, Naomi, Naomi 2, and Atomiswave games; required firmware and game images are supplied by the user.

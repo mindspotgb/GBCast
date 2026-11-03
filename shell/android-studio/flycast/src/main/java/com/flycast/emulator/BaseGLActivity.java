@@ -250,6 +250,19 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
         }
     }
 
+    // Last hat value per device and axis. Hat changes only become D-pad presses/releases when the value changes: every
+    // stick movement also carries HAT=0, and controllers that report the D-pad as keys but declare hat axes too had a
+    // held D-pad direction released whenever the analog stick or an analog trigger moved.
+    private final android.util.SparseIntArray lastHat = new android.util.SparseIntArray();
+
+    private boolean hatChanged(int deviceId, int axis, float value) {
+        final int key = deviceId * 2 + (axis == MotionEvent.AXIS_HAT_Y ? 1 : 0);
+        final int v = value < -0.5f ? -1 : value > 0.5f ? 1 : 0;
+        if (lastHat.get(key, 0) == v) return false;
+        lastHat.put(key, v);
+        return true;
+    }
+
     private boolean processJoystickInput(MotionEvent event, InputDevice.MotionRange range) {
         float v = event.getAxisValue(range.getAxis(), event.getActionIndex());
         // normalize to [-32768, 32767]
@@ -276,6 +289,7 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
 		            continue;
                 if (range.getAxis() == MotionEvent.AXIS_HAT_X) {
                     float v = event.getAxisValue(MotionEvent.AXIS_HAT_X, actionPointerIndex);
+                    if (!hatChanged(event.getDeviceId(), MotionEvent.AXIS_HAT_X, v)) continue;
                     if (v == -1.0) {
                         rc |= deviceManager.buttonEvent(event.getDeviceId(), KeyEvent.KEYCODE_DPAD_LEFT, true);
                         deviceManager.buttonEvent(event.getDeviceId(), KeyEvent.KEYCODE_DPAD_RIGHT, false);
@@ -290,6 +304,7 @@ public abstract class BaseGLActivity extends ComponentActivity implements Activi
                 }
                 else if (range.getAxis() == MotionEvent.AXIS_HAT_Y) {
                     float v = event.getAxisValue(MotionEvent.AXIS_HAT_Y, actionPointerIndex);
+                    if (!hatChanged(event.getDeviceId(), MotionEvent.AXIS_HAT_Y, v)) continue;
                     if (v == -1.0) {
                         rc |= deviceManager.buttonEvent(event.getDeviceId(), KeyEvent.KEYCODE_DPAD_UP, true);
                         deviceManager.buttonEvent(event.getDeviceId(), KeyEvent.KEYCODE_DPAD_DOWN, false);

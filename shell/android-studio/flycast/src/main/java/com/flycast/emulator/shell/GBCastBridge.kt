@@ -9,8 +9,7 @@ import com.flycast.emulator.emu.HttpClient
 import com.flycast.emulator.emu.JNIdc
 import gb.frame.Covers
 import gb.frame.DeviceTier
-import gb.frame.EnhancedResolutionOneX
-import gb.frame.enhancedResolutionBestLabel
+import gb.frame.enhancedResolutionLabels
 import gb.frame.HomeTheme
 import gb.frame.LibraryView
 import gb.frame.OpenDisc
@@ -143,13 +142,10 @@ object GBCastBridge {
         return lines.coerceIn(480, 1920)
     }
 
-    /** Resolution choices for the menus: Flycast's multiples of native plus the one that matches this screen. */
+    /** Resolution choices for the menus, the kit's list: 1x to 4x (Flycast's multiples of native), then Best = this screen. */
     fun resolutionChoices(): List<Pair<Int, String>> {
-        val fixed = listOf(480 to EnhancedResolutionOneX, 960 to "2x", 1440 to "3x", 1920 to "4x")
         val screen = screenResolution()
-        // Best comes after 4x, whatever its size, so the list reads from the console's own resolution up
-        return if (fixed.any { it.first == screen }) fixed
-        else fixed + (screen to enhancedResolutionBestLabel("${screen}p"))
+        return listOf(480, 960, 1440, 1920, screen).zip(enhancedResolutionLabels("${screen}p"))
     }
 
     suspend fun applyRecommendedPreset(): String {

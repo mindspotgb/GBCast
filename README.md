@@ -4,7 +4,7 @@
 
 **Sega Dreamcast and compatible arcade emulation for Android phones and handhelds**
 
-Flycast core · GLES and Vulkan · Save states · RetroAchievements
+Dreamcast and arcade emulation · GLES and Vulkan · Save states · RetroAchievements
 
 [Download the latest APK](https://github.com/mindspotgb/GBCast/releases/latest) · [Changelog](CHANGELOG.md) · [Privacy policy](PRIVACY.md)
 
@@ -12,13 +12,13 @@ Flycast core · GLES and Vulkan · Save states · RetroAchievements
 
 </div>
 
-GBCast is an Android emulator built around the [Flycast](https://github.com/flyinghead/flycast) core and the shared [GBFrame](https://github.com/mindspotgb/GBFrame) app framework. This repository contains the Android app, its Flycast source revision, and the dependencies used for the Android build.
+GBCast is a Dreamcast and compatible arcade emulator for Android phones and handhelds, built with the shared [GBFrame](https://github.com/mindspotgb/GBFrame) app framework. This repository contains the Android app, its emulation core, and the dependencies needed to build it.
 
 ## Highlights
 
 | | |
 | --- | --- |
-| 🕹️ **Dreamcast and arcade systems** | Flycast supports Dreamcast, Naomi, Naomi 2, and Atomiswave software |
+| 🕹️ **Dreamcast and arcade systems** | GBCast supports Dreamcast, Naomi, Naomi 2, and Atomiswave games |
 | 🚀 **Graphics options** | GLES and Vulkan renderers, enhanced resolution, shaders, and texture filtering |
 | 🎮 **Built for handhelds** | Controller navigation and remapping, touch controls, and an in-game quick menu |
 | 💾 **Save states** | Automatic and manual states, screenshots, resume support, and save-data folder workflows |
@@ -32,12 +32,12 @@ Screenshots below were captured from the current GBCast Android build. The libra
 
 <p align="center">
   <img src="docs/screenshots/gameplay.png" width="32%" alt="Crazy Taxi gameplay in GBCast">
-  <img src="docs/screenshots/settings.png" width="32%" alt="GBCast video settings">
+  <img src="docs/screenshots/library.png" width="32%" alt="GBCast game library on Retroid Pocket Nova">
 </p>
 
 ## All features
 
-- **Emulation:** Flycast-based support for Dreamcast, Naomi, Naomi 2, and Atomiswave software; required firmware and game images are supplied by the user.
+- **Emulation:** Dreamcast, Naomi, Naomi 2, and Atomiswave games; required firmware and game images are supplied by the user.
 - **Video:** GLES and Vulkan renderers, enhanced internal resolution, supported display modes and widescreen hacks, shaders, and texture filtering.
 - **Audio and performance:** Audio settings, fast-forward, frame pacing and frame skip options, and device-aware per-game profiles.
 - **Input:** Physical controller support and button remapping, Dreamcast touch controls with configurable haptics, hotkeys, and an in-game quick menu.
@@ -55,7 +55,7 @@ Screenshots below were captured from the current GBCast Android build. The libra
 2. Follow the setup wizard. Select your game folder and import any firmware files required by your games.
 3. Choose a game from the library. Connect a physical controller or use the on-screen controls.
 
-Use only game and firmware files that you are legally entitled to use. Game compatibility and required system files vary by title and Flycast platform.
+Use only game and firmware files that you are legally entitled to use. Compatibility and required system files vary by game and system.
 
 ## Downloads and versions
 
@@ -76,7 +76,7 @@ Keep the release keystore and password outside the repository. The Android CI an
 ## Project layout
 
 - `shell/android-studio` — Android app, Kotlin/Compose UI, JNI bridge, resources, and Android build files.
-- `core` — Flycast emulator core used by the Android target.
+- `core` — emulator core source used by GBCast.
 - `libs/gbframe` — shared Android UI and device framework, pinned as a Git submodule.
 - `core/deps`, `fonts`, `resources` — native dependencies and assets required by the core.
 - `shell/cmake`, `.github/workflows` — Android native build support and CI/release workflows.
@@ -84,6 +84,10 @@ Keep the release keystore and password outside the repository. The Android CI an
 ## Privacy
 
 GBCast has no ads or analytics. Optional network features and the data they use are described in the [privacy policy](PRIVACY.md). The app does not include BIOS files or games.
+
+## References
+
+GBCast includes the [Flycast](https://github.com/flyinghead/flycast) emulation core. See the repository's third-party notices for source revisions and license details.
 
 ## License and trademarks
 

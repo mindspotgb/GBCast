@@ -138,7 +138,7 @@ android {
             }
         }
         // CI decodes GBCAST_KEYSTORE_BASE64 to GBCAST_KEYSTORE_FILE; local builds point it at the owner's copy.
-        // Forks without the permanent key retain the repository debug-key fallback.
+        // Without the permanent key the APK becomes a side-by-side "GBCast Dev" (see defaultConfig below).
         create("release") {
             if (releaseKey != null) {
                 storeFile = releaseKey
@@ -149,6 +149,13 @@ android {
                 initWith(getByName("debug"))
             }
         }
+    }
+
+    // GBFrame CONVENTIONS.md "Signing": an APK signed with anything but the permanent key must never claim the
+    // official application ID, or it blocks every later update on the device.
+    defaultConfig {
+        if (releaseKey == null) applicationIdSuffix = ".dev"
+        manifestPlaceholders["appLabel"] = if (releaseKey == null) "GBCast Dev" else "GBCast"
     }
 
     buildTypes {

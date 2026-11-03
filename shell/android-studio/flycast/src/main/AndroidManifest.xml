@@ -36,7 +36,7 @@
     <application
         android:name="com.flycast.emulator.Emulator"
         android:icon="@mipmap/ic_controller_transparent"
-        android:label="@string/app_name"
+        android:label="${appLabel}"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:roundIcon="@mipmap/ic_controller_transparent"
         android:banner="@drawable/ic_banner"

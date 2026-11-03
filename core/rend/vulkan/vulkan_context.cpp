@@ -1329,6 +1329,7 @@ bool VulkanContext::init()
 		ANativeWindow_acquire(static_cast<ANativeWindow *>(window));
 		glr::SetWindow(static_cast<ANativeWindow *>(window));
 		glr::SetOptions(1, config::PresenterShader);
+		glr::SetNativeGrid(640, 480); // the Dreamcast's VGA grid, whatever the internal resolution
 		gbFramePresenterLastShader = config::PresenterShader;
 		glr::SetColorCorrection(0);
 	}

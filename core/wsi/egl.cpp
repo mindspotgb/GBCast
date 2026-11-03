@@ -118,6 +118,7 @@ bool EGLGraphicsContext::init()
 			ANativeWindow_acquire(nativeWindow); // SetWindow takes ownership of one reference
 			glr::SetWindow(nativeWindow);
 			glr::SetOptions(1, config::PresenterShader);
+			glr::SetNativeGrid(640, 480); // the Dreamcast's VGA grid, whatever the internal resolution
 			glr::SetColorCorrection(0);
 			EGLint pbufferAttrs[] = { EGL_WIDTH, ANativeWindow_getWidth(nativeWindow), EGL_HEIGHT, ANativeWindow_getHeight(nativeWindow), EGL_NONE };
 			surface = eglCreatePbufferSurface(display, config, pbufferAttrs);

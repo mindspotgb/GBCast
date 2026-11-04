@@ -163,7 +163,7 @@ public final class NativeGLActivity extends BaseGLActivity {
     }
 
     private void hideSystemBars() {
-        gb.frame.FullScreen.INSTANCE.hideSystemBars(this);
+        gb.frame.FullScreen.INSTANCE.hideSystemBars(this, true);
     }
 
     private boolean hasPhysicalGamepad() {

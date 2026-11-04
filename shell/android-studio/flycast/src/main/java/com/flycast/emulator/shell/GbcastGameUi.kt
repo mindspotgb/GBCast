@@ -193,7 +193,7 @@ object GbcastGameUi {
         var savingState by androidx.compose.runtime.remember { mutableStateOf(false) }
         var tick by androidx.compose.runtime.remember { mutableIntStateOf(0) }
         val toast: (String) -> Unit = { text ->
-            android.widget.Toast.makeText(activity, text, android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(activity, gb.frame.localizeAppText(activity, text), android.widget.Toast.LENGTH_SHORT).show()
         }
 
         fun currentBool(section: String, name: String): Boolean {
@@ -486,7 +486,7 @@ object GbcastGameUi {
                     JNIdc.setPerGameConfig(!JNIdc.hasPerGameConfig())
                     tick++
                 }
-                message?.let { Text(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
+                message?.let { gb.frame.KitText(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
             }
         }
 
@@ -529,7 +529,7 @@ object GbcastGameUi {
                     id = "game", icon = androidx.compose.material.icons.Icons.Default.SportsEsports,
                     label = "Game", hasSubmenu = true,
                 ) { openPage(gamePage, returnFocusItemId = "game") }
-                message?.let { Text(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
+                message?.let { gb.frame.KitText(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error) }
                 gb.frame.QuickMenuItemRow(
                     id = "exit", icon = androidx.compose.material.icons.Icons.Default.ExitToApp,
                     label = "Exit",

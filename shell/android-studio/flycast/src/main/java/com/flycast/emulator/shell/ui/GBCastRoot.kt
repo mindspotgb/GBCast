@@ -68,7 +68,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                 val error = if (game == null) gb.frame.LaunchIntent.notFound(requested) else GBCastBridge.launch(ctx, game.path)
                 if (error != null) {
                     android.util.Log.e("GBCast-Intent", "could not launch '$requested': $error")
-                    snackbar.showSnackbar(error)
+                    snackbar.showSnackbar(gb.frame.localizeAppText(ctx, error))
                 }
             }
         }
@@ -93,7 +93,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                                 }
                             }
                             androidx.compose.material3.Button(onClick = { picker.launch(null) }) {
-                                Text(if (GBCastBridge.gamesDir().isBlank()) "Choose games folder" else "Folder selected")
+                                gb.frame.KitText(if (GBCastBridge.gamesDir().isBlank()) "Choose games folder" else "Folder selected")
                             }
                         },
                         gb.frame.performanceWizardStep(recommendation, GBCastBridge.presetWizardOptions(recommendation),
@@ -120,7 +120,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                                 onOpenSettings = { settingsPage = it; screen = Screen.Settings },
                                 onQuit = onQuit,
                                 launch = { path, slot, fresh, progress -> GBCastBridge.launch(ctx, path, slot, fresh, progress) },
-                                onLaunchError = { message -> scope.launch { snackbar.showSnackbar(message) } },
+                                onLaunchError = { message -> scope.launch { snackbar.showSnackbar(gb.frame.localizeAppText(ctx, message)) } },
                                 visualCustomizationProductId = "gbcast_gold",
                             )
                             Screen.Settings -> SettingsScreen(
@@ -131,7 +131,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                                         MenuState.menuRefocus.intValue++
                                     }
                                 },
-                                toast = { msg -> scope.launch { snackbar.showSnackbar(msg) } },
+                                toast = { msg -> scope.launch { snackbar.showSnackbar(gb.frame.localizeAppText(ctx, msg)) } },
                                 page = settingsPage,
                             )
                         }

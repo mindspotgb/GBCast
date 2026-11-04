@@ -51,7 +51,7 @@ class LibraryActivity : ComponentActivity() {
             val error = startupError
             if (error != null) {
                 androidx.compose.foundation.layout.Column {
-                    androidx.compose.material3.Text(error.message ?: "Could not open data folder")
+                    gb.frame.KitText(error.message ?: "Could not open data folder")
                     gb.frame.DataFolderControls(GBCastBridge.dataFolder)
                 }
             } else if (ready) {

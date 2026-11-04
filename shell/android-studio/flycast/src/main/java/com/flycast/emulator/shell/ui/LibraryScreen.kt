@@ -372,12 +372,12 @@ private fun EmptyState(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
     Column(Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(icon, null, Modifier.size(56.dp), tint = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(16.dp))
-        Text(title, style = MaterialTheme.typography.titleLarge, color = Color.White, textAlign = TextAlign.Center)
+        gb.frame.KitText(title, style = MaterialTheme.typography.titleLarge, color = Color.White, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
-        Text(body, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .7f), textAlign = TextAlign.Center)
+        gb.frame.KitText(body, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = .7f), textAlign = TextAlign.Center)
         if (action != null) {
             Spacer(Modifier.height(24.dp))
-            androidx.compose.material3.Button(onClick = onAction) { Text(action) }
+            androidx.compose.material3.Button(onClick = onAction) { gb.frame.KitText(action) }
         }
     }
 }
@@ -418,10 +418,10 @@ private fun GameOptions(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(game.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        title = { gb.frame.KitText(game.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         text = {
             Column {
-                Text(if (game.playSeconds >= 60) "Played ${formatPlayTime(game.playSeconds)}" else "Not played yet")
+                gb.frame.KitText(if (game.playSeconds >= 60) "Played ${formatPlayTime(game.playSeconds)}" else "Not played yet")
                 Spacer(Modifier.height(12.dp))
                 gb.frame.GameOptionsActionRow(Icons.Default.PlayCircle, if (latest != null) "Continue" else "Continue (no save state)", enabled = latest != null) {
                     latest?.let(onContinue)

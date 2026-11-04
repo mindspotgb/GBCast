@@ -165,7 +165,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(current.icon, null, tint = gb.frame.palette.accent)
                     Spacer(Modifier.width(12.dp))
-                    Text(current.label, fontWeight = FontWeight.Bold)
+                    gb.frame.KitText(current.label, fontWeight = FontWeight.Bold)
                 }
             },
             navigationIcon = {

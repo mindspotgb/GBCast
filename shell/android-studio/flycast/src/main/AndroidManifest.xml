@@ -61,14 +61,8 @@
             android:configChanges="orientation|navigation|screenSize|screenLayout|uiMode|keyboard|keyboardHidden"
             android:launchMode="singleTop"
             android:exported="true"
-            android:theme="@style/Theme.GBCast.Launch" />
-        <activity
-            android:name="com.flycast.emulator.NativeGLActivity"
-            android:configChanges="orientation|navigation|screenSize|screenLayout|uiMode|keyboard|keyboardHidden"
-            android:screenOrientation="fullUser"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-            <!-- Intent filter intentionally accepts legacy file/content URIs, not verified web App Links. -->
+            android:theme="@style/Theme.GBCast.Launch">
+            <!-- Frontends must enter through the library so GBFrame can resolve the shared URI/path contract. -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -84,12 +78,19 @@
                 <data android:pathPattern=".*\\.CDI" />
                 <data android:pathPattern=".*\\.cue" />
                 <data android:pathPattern=".*\\.CUE" />
+                <data android:pathPattern=".*\\.lst" />
+                <data android:pathPattern=".*\\.LST" />
+                <data android:pathPattern=".*\\.dat" />
+                <data android:pathPattern=".*\\.DAT" />
+                <data android:pathPattern=".*\\.bin" />
+                <data android:pathPattern=".*\\.BIN" />
                 <data android:pathPattern=".*\\.zip" />
                 <data android:pathPattern=".*\\.ZIP" />
                 <data android:pathPattern=".*\\.7z" />
                 <data android:pathPattern=".*\\.7Z" />
+                <data android:pathPattern=".*\\.rar" />
+                <data android:pathPattern=".*\\.RAR" />
             </intent-filter>
-            <!-- Also accept the file/content intents some frontends send without a MIME type. -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -104,12 +105,26 @@
                 <data android:pathPattern=".*\\.CDI" />
                 <data android:pathPattern=".*\\.cue" />
                 <data android:pathPattern=".*\\.CUE" />
+                <data android:pathPattern=".*\\.lst" />
+                <data android:pathPattern=".*\\.LST" />
+                <data android:pathPattern=".*\\.dat" />
+                <data android:pathPattern=".*\\.DAT" />
+                <data android:pathPattern=".*\\.bin" />
+                <data android:pathPattern=".*\\.BIN" />
                 <data android:pathPattern=".*\\.zip" />
                 <data android:pathPattern=".*\\.ZIP" />
                 <data android:pathPattern=".*\\.7z" />
                 <data android:pathPattern=".*\\.7Z" />
+                <data android:pathPattern=".*\\.rar" />
+                <data android:pathPattern=".*\\.RAR" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.flycast.emulator.NativeGLActivity"
+            android:configChanges="orientation|navigation|screenSize|screenLayout|uiMode|keyboard|keyboardHidden"
+            android:screenOrientation="fullUser"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity-alias
             android:name="com.flycast.emulator.MainActivity"
             android:targetActivity="com.flycast.emulator.shell.LibraryActivity"

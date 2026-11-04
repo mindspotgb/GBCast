@@ -41,6 +41,27 @@ fun GBCastRoot(onQuit: () -> Unit) {
         val snackbar = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
         var recommendation by remember { mutableStateOf("…") }
+        val dataPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree(),
+        ) { uri -> if (uri != null) scope.launch { GBCastBridge.dataFolder.choose(uri) } }
+        val gamesPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree(),
+        ) { uri ->
+            if (uri != null) {
+                Storage.takeFolder(uri)
+                GBCastBridge.setGamesDir(ctx, uri.toString())
+            }
+        }
+        val chooseDataFolder = {
+            val start = GBCastBridge.dataFolder.folder?.let(android.net.Uri::parse)
+                ?: gb.frame.StorageDefaults.treePickerUri(gb.frame.StorageDefaults.EMULATORS_DIRECTORY)
+            dataPicker.launch(start)
+        }
+        val chooseGamesFolder = {
+            val start = GBCastBridge.gamesDir().takeIf { it.isNotBlank() }?.let(android.net.Uri::parse)
+                ?: gb.frame.StorageDefaults.treePickerUri(gb.frame.StorageDefaults.DREAMCAST_GAMES_DIRECTORY)
+            gamesPicker.launch(start)
+        }
         androidx.compose.runtime.LaunchedEffect(setup) {
             if (!setup) {
                 GBCastBridge.applyDefaultSettings() // first run starts with the defaults; the wizard button applies the recommendation
@@ -52,22 +73,22 @@ fun GBCastRoot(onQuit: () -> Unit) {
         val requested = gb.frame.LaunchIntent.pending.value
         androidx.compose.runtime.LaunchedEffect(requested, setup) {
             if (requested == null || !setup) return@LaunchedEffect
-            android.util.Log.i("GBCast-Intent", "processing launch request: $requested")
+            android.util.Log.i("GBCast-Intent", "processing launch request: ${requested.name}; source=${requested.source?.substringBefore(':') ?: "title"}")
             gb.frame.LaunchIntent.done() // changes this effect's key: the work runs in the root scope so it isn't cancelled
             scope.launch {
                 val gamesDir = Storage.gamesDir
                 val game = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    gb.frame.LaunchIntent.resolveOrRefresh(requested, Storage.cachedScan(gamesDir)) {
+                    Storage.resolveLaunchRequest(requested, Storage.cachedScan(gamesDir)) {
                         Storage.scan(gamesDir)
                     }
                 }
                 android.util.Log.i(
                     "GBCast-Intent",
-                    "resolved launch request '$requested' to ${game?.title ?: "no library match"} path=${game?.path}",
+                    "resolved launch request '${requested.name}' to ${game?.title ?: "no match"} source=${game?.path?.substringBefore(':')}",
                 )
                 val error = if (game == null) gb.frame.LaunchIntent.notFound(requested) else GBCastBridge.launch(ctx, game.path)
                 if (error != null) {
-                    android.util.Log.e("GBCast-Intent", "could not launch '$requested': $error")
+                    android.util.Log.e("GBCast-Intent", "could not launch '${requested.name}': $error")
                     snackbar.showSnackbar(gb.frame.localizeAppText(ctx, error))
                 }
             }
@@ -77,25 +98,13 @@ fun GBCastRoot(onQuit: () -> Unit) {
             if (!setup) {
                 SetupWizard(
                     steps = listOf(
-                        gb.frame.dataFolderWizardStep(GBCastBridge.dataFolder),
-                        WizardStep(
-                            Icons.Default.Folder,
-                            "Games",
-                            listOf(Color(0xFF3EC6FF), Color(0xFF1B6F99)),
+                        gb.frame.dataFolderWizardStep(GBCastBridge.dataFolder, chooseDataFolder),
+                        gb.frame.gamesFolderWizardStep(
+                            gb.frame.StorageDefaults.DREAMCAST_GAMES_DIRECTORY,
                             "Pick the folder with your Dreamcast, Naomi, Naomi 2 or Atomiswave images. GDI, CUE, CDI, CHD, ZIP and 7Z are indexed. Track BIN files next to a GDI or CUE are kept with that disc.",
-                        ) {
-                            val picker = androidx.activity.compose.rememberLauncherForActivityResult(
-                                androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree(),
-                            ) { uri ->
-                                if (uri != null) {
-                                    com.flycast.emulator.shell.Storage.takeFolder(uri)
-                                    GBCastBridge.setGamesDir(ctx, uri.toString())
-                                }
-                            }
-                            androidx.compose.material3.Button(onClick = { picker.launch(null) }) {
-                                gb.frame.KitText(if (GBCastBridge.gamesDir().isBlank()) "Choose games folder" else "Folder selected")
-                            }
-                        },
+                            { GBCastBridge.gamesDir().takeIf { it.isNotBlank() }?.let(Storage::folderLabel) },
+                            chooseGamesFolder,
+                        ),
                         gb.frame.performanceWizardStep(recommendation, GBCastBridge.presetWizardOptions(recommendation),
                             onApply = { GBCastBridge.applyRecommendedPreset(recommendation) }),
                     ),

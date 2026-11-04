@@ -49,7 +49,7 @@ object GBCastBridge {
             "savestates" to File(home, "data/savestates"),
             "textures" to textures,
             "covers" to File(context.filesDir, "gbcast/covers"),
-        ), texturesRelativePath = "textures")
+        ), texturesRelativePath = "textures", recommendedLocation = gb.frame.StorageDefaults.dataFolder("GBCast"))
         System.loadLibrary("flycast")
         dataFolder.openAtStartup()
         File(home, "data/textures").mkdirs()

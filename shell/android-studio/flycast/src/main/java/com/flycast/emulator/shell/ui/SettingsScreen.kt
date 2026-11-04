@@ -179,7 +179,10 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
         ) {
             Column(Modifier.widthIn(max = 760.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 when (current) {
-                    SettingsPage.System -> SystemPage(tick, cfg, { folderPicker.launch(null) }, { if (!importingBios) biosPicker.launch(null) }, importingBios) {
+                    SettingsPage.System -> SystemPage(tick, cfg, {
+                        folderPicker.launch(GBCastBridge.gamesDir().takeIf { it.isNotBlank() }?.let(Uri::parse)
+                            ?: gb.frame.StorageDefaults.treePickerUri(gb.frame.StorageDefaults.DREAMCAST_GAMES_DIRECTORY))
+                    }, { if (!importingBios) biosPicker.launch(null) }, importingBios) {
                         if (!importingBios) dreamcastBiosPicker.launch(arrayOf("*/*"))
                     }
                     SettingsPage.Video -> VideoPage(tick, cfg)

@@ -211,6 +211,7 @@ fun SettingsScreen(onBack: () -> Unit, toast: (String) -> Unit, page: SettingsPa
                         ),
                         license = "GBCast source code is distributed under GNU GPL v3. Flycast files that permit GPL-2.0-or-later and GBFrame are used under GPLv3 here; third-party components keep their own licenses. Google Play Billing and Play Services are supplied under Google's separate SDK terms. See the notices below. Dreamcast is a Sega trademark; GBCast is not affiliated with Sega.",
                         privacyPolicyUrl = "https://raw.githubusercontent.com/mindspotgb/GBCast/main/PRIVACY.md",
+                        updateConfig = UPDATE_CONFIG,
                         tagline = "Brought to you by GameBeacon.dev: pure speed and nostalgia for the definitive Sega Dreamcast experience.",
                         licenseDocuments = listOf(
                             AboutLicenseDocument("GNU GPL v3 — GBCast source", "licenses/GNU-GPL-3.0.txt"),
@@ -410,7 +411,6 @@ val UPDATE_CONFIG = gb.frame.AppUpdateConfig(githubRepo = "mindspotgb/GBCast")
 @Composable
 private fun ExtrasPage(tick: Int, cfg: Cfg) {
     gb.frame.AppLanguageSettings()
-    SettingsGroup("Updates", null) { gb.frame.UpdateCheckRow(gb.frame.rememberUpdateController(UPDATE_CONFIG)) }
     SettingsGroup("Arcade", null) {
         ToggleRow(Icons.Default.Tune, "Arcade free play", "Starts supported Naomi and Atomiswave games without requiring coins.", cfg.bool("config", "ForceFreePlay")) { cfg.setBool("config", "ForceFreePlay", it) }
     }

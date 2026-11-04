@@ -4,7 +4,7 @@ package com.flycast.emulator.shell
  * Disc images Flycast actually loads. BIN/ISO/RAW tracks that sit next to a GDI or CUE descriptor are not separate games.
  */
 object GameIndex {
-    val extensions = setOf("gdi", "cdi", "chd", "cue", "lst", "zip", "7z", "dat", "bin")
+    val extensions = setOf("gdi", "cdi", "chd", "cue", "lst", "zip", "7z", "rar", "dat", "bin")
     private val trackExtensions = setOf("bin", "iso", "raw", "img")
 
     fun filterTracks(paths: List<String>): List<String> {

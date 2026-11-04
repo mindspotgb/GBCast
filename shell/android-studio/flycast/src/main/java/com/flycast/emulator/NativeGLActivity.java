@@ -174,15 +174,9 @@ public final class NativeGLActivity extends BaseGLActivity {
     }
 
     private boolean hasPhysicalGamepad() {
-        if (inputManager == null) return false;
-        for (int id : inputManager.getInputDeviceIds()) {
-            InputDevice device = inputManager.getInputDevice(id);
-            if (device == null || device.isVirtual()) continue;
-            int sources = device.getSources();
-            if ((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
-                    (sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK) return true;
-        }
-        return false;
+        // Keep Auto identical to the GBFrame policy: ignore virtual devices and joystick-only
+        // peripherals that do not expose actual gamepad buttons (some phones report these).
+        return gb.frame.ControllerKt.hasPhysicalController(this);
     }
 
     /** Auto hides on-screen controls for physical gamepads; On and Off explicitly override detection. */

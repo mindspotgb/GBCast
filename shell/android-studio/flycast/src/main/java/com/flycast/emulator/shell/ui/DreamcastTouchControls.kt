@@ -109,10 +109,10 @@ private fun PortraitPad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit,
     val height = metrics.screenHeight.value
     val panelTop = metrics.plan.video.top + metrics.plan.video.height
     val panelHeight = (height - panelTop).coerceAtLeast(0f)
-    val scale = min(1f, min(width / 390f, panelHeight / 410f)).coerceAtLeast(.60f)
-    val buttonSize = 48f * scale
-    val stickSize = 104f * scale
-    val dpadSize = 104f * scale
+    val scale = min(1f, min(width / 360f, panelHeight / 420f)).coerceAtLeast(.68f)
+    val buttonSize = 50f * scale
+    val stickSize = 120f * scale
+    val dpadSize = 108f * scale
 
     Box(Modifier.fillMaxSize()) {
         ControllerPanel(
@@ -125,20 +125,20 @@ private fun PortraitPad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit,
             Modifier.offset(x = (width * .93f - 104f * scale).dp, y = (panelTop + 16f * scale).dp).size(width = (104f * scale).dp, height = (34f * scale).dp), haptics)
 
         AnalogStick(
-            Modifier.offset(x = (width * .25f - stickSize / 2).dp, y = (panelTop + panelHeight * .30f - stickSize / 2).dp).size(stickSize.dp),
+            Modifier.offset(x = (width * .25f - stickSize / 2).dp, y = (panelTop + panelHeight * .32f - stickSize / 2).dp).size(stickSize.dp),
         )
         DirectionPad(
-            Modifier.offset(x = (width * .25f - dpadSize / 2).dp, y = (panelTop + panelHeight * .73f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
+            Modifier.offset(x = (width * .25f - dpadSize / 2).dp, y = (panelTop + panelHeight * .72f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
         )
 
         FaceButton("X", FlycastTouchId.X,
-            Modifier.offset(x = (width * .68f - buttonSize / 2).dp, y = (panelTop + panelHeight * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
+            Modifier.offset(x = (width * .64f - buttonSize / 2).dp, y = (panelTop + panelHeight * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
         FaceButton("Y", FlycastTouchId.Y,
-            Modifier.offset(x = (width * .79f - buttonSize / 2).dp, y = (panelTop + panelHeight * .36f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
+            Modifier.offset(x = (width * .80f - buttonSize / 2).dp, y = (panelTop + panelHeight * .31f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
         FaceButton("B", FlycastTouchId.B,
-            Modifier.offset(x = (width * .88f - buttonSize / 2).dp, y = (panelTop + panelHeight * .51f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
+            Modifier.offset(x = (width * .92f - buttonSize / 2).dp, y = (panelTop + panelHeight * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
         FaceButton("A", FlycastTouchId.A,
-            Modifier.offset(x = (width * .77f - buttonSize / 2).dp, y = (panelTop + panelHeight * .66f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
+            Modifier.offset(x = (width * .80f - buttonSize / 2).dp, y = (panelTop + panelHeight * .69f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
 
         StartButton(
             Modifier.offset(x = (width * .50f - 42f * scale).dp, y = (panelTop + panelHeight - 58f * scale).dp).size(width = (84f * scale).dp, height = (38f * scale).dp), haptics,
@@ -158,10 +158,10 @@ private fun LandscapePad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit
     val rightLeft = video.left + video.width
     val rightWidth = (width - rightLeft).coerceAtLeast(0f)
     val panelWidth = min(leftWidth, rightWidth).coerceAtLeast(0f)
-    val scale = min(1f, min(panelWidth / 154f, height / 380f)).coerceAtLeast(.52f)
-    val stickSize = 70f * scale
-    val dpadSize = 68f * scale
-    val buttonSize = 40f * scale
+    val scale = min(1f, min(panelWidth / 142f, height / 360f)).coerceAtLeast(.62f)
+    val stickSize = 86f * scale
+    val dpadSize = 82f * scale
+    val buttonSize = 48f * scale
 
     Box(Modifier.fillMaxSize()) {
         ControllerPanel(Modifier.offset(x = 0.dp, y = 0.dp).width(leftWidth.dp).fillMaxHeight(), topRounded = false)
@@ -173,26 +173,26 @@ private fun LandscapePad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit
             Modifier.offset(x = (rightLeft + rightWidth * .16f).dp, y = (height * .08f).dp).size(width = (rightWidth * .68f).dp, height = (30f * scale).dp), haptics)
 
         AnalogStick(
-            Modifier.offset(x = (leftWidth * .50f - stickSize / 2).dp, y = (height * .38f - stickSize / 2).dp).size(stickSize.dp),
+            Modifier.offset(x = (leftWidth * .50f - stickSize / 2).dp, y = (height * .34f - stickSize / 2).dp).size(stickSize.dp),
         )
         DirectionPad(
-            Modifier.offset(x = (leftWidth * .50f - dpadSize / 2).dp, y = (height * .73f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
+            Modifier.offset(x = (leftWidth * .50f - dpadSize / 2).dp, y = (height * .70f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
         )
 
         FaceButton("X", FlycastTouchId.X,
-            Modifier.offset(x = (rightLeft + rightWidth * .28f - buttonSize / 2).dp, y = (height * .48f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
+            Modifier.offset(x = (rightLeft + rightWidth * .18f - buttonSize / 2).dp, y = (height * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
         FaceButton("Y", FlycastTouchId.Y,
-            Modifier.offset(x = (rightLeft + rightWidth * .53f - buttonSize / 2).dp, y = (height * .36f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
+            Modifier.offset(x = (rightLeft + rightWidth * .50f - buttonSize / 2).dp, y = (height * .31f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
         FaceButton("B", FlycastTouchId.B,
-            Modifier.offset(x = (rightLeft + rightWidth * .74f - buttonSize / 2).dp, y = (height * .49f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
+            Modifier.offset(x = (rightLeft + rightWidth * .82f - buttonSize / 2).dp, y = (height * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
         FaceButton("A", FlycastTouchId.A,
-            Modifier.offset(x = (rightLeft + rightWidth * .50f - buttonSize / 2).dp, y = (height * .63f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
+            Modifier.offset(x = (rightLeft + rightWidth * .50f - buttonSize / 2).dp, y = (height * .69f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
 
         StartButton(
-            Modifier.offset(x = (rightLeft + rightWidth * .50f - 34f * scale).dp, y = (height * .86f - 14f * scale).dp).size(width = (68f * scale).dp, height = (28f * scale).dp), haptics,
+            Modifier.offset(x = (rightLeft + rightWidth * .50f - 38f * scale).dp, y = (height * .89f - 14f * scale).dp).size(width = (76f * scale).dp, height = (30f * scale).dp), haptics,
         )
         MenuButton(
-            Modifier.offset(x = (leftWidth * .50f - 16f * scale).dp, y = (height * .90f - 16f * scale).dp).size((32f * scale).dp), onMenu, haptics,
+            Modifier.offset(x = (leftWidth * .50f - 16f * scale).dp, y = (height * .91f - 16f * scale).dp).size((32f * scale).dp), onMenu, haptics,
         )
     }
 }

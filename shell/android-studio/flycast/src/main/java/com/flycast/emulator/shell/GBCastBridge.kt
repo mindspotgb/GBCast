@@ -145,13 +145,28 @@ object GBCastBridge {
         return listOf(480, 960, 1440, 1920, screen).zip(enhancedResolutionLabels("${screen}p"))
     }
 
-    suspend fun applyRecommendedPreset(): String {
+    /** The settings an app starts with: OpenGL, 1x (480p), no shader, linear filter, auto frame skip off. */
+    fun applyDefaultSettings() {
+        setInt("config", "pvr.rend", 0)
+        setInt("config", "rend.Resolution", 480)
+        setInt("config", "GBCast.Shader", 0)
+        setInt("config", "rend.TextureFiltering", 2)
+        setInt("config", "pvr.AutoSkipFrame", 0)
+    }
+
+    /** Name of the preset recommended for this device (nothing is applied). */
+    suspend fun recommendedPresetName(): String {
         val device = withContext(Dispatchers.IO) { DeviceTier.detect() }
-        val preset = when {
+        return when {
             device.cpuLimited -> "Compatible"
             device.gpuMaxScale >= 2 -> "Quality"
             else -> "Balanced"
         }
+    }
+
+    /** Applies the recommended preset; called by the setup wizard's "Apply settings" button. */
+    fun applyRecommendedPreset(preset: String) {
+        val device = DeviceTier.detect()
         when (preset) {
             "Compatible" -> {
                 setInt("config", "pvr.rend", 0)
@@ -169,7 +184,6 @@ object GBCastBridge {
             }
         }
         setBool("config", "Dynarec.Enabled", true)
-        return preset // its name
     }
 
     fun presetWizardOptions(preset: String): List<String> {

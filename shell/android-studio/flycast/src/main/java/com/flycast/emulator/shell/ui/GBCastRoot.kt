@@ -42,7 +42,10 @@ fun GBCastRoot(onQuit: () -> Unit) {
         val scope = rememberCoroutineScope()
         var recommendation by remember { mutableStateOf("…") }
         androidx.compose.runtime.LaunchedEffect(setup) {
-            if (!setup) recommendation = GBCastBridge.applyRecommendedPreset()
+            if (!setup) {
+                GBCastBridge.applyDefaultSettings() // first run starts with the defaults; the wizard button applies the recommendation
+                recommendation = GBCastBridge.recommendedPresetName()
+            }
         }
         // Game requested by an intent (frontends, `am start`): matched to the library by file name, then started like a
         // tap on its cover (auto load included)
@@ -93,7 +96,8 @@ fun GBCastRoot(onQuit: () -> Unit) {
                                 Text(if (GBCastBridge.gamesDir().isBlank()) "Choose games folder" else "Folder selected")
                             }
                         },
-                        gb.frame.performanceWizardStep(recommendation, GBCastBridge.presetWizardOptions(recommendation)),
+                        gb.frame.performanceWizardStep(recommendation, GBCastBridge.presetWizardOptions(recommendation),
+                            onApply = { GBCastBridge.applyRecommendedPreset(recommendation) }),
                     ),
                     onFinish = {
                         GBCastBridge.finishSetup(ctx)

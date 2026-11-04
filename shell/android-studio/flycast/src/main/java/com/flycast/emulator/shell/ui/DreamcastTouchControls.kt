@@ -112,7 +112,13 @@ private fun PortraitPad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit,
     val scale = min(1f, min(width / 360f, panelHeight / 420f)).coerceAtLeast(.68f)
     val buttonSize = 50f * scale
     val stickSize = 120f * scale
-    val dpadSize = 108f * scale
+    val dpadSize = 120f * scale
+    // Keep the four face buttons in a compact diamond. Spacing them by a fraction of the
+    // whole panel height makes the cluster look disconnected on tall phones.
+    val faceCenterX = width * .79f
+    val faceCenterY = panelTop + panelHeight * .31f
+    val faceStepX = min(buttonSize * 1.05f, width * .105f)
+    val faceStepY = min(buttonSize * 1.05f, panelHeight * .10f)
 
     Box(Modifier.fillMaxSize()) {
         ControllerPanel(
@@ -125,20 +131,20 @@ private fun PortraitPad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit,
             Modifier.offset(x = (width * .93f - 104f * scale).dp, y = (panelTop + 16f * scale).dp).size(width = (104f * scale).dp, height = (34f * scale).dp), haptics)
 
         AnalogStick(
-            Modifier.offset(x = (width * .25f - stickSize / 2).dp, y = (panelTop + panelHeight * .32f - stickSize / 2).dp).size(stickSize.dp),
+            Modifier.offset(x = (width * .25f - stickSize / 2).dp, y = (panelTop + panelHeight * .30f - stickSize / 2).dp).size(stickSize.dp),
         )
         DirectionPad(
-            Modifier.offset(x = (width * .25f - dpadSize / 2).dp, y = (panelTop + panelHeight * .72f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
+            Modifier.offset(x = (width * .25f - dpadSize / 2).dp, y = (panelTop + panelHeight * .64f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
         )
 
         FaceButton("X", FlycastTouchId.X,
-            Modifier.offset(x = (width * .64f - buttonSize / 2).dp, y = (panelTop + panelHeight * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
+            Modifier.offset(x = (faceCenterX - faceStepX - buttonSize / 2).dp, y = (faceCenterY - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
         FaceButton("Y", FlycastTouchId.Y,
-            Modifier.offset(x = (width * .80f - buttonSize / 2).dp, y = (panelTop + panelHeight * .31f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
+            Modifier.offset(x = (faceCenterX - buttonSize / 2).dp, y = (faceCenterY - faceStepY - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
         FaceButton("B", FlycastTouchId.B,
-            Modifier.offset(x = (width * .92f - buttonSize / 2).dp, y = (panelTop + panelHeight * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
+            Modifier.offset(x = (faceCenterX + faceStepX - buttonSize / 2).dp, y = (faceCenterY - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
         FaceButton("A", FlycastTouchId.A,
-            Modifier.offset(x = (width * .80f - buttonSize / 2).dp, y = (panelTop + panelHeight * .69f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
+            Modifier.offset(x = (faceCenterX - buttonSize / 2).dp, y = (faceCenterY + faceStepY - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
 
         StartButton(
             Modifier.offset(x = (width * .50f - 42f * scale).dp, y = (panelTop + panelHeight - 58f * scale).dp).size(width = (84f * scale).dp, height = (38f * scale).dp), haptics,
@@ -160,8 +166,12 @@ private fun LandscapePad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit
     val panelWidth = min(leftWidth, rightWidth).coerceAtLeast(0f)
     val scale = min(1f, min(panelWidth / 142f, height / 360f)).coerceAtLeast(.62f)
     val stickSize = 86f * scale
-    val dpadSize = 82f * scale
+    val dpadSize = 90f * scale
     val buttonSize = 48f * scale
+    val faceStepX = min(buttonSize * 1.05f, rightWidth * .27f)
+    val faceStepY = buttonSize * 1.05f
+    val faceCenterX = rightLeft + rightWidth * .50f
+    val faceCenterY = height * .48f
 
     Box(Modifier.fillMaxSize()) {
         ControllerPanel(Modifier.offset(x = 0.dp, y = 0.dp).width(leftWidth.dp).fillMaxHeight(), topRounded = false)
@@ -173,20 +183,20 @@ private fun LandscapePad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Unit
             Modifier.offset(x = (rightLeft + rightWidth * .16f).dp, y = (height * .08f).dp).size(width = (rightWidth * .68f).dp, height = (30f * scale).dp), haptics)
 
         AnalogStick(
-            Modifier.offset(x = (leftWidth * .50f - stickSize / 2).dp, y = (height * .34f - stickSize / 2).dp).size(stickSize.dp),
+            Modifier.offset(x = (leftWidth * .50f - stickSize / 2).dp, y = (height * .32f - stickSize / 2).dp).size(stickSize.dp),
         )
         DirectionPad(
-            Modifier.offset(x = (leftWidth * .50f - dpadSize / 2).dp, y = (height * .70f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
+            Modifier.offset(x = (leftWidth * .50f - dpadSize / 2).dp, y = (height * .66f - dpadSize / 2).dp).size(dpadSize.dp), haptics,
         )
 
         FaceButton("X", FlycastTouchId.X,
-            Modifier.offset(x = (rightLeft + rightWidth * .18f - buttonSize / 2).dp, y = (height * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
+            Modifier.offset(x = (faceCenterX - faceStepX - buttonSize / 2).dp, y = (faceCenterY - buttonSize / 2).dp).size(buttonSize.dp), FaceYellow, haptics)
         FaceButton("Y", FlycastTouchId.Y,
-            Modifier.offset(x = (rightLeft + rightWidth * .50f - buttonSize / 2).dp, y = (height * .31f - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
+            Modifier.offset(x = (faceCenterX - buttonSize / 2).dp, y = (faceCenterY - faceStepY - buttonSize / 2).dp).size(buttonSize.dp), FaceGreen, haptics)
         FaceButton("B", FlycastTouchId.B,
-            Modifier.offset(x = (rightLeft + rightWidth * .82f - buttonSize / 2).dp, y = (height * .50f - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
+            Modifier.offset(x = (faceCenterX + faceStepX - buttonSize / 2).dp, y = (faceCenterY - buttonSize / 2).dp).size(buttonSize.dp), FaceBlue, haptics)
         FaceButton("A", FlycastTouchId.A,
-            Modifier.offset(x = (rightLeft + rightWidth * .50f - buttonSize / 2).dp, y = (height * .69f - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
+            Modifier.offset(x = (faceCenterX - buttonSize / 2).dp, y = (faceCenterY + faceStepY - buttonSize / 2).dp).size(buttonSize.dp), FaceRed, haptics)
 
         StartButton(
             Modifier.offset(x = (rightLeft + rightWidth * .50f - 38f * scale).dp, y = (height * .89f - 14f * scale).dp).size(width = (76f * scale).dp, height = (30f * scale).dp), haptics,
@@ -240,15 +250,15 @@ private fun TransparentPad(metrics: TouchControlsLayoutMetrics, onMenu: () -> Un
 private fun ControllerPanel(modifier: Modifier, topRounded: Boolean) {
     val shape = if (topRounded) RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp) else RoundedCornerShape(12.dp)
     Box(modifier.clip(shape).background(
-        Brush.verticalGradient(listOf(Color(0xFFF7F8F9), Color(0xFFE2E5E8), Color(0xFFC8CDD2))),
-    ).border(1.dp, Color(0xFF8D949B).copy(alpha = .65f), shape)) {
+        Brush.verticalGradient(listOf(Color(0xFF30333A), Color(0xFF202329), Color(0xFF15171B))),
+    ).border(1.dp, Color(0xFF5A606A).copy(alpha = .78f), shape)) {
         Canvas(Modifier.fillMaxSize()) {
             val centerY = size.height * .47f
-            drawLine(Color.White.copy(alpha = .62f), Offset(0f, centerY), Offset(size.width, centerY), 1.dp.toPx())
-            drawLine(Color(0xFF9CA3AA).copy(alpha = .35f), Offset(0f, centerY + 2.dp.toPx()), Offset(size.width, centerY + 2.dp.toPx()), 1.dp.toPx())
-            val groove = Color(0xFF8E969F).copy(alpha = .25f)
+            drawLine(Color.White.copy(alpha = .10f), Offset(0f, centerY), Offset(size.width, centerY), 1.dp.toPx())
+            drawLine(Color.Black.copy(alpha = .28f), Offset(0f, centerY + 2.dp.toPx()), Offset(size.width, centerY + 2.dp.toPx()), 1.dp.toPx())
+            val groove = Color.Black.copy(alpha = .30f)
             drawCircle(groove, size.minDimension * .16f, Offset(size.width * .25f, size.height * .34f), style = Stroke(2.dp.toPx()))
-            drawCircle(Color.White.copy(alpha = .42f), size.minDimension * .16f, Offset(size.width * .25f, size.height * .34f), style = Stroke(1.dp.toPx()))
+            drawCircle(Color.White.copy(alpha = .10f), size.minDimension * .16f, Offset(size.width * .25f, size.height * .34f), style = Stroke(1.dp.toPx()))
         }
     }
 }
@@ -285,14 +295,14 @@ private fun ShoulderButton(label: String, id: Int, modifier: Modifier, haptics: 
     val owner = remember { Any() }
     val feedback = LocalHapticFeedback.current
     PressRegion(modifier, owner, id, haptics, pressed, feedback) {
-        val base = if (transparent) Color(0xA6E6E9ED) else Color(0xFFE2E5E8)
+        val base = if (transparent) Color(0xA6E6E9ED) else Color(0xFF34383F)
         val shape = RoundedCornerShape(50)
         Box(
             Modifier.fillMaxSize().background(
-                Brush.verticalGradient(listOf(base.lerp(Color.White, .36f), base.lerp(Color(0xFF7E858C), if (pressed.value) .35f else .12f))), shape,
-            ).border(1.dp, Color(0xFF7F878F).copy(alpha = .65f), shape),
+                Brush.verticalGradient(listOf(base.lerp(Color.White, .22f), base.lerp(Color.Black, if (pressed.value) .34f else .16f))), shape,
+            ).border(1.dp, Color(0xFF8D939D).copy(alpha = .56f), shape),
             contentAlignment = Alignment.Center,
-        ) { Text(label, color = Color(0xFF646D76), fontSize = 15.sp, fontWeight = FontWeight.Bold) }
+        ) { Text(label, color = if (transparent) Color(0xFF646D76) else Color(0xFFD4D8DE), fontSize = 15.sp, fontWeight = FontWeight.Bold) }
     }
 }
 
@@ -302,10 +312,15 @@ private fun StartButton(modifier: Modifier, haptics: Boolean, transparent: Boole
     val owner = remember { Any() }
     val feedback = LocalHapticFeedback.current
     PressRegion(modifier, owner, FlycastTouchId.START, haptics, pressed, feedback) {
-        val fill = if (transparent) Color(0x996B7580) else Color(0xFFBBC1C7)
+        val fill = if (transparent) Color(0x996B7580) else Color(0xFF34383F)
         val shape = RoundedCornerShape(12.dp)
-        Box(Modifier.fillMaxSize().background(fill, shape).border(1.dp, Color.White.copy(alpha = .62f), shape), contentAlignment = Alignment.Center) {
-            Text("START", color = if (transparent) Color.White else Color(0xFF4D555D), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Box(
+            Modifier.fillMaxSize()
+                .background(Brush.verticalGradient(listOf(fill.lerp(Color.White, .18f), fill.lerp(Color.Black, .22f))), shape)
+                .border(1.dp, Color.White.copy(alpha = .24f), shape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("START", color = Color(0xFFE1E4E9), fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -316,8 +331,8 @@ private fun MenuButton(modifier: Modifier, onMenu: () -> Unit, haptics: Boolean,
     var pressed by remember { mutableStateOf(false) }
     val shape = CircleShape
     Box(
-        modifier.clip(shape).background(if (transparent) Color(0x77515B66) else Color(0xFFD5D9DD), shape)
-            .border(1.dp, Color.White.copy(alpha = .68f), shape)
+        modifier.clip(shape).background(if (transparent) Color(0x77515B66) else Color(0xFF292C32), shape)
+            .border(1.dp, Color.White.copy(alpha = .30f), shape)
             .pointerInput(haptics) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -338,12 +353,12 @@ private fun MenuButton(modifier: Modifier, onMenu: () -> Unit, haptics: Boolean,
     ) {
         Canvas(Modifier.fillMaxSize().padding(9.dp)) {
             val center = Offset(size.width / 2f, size.height / 2f)
-            drawCircle(if (pressed) Color.White else Color(0xFF69727B), radius = size.minDimension * .12f, center = center)
+            drawCircle(if (pressed) Color.White else Color(0xFF9BA1AA), radius = size.minDimension * .12f, center = center)
             for (i in 0 until 8) {
                 val angle = i * (Math.PI / 4.0)
                 val p = Offset(center.x + kotlin.math.cos(angle).toFloat() * size.minDimension * .32f,
                     center.y + kotlin.math.sin(angle).toFloat() * size.minDimension * .32f)
-                drawCircle(if (pressed) Color.White else Color(0xFF69727B), radius = size.minDimension * .065f, center = p)
+                drawCircle(if (pressed) Color.White else Color(0xFF9BA1AA), radius = size.minDimension * .065f, center = p)
             }
         }
     }
@@ -396,8 +411,8 @@ private fun DirectionPad(modifier: Modifier, haptics: Boolean, transparent: Bool
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.fillMaxSize()) {
-            val fill = if (transparent) Color(0x77434E5A) else Color(0xFFD7DBDF)
-            val edge = if (transparent) Color.White.copy(alpha = .7f) else Color(0xFF7C858E)
+            val fill = if (transparent) Color(0x77434E5A) else Color(0xFF24272D)
+            val edge = if (transparent) Color.White.copy(alpha = .7f) else Color(0xFF69707A)
             val arm = size.minDimension * .32f
             val thickness = size.minDimension * .31f
             val cx = size.width / 2f
@@ -414,7 +429,7 @@ private fun DirectionPad(modifier: Modifier, haptics: Boolean, transparent: Bool
                 Triple(FlycastTouchId.RIGHT, Offset(cx + arm * .66f, cy), Offset(1f, 0f)),
             )
             arrows.forEach { (id, point, direction) ->
-                val tint = if (id in active) Color.White else Color(0xFF6D7680)
+                val tint = if (id in active) Color.White else Color(0xFF8D949E)
                 val length = size.minDimension * .08f
                 val wing = length * .68f
                 val path = Path().apply {
@@ -428,7 +443,7 @@ private fun DirectionPad(modifier: Modifier, haptics: Boolean, transparent: Bool
                 }
                 drawPath(path, tint)
             }
-            drawCircle(Color(0xFF89929B), size.minDimension * .075f, Offset(cx, cy))
+            drawCircle(Color(0xFF555C66), size.minDimension * .075f, Offset(cx, cy))
         }
     }
 }
@@ -470,16 +485,16 @@ private fun AnalogStick(modifier: Modifier, transparent: Boolean = false) {
         contentAlignment = Alignment.Center,
     ) {
         Canvas(Modifier.fillMaxSize()) {
-            val outer = if (transparent) Color(0x88404B56) else Color(0xFFD6DADF)
-            val edge = if (transparent) Color.White.copy(alpha = .78f) else Color(0xFF777F88)
+            val outer = if (transparent) Color(0x88404B56) else Color(0xFF202329)
+            val edge = if (transparent) Color.White.copy(alpha = .78f) else Color(0xFF69717B)
             drawCircle(outer, radius = size.minDimension * .49f)
             drawCircle(edge, radius = size.minDimension * .49f, style = Stroke(size.minDimension * .035f))
-            drawCircle(if (transparent) Color(0x99596570) else Color(0xFFB8BEC4), radius = size.minDimension * .36f)
+            drawCircle(if (transparent) Color(0x99596570) else Color(0xFF363A42), radius = size.minDimension * .36f)
             val knob = Offset(size.width / 2f + axis.x * size.minDimension * .17f, size.height / 2f + axis.y * size.minDimension * .17f)
-            drawCircle(if (transparent) Color(0xD0AEB5BC) else Color(0xFFE9ECEF), size.minDimension * .25f,
+            drawCircle(if (transparent) Color(0xD0AEB5BC) else Color(0xFF5A606A), size.minDimension * .25f,
                 Offset(knob.x, knob.y + size.minDimension * .015f))
-            drawCircle(Color.White.copy(alpha = .78f), size.minDimension * .25f, knob, style = Stroke(size.minDimension * .025f))
-            drawCircle(Color(0xFF8D969F).copy(alpha = .35f), size.minDimension * .16f, knob)
+            drawCircle(Color.White.copy(alpha = if (transparent) .78f else .30f), size.minDimension * .25f, knob, style = Stroke(size.minDimension * .025f))
+            drawCircle(Color.Black.copy(alpha = .28f), size.minDimension * .16f, knob)
         }
     }
 }

@@ -61,9 +61,12 @@ object Storage : SafGames(
         super.init(app)
     }
 
-    fun openForCore(path: String): OpenDisc? {
+    fun openForCore(
+        path: String,
+        onArchiveProgress: (gb.frame.DiscArchiveProgress) -> Unit = {},
+    ): OpenDisc? {
         val ext = fileName(path).substringAfterLast('.', "").lowercase()
-        val opened = open(path) ?: return null
+        val opened = open(path, onArchiveProgress = onArchiveProgress) ?: return null
         val src = File(opened.path)
         val parent = src.parentFile
         if (parent == null) return opened

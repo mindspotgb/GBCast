@@ -293,11 +293,17 @@ object GBCastBridge {
     fun biosPresent(): Boolean = DreamcastBios.present(biosDir(), "dc_boot.bin")
 
     /** Opens [safPath] and starts [NativeGLActivity]. [slot] loads that Flycast state after boot when auto-load is off. */
-    suspend fun launch(context: Context, safPath: String, slot: Int = -1, fresh: Boolean = false): String? {
+    suspend fun launch(
+        context: Context,
+        safPath: String,
+        slot: Int = -1,
+        fresh: Boolean = false,
+        onArchiveProgress: (gb.frame.DiscArchiveProgress) -> Unit = {},
+    ): String? {
         if (slot != -1 && slot !in 0..AUTO_SAVE_SLOT) {
             return "Save slot must be between 1 and ${SaveData.MANUAL_SAVE_STATE_SLOTS}."
         }
-        val opened = withContext(Dispatchers.IO) { Storage.openForCore(safPath) }
+        val opened = withContext(Dispatchers.IO) { Storage.openForCore(safPath, onArchiveProgress) }
             ?: return Storage.lastOpenError() ?: "Could not open this game. Check the folder permission and the disc files."
         queueRecommendedProfile(safPath)
         disc?.close()

@@ -61,6 +61,7 @@ import com.flycast.emulator.shell.GameIndex
 import com.flycast.emulator.shell.Storage
 import gb.frame.HomeHelpBar
 import gb.frame.Covers
+import gb.frame.DiscArchiveProgress
 import gb.frame.rememberAppIconPainter
 import gb.frame.CoverImageOptions
 import gb.frame.HomeQuitDialog
@@ -93,7 +94,7 @@ import kotlinx.coroutines.withContext
 fun LibraryScreen(
     onOpenSettings: (SettingsPage) -> Unit,
     onQuit: () -> Unit,
-    launch: suspend (String, Int, Boolean) -> String?,
+    launch: suspend (String, Int, Boolean, (DiscArchiveProgress) -> Unit) -> String?,
     onLaunchError: (String) -> Unit,
     visualCustomizationProductId: String? = null,
 ) {
@@ -147,6 +148,7 @@ fun LibraryScreen(
     var states by remember { mutableStateOf(GBCastBridge.lastStates) }
     var coverVersion by remember { mutableIntStateOf(0) }
     var openingGame by remember { mutableStateOf(false) }
+    var archiveProgress by remember { mutableStateOf<DiscArchiveProgress?>(null) }
     LifecycleResumeEffect(Unit) {
         refreshKey++
         onPauseOrDispose { }
@@ -218,10 +220,12 @@ fun LibraryScreen(
     fun showLaunchLoading(path: String, slot: Int, fresh: Boolean) {
         if (openingGame) return
         openingGame = true
+        archiveProgress = null
         LibraryView.lastGame = path
         MenuState.selected = null
         scope.launch {
-            val error = launch(path, slot, fresh)
+            val error = launch(path, slot, fresh) { progress -> archiveProgress = progress }
+            archiveProgress = null
             openingGame = false
             if (error != null) onLaunchError(error)
         }
@@ -312,7 +316,11 @@ fun LibraryScreen(
             onFocusChanged = { MenuState.menuHasFocus = it },
         )
         if (openingGame) {
-            LaunchLoadingOverlay("Preparing the disc image. A cached copy is created only when direct access is unavailable on this device.")
+            LaunchLoadingOverlay(
+                "The first opening of a large archive can take a few minutes. The screen will stay on while it loads.",
+                extractionProgress = archiveProgress?.fraction,
+                extractingArchive = archiveProgress != null,
+            )
         }
         visualCustomizationProductId?.let { VisualCustomizationPurchaseHost("GBCast", it) }
         gameMenu?.let { game ->

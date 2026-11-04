@@ -119,7 +119,7 @@ fun GBCastRoot(onQuit: () -> Unit) {
                             Screen.Library -> LibraryScreen(
                                 onOpenSettings = { settingsPage = it; screen = Screen.Settings },
                                 onQuit = onQuit,
-                                launch = { path, slot, fresh -> GBCastBridge.launch(ctx, path, slot, fresh) },
+                                launch = { path, slot, fresh, progress -> GBCastBridge.launch(ctx, path, slot, fresh, progress) },
                                 onLaunchError = { message -> scope.launch { snackbar.showSnackbar(message) } },
                                 visualCustomizationProductId = "gbcast_gold",
                             )

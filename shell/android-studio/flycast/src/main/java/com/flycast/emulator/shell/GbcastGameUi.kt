@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.flycast.emulator.emu.JNIdc
 import com.flycast.emulator.shell.ui.DreamcastControls
+import com.flycast.emulator.shell.ui.DreamcastTouchControls
 import com.flycast.emulator.shell.ui.GBCastTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -61,6 +62,8 @@ object GbcastGameUi {
 
     @JvmStatic var menuOwnsKeys: Boolean = false
     private var visible by mutableStateOf(false)
+    private var touchControlsVisibleState by mutableStateOf(false)
+    private var touchVideoAspectState by mutableStateOf(4f / 3f)
     private var compose: ComposeView? = null
     private var glView: View? = null
     private var attachedActivity: Activity? = null
@@ -79,6 +82,13 @@ object GbcastGameUi {
             setContent {
                 GBCastTheme {
                     androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+                        if (touchControlsVisibleState) {
+                            DreamcastTouchControls(
+                                videoAspectRatio = touchVideoAspectState,
+                                onMenu = { onAndroidBack(activity) },
+                                hapticsEnabled = DreamcastControls.touchHapticsEnabled,
+                            )
+                        }
                         com.flycast.emulator.shell.ui.GBCastGameplayOverlays { onAndroidBack(activity) }
                         if (visible) QuickMenu(activity)
                     }
@@ -112,10 +122,25 @@ object GbcastGameUi {
     fun detach(activity: Activity) {
         if (attachedActivity !== activity) return
         visible = false
+        touchControlsVisibleState = false
         menuOwnsKeys = false
         compose = null
         glView = null
         attachedActivity = null
+    }
+
+    /** GBFrame controls visibility policy; the Dreamcast skin itself stays app-specific. */
+    @JvmStatic
+    fun setTouchControlsVisible(visible: Boolean) {
+        touchControlsVisibleState = visible
+    }
+
+    /** Share the native game's target aspect with the GBFrame responsive layout. */
+    @JvmStatic
+    fun setTouchVideoAspect(aspect: Float) {
+        if (aspect.isFinite() && aspect in 1f..2.4f && kotlin.math.abs(touchVideoAspectState - aspect) > 0.001f) {
+            touchVideoAspectState = aspect
+        }
     }
 
     @JvmStatic
@@ -273,6 +298,7 @@ object GbcastGameUi {
                     GBCastBridge.setGameDisplay(currentGame, next)
                     tick++
                     setInt("config", "rend.ScreenStretching", 100)
+                    (activity as? com.flycast.emulator.NativeGLActivity)?.refreshTouchControlsLayout()
                 }
 
                 if ((displayMode == DisplayMode.Wide || displayMode == DisplayMode.Fullscreen) && JNIdc.hasWidescreenHack()) {

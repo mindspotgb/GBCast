@@ -147,6 +147,11 @@ public class VirtualJoystickDelegate implements TouchEventHandler
     @Override
     public boolean onTouchEvent(MotionEvent event, int width, int height)
     {
+        if (context instanceof NativeGLActivity && ((NativeGLActivity) context).usesComposeTouchControls()) {
+            if (((NativeGLActivity) context).usesNativeTouchMouse())
+                return touchMouseEvent(event);
+            return false;
+        }
         if (JNIdc.guiIsOpen())
             return touchMouseEvent(event);
         show();
@@ -271,6 +276,10 @@ public class VirtualJoystickDelegate implements TouchEventHandler
     public void show()
     {
         this.handler.removeCallbacks(hideVGamepadRunnable);
+        if (context instanceof NativeGLActivity && ((NativeGLActivity) context).usesComposeTouchControls()) {
+            VGamepad.hide();
+            return;
+        }
         gb.frame.TouchControlsMode mode = com.flycast.emulator.shell.ui.DreamcastControls.INSTANCE.getTouchControlsMode();
         if (!(context instanceof NativeGLActivity) || ((NativeGLActivity) context).areTouchControlsAllowed()) {
             VGamepad.show();

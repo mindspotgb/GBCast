@@ -24,6 +24,9 @@ import com.flycast.emulator.shell.ui.DreamcastControls;
 import gb.frame.Hotkeys;
 import gb.frame.TouchControlsMode;
 import com.flycast.emulator.periph.InputDeviceManager;
+import gb.frame.TouchControlsLayoutPlan;
+import gb.frame.TouchControlsLayoutPlanner;
+import gb.frame.TouchControlsPlacement;
 
 public final class NativeGLActivity extends BaseGLActivity {
 
@@ -66,6 +69,10 @@ public final class NativeGLActivity extends BaseGLActivity {
         mView = new NativeGLView(this);
         mLayout = new RelativeLayout(this);
         mLayout.addView(mView);
+        mLayout.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop)
+                refreshTouchControlsLayout();
+        });
 
         setContentView(mLayout);
         // Immersive from the first frame: waiting for the window focus showed the status bar while the game opened
@@ -191,14 +198,82 @@ public final class NativeGLActivity extends BaseGLActivity {
 
     /** Update the on-screen controls while a game is already running. */
     public void setTouchControlsVisible(boolean visible) {
-        if (mView == null) return;
-        if (visible) mView.showVGamepad();
-        else VGamepad.hide();
+        VGamepad.hide(); // Compose owns the touch skin; the native overlay remains disabled.
+        com.flycast.emulator.shell.GbcastGameUi.setTouchControlsVisible(visible);
+        refreshTouchControlsLayout();
     }
 
     /** Re-evaluate the current GBFrame mode after a preference changes in the quick menu. */
     public void refreshTouchControlsVisibility() {
         updateTouchControlsVisibility();
+    }
+
+    /** Recalculate the shared GBFrame layout after a screen-size or display-mode change. */
+    public void refreshTouchControlsLayout() {
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
+            runOnUiThread(this::refreshTouchControlsLayout);
+            return;
+        }
+        if (mLayout == null || mView == null) return;
+        int width = mLayout.getWidth();
+        int height = mLayout.getHeight();
+        if (width <= 0 || height <= 0) return;
+
+        float aspect = currentGameAspect(width, height);
+        boolean enabled = areTouchControlsAllowed();
+        TouchControlsLayoutPlan plan = TouchControlsLayoutPlanner.plan(width, height, aspect, enabled);
+        com.flycast.emulator.shell.GbcastGameUi.setTouchVideoAspect(aspect);
+
+        int nextWidth = Math.max(1, Math.round(plan.getVideo().getWidth()));
+        int nextHeight = Math.max(1, Math.round(plan.getVideo().getHeight()));
+        RelativeLayout.LayoutParams next;
+        if (plan.getPlacement() == TouchControlsPlacement.LANDSCAPE_SIDES) {
+            next = new RelativeLayout.LayoutParams(nextWidth, nextHeight);
+            next.addRule(RelativeLayout.CENTER_IN_PARENT);
+        } else if (plan.getPlacement() == TouchControlsPlacement.PORTRAIT_BOTTOM) {
+            next = new RelativeLayout.LayoutParams(nextWidth, nextHeight);
+            next.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            next.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        } else if (plan.getPlacement() == TouchControlsPlacement.FULLSCREEN_OVERLAY) {
+            next = new RelativeLayout.LayoutParams(nextWidth, nextHeight);
+            next.addRule(RelativeLayout.CENTER_IN_PARENT);
+        } else {
+            next = new RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            next.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            next.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        }
+        ViewGroup.LayoutParams currentRaw = mView.getLayoutParams();
+        if (currentRaw instanceof RelativeLayout.LayoutParams) {
+            RelativeLayout.LayoutParams current = (RelativeLayout.LayoutParams) currentRaw;
+            int[] rules = current.getRules();
+            int[] nextRules = next.getRules();
+            if (current.width == next.width && current.height == next.height &&
+                    current.leftMargin == next.leftMargin && current.topMargin == next.topMargin &&
+                    java.util.Arrays.equals(rules, nextRules)) return;
+        }
+        mView.setLayoutParams(next);
+    }
+
+    private float currentGameAspect(int width, int height) {
+        try {
+            boolean wide = com.flycast.emulator.emu.JNIdc.configGetBool("config", "rend.WideScreen");
+            if (com.flycast.emulator.emu.JNIdc.configGetBool("config", "rend.StretchToWindow") && width >= height)
+                return (float) width / (float) height;
+            return wide ? 16f / 9f : 4f / 3f;
+        } catch (RuntimeException | LinkageError ignored) {
+            // The first window layout may run before Flycast's native config is initialized.
+            return 4f / 3f;
+        }
+    }
+
+    /** Touch input is provided by GBFrame Compose; only Flycast's optional touch mouse remains native. */
+    public boolean usesComposeTouchControls() {
+        return true;
+    }
+
+    public boolean usesNativeTouchMouse() {
+        return com.flycast.emulator.emu.JNIdc.configGetInt("input", "device1") == 6; // MDT_Mouse
     }
 
     @Override

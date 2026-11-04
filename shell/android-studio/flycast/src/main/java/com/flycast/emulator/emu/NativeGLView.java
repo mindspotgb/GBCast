@@ -96,6 +96,11 @@ public class NativeGLView extends SurfaceView implements SurfaceHolder.Callback 
             InputDeviceManager.getInstance().mouseEvent(Math.round(event.getX()), Math.round(event.getY()), event.getButtonState());
             return true;
         }
+        if (getContext() instanceof com.flycast.emulator.NativeGLActivity) {
+            com.flycast.emulator.NativeGLActivity activity = (com.flycast.emulator.NativeGLActivity) getContext();
+            if (activity.usesComposeTouchControls() && !activity.usesNativeTouchMouse())
+                return false; // Controller touch targets are owned by the GBFrame Compose layer.
+        }
         if (vjoyDelegate != null && (event.getSource() & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN)
             return vjoyDelegate.onTouchEvent(event, getWidth(), getHeight());
         return false;

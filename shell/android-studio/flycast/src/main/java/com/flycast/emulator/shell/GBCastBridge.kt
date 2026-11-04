@@ -298,7 +298,7 @@ object GBCastBridge {
             return "Save slot must be between 1 and ${SaveData.MANUAL_SAVE_STATE_SLOTS}."
         }
         val opened = withContext(Dispatchers.IO) { Storage.openForCore(safPath) }
-            ?: return "Could not open this game. Check the folder permission and the disc files."
+            ?: return Storage.lastOpenError() ?: "Could not open this game. Check the folder permission and the disc files."
         queueRecommendedProfile(safPath)
         disc?.close()
         disc = opened

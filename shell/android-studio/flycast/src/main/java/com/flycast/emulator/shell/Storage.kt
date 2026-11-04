@@ -14,7 +14,11 @@ private object GamesFolder {
     var path: String = ""
 }
 
-object Storage : SafGames(GameIndex.extensions, { GamesFolder.path }) {
+object Storage : SafGames(
+    GameIndex.extensions,
+    { GamesFolder.path },
+    zipDiscExt = setOf("gdi", "cdi", "chd", "cue"),
+) {
     /** Import a user-selected SAF tree; the native core requires real local data paths. */
     fun importBiosFolder(uri: Uri, destination: java.io.File): Int {
         val root = requireNotNull(DocumentFile.fromTreeUri(app, uri)) { "Could not open BIOS folder" }

@@ -94,6 +94,10 @@ android {
         versionCode = gbcastBuild
         versionName = "$gbcastVersion (build $gbcastBuild)"
         vectorDrawables.useSupportLibrary = true
+        val gbChannel = providers.gradleProperty("gbChannel").getOrElse("github")
+        manifestPlaceholders["gbUpdateChannel"] = gbChannel
+        manifestPlaceholders["gbInstallPermission"] =
+            if (gbChannel == "play") "android.permission.INTERNET" else "android.permission.REQUEST_INSTALL_PACKAGES"
 
         externalNativeBuild {
             cmake {

@@ -352,46 +352,166 @@ void toggleServiceMode()
 	}
 }
 
+static ImU32 gamepadColor(int r, int g, int b, float alpha)
+{
+	return ImGui::ColorConvertFloat4ToU32(ImVec4(r / 255.f, g / 255.f, b / 255.f, alpha));
+}
+
+static void drawCenteredLabel(ImDrawList *drawList, const char *label, ImVec2 pos, ImVec2 size,
+		float alpha, float sizeFactor = 0.42f)
+{
+	ImFont *font = ImGui::GetFont();
+	if (font == nullptr || label == nullptr || label[0] == '\0')
+		return;
+	const float fontSize = std::min(size.x, size.y) * sizeFactor;
+	const ImVec2 textSize = font->CalcTextSizeA(fontSize, 10000.f, 0.f, label);
+	drawList->AddText(font, fontSize,
+		ImVec2(pos.x + (size.x - textSize.x) * 0.5f, pos.y + (size.y - textSize.y) * 0.5f),
+		gamepadColor(250, 252, 255, alpha), label);
+}
+
+static void drawFaceButton(ImDrawList *drawList, ImVec2 pos, ImVec2 size, const char *label,
+		int r, int g, int b, bool pressed, float alpha)
+{
+	const float radius = std::min(size.x, size.y) * 0.39f;
+	const ImVec2 center(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+	drawList->AddCircleFilled(ImVec2(center.x, center.y + radius * 0.12f), radius * 1.08f,
+		gamepadColor(3, 10, 20, alpha * 0.52f), 32);
+	const float light = pressed ? 1.14f : 1.f;
+	drawList->AddCircleFilled(center, radius,
+		gamepadColor(std::min(255, int(r * light)), std::min(255, int(g * light)),
+			std::min(255, int(b * light)), alpha), 32);
+	drawList->AddCircle(center, radius, gamepadColor(238, 245, 255, alpha * (pressed ? 0.92f : 0.58f)), 32,
+		std::max(1.f, radius * 0.075f));
+	drawList->AddCircleFilled(ImVec2(center.x - radius * 0.24f, center.y - radius * 0.3f), radius * 0.12f,
+		gamepadColor(255, 255, 255, alpha * 0.28f), 16);
+	drawCenteredLabel(drawList, label, pos, size, alpha, 0.38f);
+}
+
+static void drawDpadButton(ImDrawList *drawList, ImVec2 pos, ImVec2 size, ControlId id, bool pressed, float alpha)
+{
+	const float rounding = std::min(size.x, size.y) * 0.2f;
+	const ImU32 fill = gamepadColor(46, 57, 72, alpha * (pressed ? 1.f : 0.88f));
+	drawList->AddRectFilled(ImVec2(pos.x + 1.f, pos.y + 2.f), ImVec2(pos.x + size.x - 1.f, pos.y + size.y),
+		gamepadColor(4, 8, 16, alpha * 0.44f), rounding);
+	drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), fill, rounding);
+	drawList->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y),
+		gamepadColor(178, 195, 214, alpha * 0.62f), rounding, 0, std::max(1.f, size.x * 0.035f));
+	const float cx = pos.x + size.x * 0.5f;
+	const float cy = pos.y + size.y * 0.5f;
+	const float extent = std::min(size.x, size.y) * 0.22f;
+	ImVec2 a, b, c;
+	switch (id)
+	{
+	case Up:
+		a = ImVec2(cx, cy - extent); b = ImVec2(cx + extent * 0.78f, cy + extent * 0.62f); c = ImVec2(cx - extent * 0.78f, cy + extent * 0.62f); break;
+	case Down:
+		a = ImVec2(cx, cy + extent); b = ImVec2(cx - extent * 0.78f, cy - extent * 0.62f); c = ImVec2(cx + extent * 0.78f, cy - extent * 0.62f); break;
+	case Left:
+		a = ImVec2(cx - extent, cy); b = ImVec2(cx + extent * 0.62f, cy - extent * 0.78f); c = ImVec2(cx + extent * 0.62f, cy + extent * 0.78f); break;
+	default:
+		a = ImVec2(cx + extent, cy); b = ImVec2(cx - extent * 0.62f, cy + extent * 0.78f); c = ImVec2(cx - extent * 0.62f, cy - extent * 0.78f); break;
+	}
+	drawList->AddTriangleFilled(a, b, c, gamepadColor(226, 234, 243, alpha * (pressed ? 1.f : 0.8f)));
+}
+
 static void drawButtonDim(ImDrawList *drawList, const Control& control, int state)
 {
-	if (control.disabled)
+	if (control.disabled || AlphaTrans <= 0.f)
 		return;
-	float scale_h = settings.display.height / 480.f;
-	float offs_x = (settings.display.width - scale_h * 640.f) / 2.f;
+	const float scale_h = settings.display.height / 480.f;
+	const float offs_x = (settings.display.width - scale_h * 640.f) / 2.f;
 	ImVec2 pos = control.pos * scale_h;
-	ImVec2 size = control.size * scale_h;
+	const ImVec2 size = control.size * scale_h;
 	pos.x += offs_x;
-	ControlId controlId = static_cast<ControlId>(&control - &Controls[0]);
+	const ControlId controlId = static_cast<ControlId>(&control - &Controls[0]);
 	if (controlId == AnalogStick)
 		pos += StickPos * size;
 
-	float col = (0.5f - 0.25f * state / 255) * AlphaTrans;
-	float alpha = (100.f - config::VirtualGamepadTransparency) / 100.f * AlphaTrans;
-	ImVec4 color(col, col, col, alpha);
+	const float alpha = (100.f - config::VirtualGamepadTransparency) / 100.f * AlphaTrans * 0.9f;
+	const bool pressed = state < 128;
+	const float radius = std::min(size.x, size.y) * 0.5f;
+	const ImVec2 center(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+	const ImU32 shell = gamepadColor(26, 33, 45, alpha * 0.86f);
+	const ImU32 edge = gamepadColor(213, 225, 240, alpha * 0.58f);
 
-	const ImVec2* uv0 = &control.uv0;
-	const ImVec2* uv1 = &control.uv1;
-	if (serviceMode)
-		switch (controlId)
-		{
-		case A:
-			uv0 = &coinUV0;
-			uv1 = &coinUV1;
-			break;
-		case B:
-			uv0 = &serviceUV0;
-			uv1 = &serviceUV1;
-			break;
-		case X:
-			uv0 = &testUV0;
-			uv1 = &testUV1;
-			break;
-		default:
-			break;
-		}
+	if (serviceMode && (controlId == A || controlId == B || controlId == X))
+	{
+		const char *label = controlId == A ? "COIN" : controlId == B ? "SERVICE" : "TEST";
+		drawList->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), shell, radius * 0.36f);
+		drawList->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), edge, radius * 0.36f);
+		drawCenteredLabel(drawList, label, pos, size, alpha, 0.19f);
+		return;
+	}
 
-    ImguiVGamepadTexture tex;
-	tex.draw(drawList, pos, size, *uv0, *uv1, color);
+	switch (controlId)
+	{
+	case Left: case Up: case Right: case Down:
+		drawDpadButton(drawList, pos, size, controlId, pressed, alpha);
+		break;
+	case X: drawFaceButton(drawList, pos, size, "X", 35, 111, 220, pressed, alpha); break;
+	case Y: drawFaceButton(drawList, pos, size, "Y", 239, 193, 55, pressed, alpha); break;
+	case B: drawFaceButton(drawList, pos, size, "B", 225, 63, 65, pressed, alpha); break;
+	case A: drawFaceButton(drawList, pos, size, "A", 74, 190, 105, pressed, alpha); break;
+	case Start:
+	{
+		const ImVec2 end(pos.x + size.x, pos.y + size.y);
+		drawList->AddRectFilled(ImVec2(pos.x + 1.f, pos.y + 2.f), ImVec2(end.x + 1.f, end.y + 2.f),
+			gamepadColor(3, 9, 19, alpha * 0.55f), size.y * 0.48f);
+		drawList->AddRectFilled(pos, end, gamepadColor(58, 112, 205, alpha), size.y * 0.48f);
+		drawList->AddRect(pos, end, edge, size.y * 0.48f);
+		drawCenteredLabel(drawList, "START", pos, size, alpha, 0.32f);
+		break;
+	}
+	case LeftTrigger: case RightTrigger:
+	{
+		const ImVec2 end(pos.x + size.x, pos.y + size.y);
+		drawList->AddRectFilled(ImVec2(pos.x + 1.f, pos.y + 2.f), ImVec2(end.x + 1.f, end.y + 2.f),
+			gamepadColor(3, 9, 19, alpha * 0.48f), size.y * 0.28f);
+		drawList->AddRectFilled(pos, end, gamepadColor(76, 88, 105, alpha * (pressed ? 1.f : 0.9f)), size.y * 0.28f);
+		drawList->AddRect(pos, end, edge, size.y * 0.28f);
+		drawCenteredLabel(drawList, controlId == LeftTrigger ? "L" : "R", pos, size, alpha, 0.34f);
+		break;
+	}
+	case AnalogArea:
+		drawList->AddCircleFilled(center, radius * 0.96f, gamepadColor(22, 30, 43, alpha * 0.84f), 36);
+		drawList->AddCircle(center, radius * 0.96f, edge, 36, std::max(1.f, radius * 0.045f));
+		drawList->AddCircle(center, radius * 0.72f, gamepadColor(168, 186, 208, alpha * 0.4f), 36,
+			std::max(1.f, radius * 0.04f));
+		break;
+	case AnalogStick:
+		drawList->AddCircleFilled(ImVec2(center.x, center.y + radius * 0.12f), radius * 0.94f,
+			gamepadColor(4, 9, 18, alpha * 0.64f), 32);
+		drawList->AddCircleFilled(center, radius * 0.86f, gamepadColor(105, 121, 143, alpha), 32);
+		drawList->AddCircle(center, radius * 0.86f, edge, 32, std::max(1.f, radius * 0.08f));
+		drawList->AddCircle(center, radius * 0.55f, gamepadColor(215, 225, 238, alpha * 0.44f), 32,
+			std::max(1.f, radius * 0.035f));
+		break;
+	case FastForward:
+	{
+		drawList->AddCircleFilled(center, radius * 0.9f, shell, 28);
+		drawList->AddCircle(center, radius * 0.9f, edge, 28, std::max(1.f, radius * 0.06f));
+		const float ex = radius * 0.38f, ey = radius * 0.48f;
+		drawList->AddTriangleFilled(ImVec2(center.x - ex, center.y - ey), ImVec2(center.x, center.y),
+			ImVec2(center.x - ex, center.y + ey), gamepadColor(255, 255, 255, alpha));
+		drawList->AddTriangleFilled(ImVec2(center.x + ex * 0.1f, center.y - ey), ImVec2(center.x + ex * 1.1f, center.y),
+			ImVec2(center.x + ex * 0.1f, center.y + ey), gamepadColor(255, 255, 255, alpha));
+		break;
+	}
+	case Btn4: case Btn5:
+		drawFaceButton(drawList, pos, size, controlId == Btn4 ? "C" : "Z", 109, 119, 132, pressed, alpha);
+		break;
+	case ServiceMode: case InsertCard:
+	{
+		const ImVec2 end(pos.x + size.x, pos.y + size.y);
+		drawList->AddRectFilled(pos, end, shell, radius * 0.35f);
+		drawList->AddRect(pos, end, edge, radius * 0.35f);
+		drawCenteredLabel(drawList, controlId == ServiceMode ? "MODE" : "CARD", pos, size, alpha, 0.2f);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 static void drawButton(ImDrawList *drawList, const Control& control, bool state) {

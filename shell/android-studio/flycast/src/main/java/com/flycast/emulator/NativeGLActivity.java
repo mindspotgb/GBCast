@@ -178,7 +178,7 @@ public final class NativeGLActivity extends BaseGLActivity {
         return false;
     }
 
-    /** Auto hides on-screen controls for physical gamepads; Show explicitly overrides detection. */
+    /** Auto hides on-screen controls for physical gamepads; On and Off explicitly override detection. */
     private void updateTouchControlsVisibility() {
         setTouchControlsVisible(areTouchControlsAllowed());
     }
@@ -186,7 +186,7 @@ public final class NativeGLActivity extends BaseGLActivity {
     /** Whether the current policy permits the virtual controls to appear. */
     public boolean areTouchControlsAllowed() {
         TouchControlsMode mode = DreamcastControls.INSTANCE.getTouchControlsMode();
-        return mode == TouchControlsMode.SHOW || (mode == TouchControlsMode.AUTO && !hasPhysicalGamepad());
+        return mode == TouchControlsMode.ON || (mode == TouchControlsMode.AUTO && !hasPhysicalGamepad());
     }
 
     /** Update the on-screen controls while a game is already running. */

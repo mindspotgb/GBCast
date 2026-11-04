@@ -111,9 +111,12 @@ object DreamcastControls : ControlsHost {
         keyMap = readKeyMap()
         storedHotkeys = readHotkeys()
         ffToggleState = prefs.getBoolean(PREF_FF_TOGGLE, false)
-        touchState = runCatching {
-            TouchControlsMode.valueOf(prefs.getString(PREF_TOUCH_MODE, TouchControlsMode.AUTO.name) ?: TouchControlsMode.AUTO.name)
-        }.getOrDefault(TouchControlsMode.AUTO)
+        val storedTouchMode = prefs.getString(PREF_TOUCH_MODE, TouchControlsMode.AUTO.name) ?: TouchControlsMode.AUTO.name
+        touchState = when (storedTouchMode) {
+            "SHOW" -> TouchControlsMode.ON
+            else -> runCatching { TouchControlsMode.valueOf(storedTouchMode) }.getOrDefault(TouchControlsMode.AUTO)
+        }
+        if (storedTouchMode == "SHOW") prefs.edit().putString(PREF_TOUCH_MODE, TouchControlsMode.ON.name).apply()
         touchHapticsState = prefs.getBoolean(PREF_TOUCH_HAPTICS, true)
     }
 

@@ -1,7 +1,5 @@
 package com.flycast.emulator.shell.ui
 
-import android.content.pm.ApplicationInfo
-
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -72,10 +71,13 @@ import gb.frame.homeQuitKeys
 import gb.frame.HomeActions
 import gb.frame.HomeGame
 import gb.frame.HomeLibrary
+import gb.frame.HomeStyle
+import gb.frame.LibraryWatermark
 import gb.frame.MobileLibraryContent
 import gb.frame.MobileLibraryNavigation
 import gb.frame.MobileLibraryPage
 import gb.frame.rememberMobileLibraryState
+import gb.frame.isMobileLibraryLayout
 import gb.frame.HomeMenuItem
 import gb.frame.HomeMenuPanel
 import gb.frame.HomeTheme
@@ -215,8 +217,7 @@ fun LibraryScreen(
             if (gameMenu != null) {
                 gameMenu = null
                 true
-            } else if (!menuOpen && mobileState.page != MobileLibraryPage.Library) {
-                mobileState.page = MobileLibraryPage.Library
+            } else if (!menuOpen && mobileState.returnToLibrary()) {
                 true
             } else {
                 false
@@ -267,8 +268,7 @@ fun LibraryScreen(
             openingGame
         }.homeQuitKeys(onQuit),
     ) {
-        val mobileLayout = (ctx.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0 &&
-            maxWidth < 600.dp && maxWidth < maxHeight
+        val mobileLayout = isMobileLibraryLayout(maxWidth, maxHeight)
         Column(
             Modifier.fillMaxSize().then(if (fullscreen) Modifier.padding(horizontal = 10.dp, vertical = 8.dp) else Modifier.safeDrawingPadding().padding(12.dp)),
             verticalArrangement = Arrangement.spacedBy(if (fullscreen) 0.dp else 12.dp),
@@ -286,10 +286,23 @@ fun LibraryScreen(
                 )
             }
             Box(Modifier.fillMaxWidth().weight(1f)) {
+                // Dreamcast logo watermark supplied for the library background.
+                if (!mobileLayout || mobileState.page != MobileLibraryPage.Library ||
+                    style != HomeStyle.Showcase || empty != null) {
+                    LibraryWatermark(
+                        painter = painterResource(R.drawable.dreamcast_logo_watermark),
+                        modifier = Modifier.align(Alignment.Center)
+                            .fillMaxWidth(.48f)
+                            .fillMaxHeight(.72f),
+                    )
+                }
                 if (mobileLayout) {
                     MobileLibraryContent(mobileState, style, homeGames, entries, actions, coverVersion, empty,
                         refocus = MenuState.refocus.intValue, fullscreen = fullscreen,
-                        focusEnabled = !menuOpen && gameMenu == null)
+                        focusEnabled = !menuOpen && gameMenu == null,
+                        showcaseWatermark = { modifier ->
+                            LibraryWatermark(painterResource(R.drawable.dreamcast_logo_watermark), modifier)
+                        })
                 } else HomeLibrary(
                     style,
                     homeGames,

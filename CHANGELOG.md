@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Default widescreen game hacks to Off and route all Android in-game menus through GBFrame, disabling Flycast's native menu entry points.
+- Add the Dreamcast logo as a subtle watermark in the game library.
 
 ## 1.0
 - First standalone Android release. Includes the Dreamcast and arcade core, GLES and Vulkan rendering, GBFrame library and menus, per-game profiles, cheats, save states, and RetroAchievements.

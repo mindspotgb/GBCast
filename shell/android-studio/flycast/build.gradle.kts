@@ -110,8 +110,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // Use the permanent key for both variants whenever it is configured, so local debug APKs
-    // can update release installs without uninstalling the app or losing its data.
+    // GBFrame CONVENTIONS.md "Signing": release uses the permanent key; debug is always the side-by-side
+    // "GBCast Dev" (app.gbcast.emulator.dev) signed with the debug key, so the two never replace each other.
     val localBuildProperties = Properties().apply {
         rootProject.file("local.properties").takeIf { it.isFile }?.inputStream()?.use { load(it) }
     }
@@ -131,15 +131,11 @@ android {
     }
 
     signingConfigs {
+        // The repository's Android debug keystore: the installed "GBCast Dev" is signed with it, so a debug build
+        // always updates it in place (with the permanent key configured, debug used to be signed with it and lose the
+        // .dev suffix, replacing the release install)
         getByName("debug") {
-            if (releaseKey != null) {
-                storeFile = releaseKey
-                storePassword = releaseKeyPassword
-                keyAlias = "gbcast"
-                keyPassword = releaseKeyPassword
-            } else {
-                storeFile = file("../debug.keystore")
-            }
+            storeFile = file("../debug.keystore")
         }
         // CI decodes GBCAST_KEYSTORE_BASE64 to GBCAST_KEYSTORE_FILE; local builds point it at the owner's copy.
         // Without the permanent key the APK becomes a side-by-side "GBCast Dev" (see defaultConfig below).
@@ -171,9 +167,14 @@ android {
         debug {
             // GBCast targets the ARM64 Android devices used for development and distribution.
             ndk.abiFilters += "arm64-v8a"
+            if (releaseKey != null) applicationIdSuffix = ".dev" // keyless builds already get it from defaultConfig
+            manifestPlaceholders["appLabel"] = "GBCast Dev"
             signingConfig = signingConfigs.getByName("debug")
+            // Native code writes the perf log and PGO data to Android/media/<installed package> (gb_native.cmake)
+            externalNativeBuild { cmake { arguments += "-DGB_APP_ID_SUFFIX=.dev" } }
         }
         release {
+            externalNativeBuild { cmake { arguments += "-DGB_APP_ID_SUFFIX=${if (releaseKey == null) ".dev" else ""}" } }
             // GBCast targets modern 64-bit Android hardware only.
             ndk.abiFilters += "arm64-v8a"
             isMinifyEnabled = true
